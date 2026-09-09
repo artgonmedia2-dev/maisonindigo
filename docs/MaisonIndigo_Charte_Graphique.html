@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maison Indigo — Charte graphique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo:#1B2A4A;
+    --indigo-deep:#0F1B33;
+    --stone:#4F6D9A;
+    --ecru:#F4EFE6;
+    --fil:#8A8F98;
+    --charbon:#141414;
+    --ocre:#D9822B;
+    --vert:#2E7D5B;
+    --blanc:#FFFFFF;
+    --display:'Cormorant Garamond',Georgia,serif;
+    --text:'Inter',system-ui,sans-serif;
+    --arabic:'IBM Plex Sans Arabic',system-ui,sans-serif;
+    --twill:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 2px,transparent 2px 6px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{font-family:var(--text);color:var(--charbon);background:var(--ecru);line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--indigo);outline-offset:3px}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+  section{padding:88px 0}
+  h2{font-family:var(--display);font-weight:600;font-size:clamp(32px,3.8vw,46px);line-height:1.05;margin-bottom:12px}
+  .lead{max-width:60ch;color:#3b3f47;font-size:17px;margin-bottom:44px}
+  h3{font-family:var(--display);font-weight:600;font-size:24px;margin-bottom:8px}
+  p{max-width:68ch}
+
+  /* stitch rule */
+  .stitch{height:0;border-top:2px dashed var(--ocre);opacity:.9;margin:0}
+
+  /* ---------- HERO ---------- */
+  .hero{background:var(--indigo);background-image:var(--twill);color:var(--ecru);padding:72px 0 64px;position:relative;overflow:hidden}
+  .hero .wrap{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end}
+  .kicker{font-size:14px;color:#B9C4D9;margin-bottom:24px}
+  .wordmark{font-family:var(--display);font-weight:600;line-height:.95;display:inline-flex;flex-direction:column;align-items:flex-start;white-space:nowrap}
+  .wordmark .m{font-size:.28em;letter-spacing:.32em;font-weight:500;padding-left:.06em}
+  .wordmark .s{width:100%;border-top:.03em dashed var(--ocre);margin:.08em 0 .06em}
+  .wordmark .i{font-size:1em;letter-spacing:.06em}
+  .wordmark.xl{font-size:clamp(88px,19vw,220px)}
+  .tag{font-family:var(--display);font-weight:500;font-style:italic;font-size:clamp(22px,2.8vw,34px);margin-top:28px;color:var(--ecru)}
+  .tag-ar{font-family:var(--arabic);font-weight:400;font-size:clamp(18px,2.2vw,26px);color:#B9C4D9;margin-top:6px;direction:rtl;text-align:left}
+  .mono{width:120px;height:120px;background:var(--ecru);color:var(--indigo);clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:56px;letter-spacing:-.04em;position:relative}
+  .mono::after{content:"";position:absolute;inset:9px;border:1.5px dashed var(--ocre);clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+  .hero-meta{position:absolute;right:32px;top:28px;font-size:13px;color:#B9C4D9}
+
+  /* ---------- LOGO ---------- */
+  .logo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .tile{aspect-ratio:1/1;display:grid;place-items:center;position:relative}
+  .tile .wordmark{font-size:64px}
+  .tile figcaption{position:absolute;left:14px;bottom:12px;font-size:12px;opacity:.75}
+  .t1{background:var(--ecru);color:var(--indigo);border:1px solid #DDD6C8}
+  .t2{background:var(--indigo);background-image:var(--twill);color:var(--ecru)}
+  .t3{background:#fff;color:var(--charbon);border:1px solid #E3E3E3}
+  .t3 .wordmark .s{border-color:var(--charbon)}
+  .t4{background:var(--charbon);color:#fff}
+  .t4 .wordmark .s{border-color:#fff}
+  .rules{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:44px}
+  .rules p{color:#3b3f47;font-size:15px}
+  .clear{display:flex;gap:20px;align-items:center;margin-top:16px}
+  .clearbox{border:1px dashed var(--stone);padding:22px 28px;display:inline-block}
+  .clearbox .wordmark{font-size:48px;color:var(--indigo)}
+
+  /* ---------- PALETTE ---------- */
+  .palette{background:var(--indigo);background-image:var(--twill);color:var(--ecru)}
+  .palette .lead{color:#B9C4D9}
+  .swatches{display:grid;grid-template-columns:repeat(8,1fr);gap:10px}
+  .sw{height:180px;padding:14px;display:flex;flex-direction:column;justify-content:flex-end;font-size:13px;line-height:1.35;border:1px solid rgba(255,255,255,.08)}
+  .sw b{display:block;font-family:var(--display);font-size:15px;margin-bottom:2px}
+  .sw small{opacity:.8}
+  .sw.light{color:var(--charbon)}
+  .ratio{margin-top:36px}
+  .ratio-bar{display:flex;height:22px;overflow:hidden}
+  .ratio-bar span{display:block;height:100%}
+  .ratio-legend{display:flex;gap:28px;margin-top:10px;font-size:13px;color:#B9C4D9;flex-wrap:wrap}
+  .ratio-legend i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+
+  /* ---------- TYPO ---------- */
+  .type-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:56px;align-items:start}
+  .specimen{border-top:1px solid #D9D2C4;padding-top:20px;margin-bottom:36px}
+  .specimen .role{font-size:13px;color:var(--fil);margin-bottom:10px}
+  .specimen .big{font-family:var(--display);font-weight:600;font-size:64px;letter-spacing:-.01em;line-height:1;color:var(--indigo)}
+  .specimen .body{font-size:17px;line-height:1.55;max-width:52ch}
+  .specimen .ar{font-family:var(--arabic);font-size:30px;font-weight:600;direction:rtl;text-align:right;color:var(--indigo);line-height:1.4}
+  .scale{width:100%;border-collapse:collapse;font-size:14px}
+  .scale td{padding:12px 0;border-bottom:1px solid #D9D2C4;vertical-align:baseline}
+  .scale td:first-child{color:var(--fil);width:90px}
+  .scale td:last-child{text-align:right;color:var(--fil)}
+  .s-h1{font-family:var(--display);font-weight:600;font-size:44px;line-height:48px}
+  .s-h2{font-family:var(--display);font-weight:600;font-size:32px;line-height:36px}
+  .s-h3{font-family:var(--display);font-weight:500;font-size:22px;line-height:26px}
+  .s-body{font-size:16px;line-height:24px}
+  .s-small{font-size:13px;line-height:18px}
+  .price{font-variant-numeric:tabular-nums;font-weight:600}
+
+  /* ---------- COMPOSANTS ---------- */
+  .comp{background:#fff}
+  .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+  .btn{font-family:var(--text);font-weight:600;font-size:15px;padding:14px 24px;border:2px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:10px;line-height:1}
+  .btn-primary{background:var(--indigo);color:#fff}
+  .btn-primary:hover{background:var(--indigo-deep)}
+  .btn-outline{background:transparent;color:var(--indigo);border-color:var(--indigo)}
+  .btn-outline:hover{background:var(--ecru)}
+  .btn-ghost{background:transparent;color:var(--stone);padding-left:0;padding-right:0}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:14px 0 28px}
+  .patch{display:inline-block;padding:6px 10px;font-size:12px;font-weight:600;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+  .patch-new{background:var(--indigo);color:#fff}
+  .patch-promo{background:var(--ocre);color:#fff}
+  .patch-best{background:var(--ecru);color:var(--indigo);outline:1px solid var(--indigo);outline-offset:-1px}
+  .patch-stock{background:#E6F2EC;color:var(--vert)}
+  .sizes{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 24px}
+  .size{width:52px;height:44px;border:1.5px solid #CFCAC0;display:grid;place-items:center;font-weight:500;font-size:14px;background:#fff}
+  .size.on{border-color:var(--indigo);background:var(--indigo);color:#fff}
+  .size.off{color:#BDB8AE;text-decoration:line-through;border-style:dashed}
+  .card{border:1px solid #E3DED3;background:#fff;max-width:340px}
+  .card .img{aspect-ratio:4/5;background:var(--indigo);background-image:var(--twill);position:relative;display:grid;place-items:center}
+  .card .img .patch{position:absolute;left:12px;top:12px}
+  .card .img .leg{width:34%;height:82%;background:var(--stone);opacity:.55;clip-path:polygon(0 0,100% 0,88% 100%,12% 100%)}
+  .card .info{padding:16px}
+  .card .name{font-family:var(--display);font-weight:700;font-size:17px;color:var(--indigo)}
+  .card .sub{font-size:13px;color:var(--fil);margin:2px 0 10px}
+  .card .pr{display:flex;gap:10px;align-items:baseline}
+  .card .pr s{color:var(--fil);font-weight:400;font-size:14px}
+  .card .pr .price{font-size:18px;color:var(--charbon)}
+  .note{font-size:14px;color:#3b3f47;max-width:44ch;margin-top:20px}
+  .note b{color:var(--charbon)}
+
+  /* ---------- VOIX ---------- */
+  .voice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  .bubble{background:#fff;border:1px solid #E3DED3;padding:24px 26px;position:relative}
+  .bubble .ctx{font-size:13px;color:var(--fil);margin-bottom:10px}
+  .bubble .q{font-size:17px;line-height:1.5;color:var(--charbon)}
+  .bubble .q .ar{font-family:var(--arabic);direction:rtl;unicode-bidi:embed}
+  .bubble .why{margin-top:14px;padding-top:12px;border-top:1px dashed #D9D2C4;font-size:13px;color:#3b3f47}
+  .dos{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:40px}
+  .dos ul{list-style:none}
+  .dos li{padding:10px 0 10px 28px;border-bottom:1px solid #D9D2C4;font-size:15px;position:relative}
+  .dos li::before{content:"";position:absolute;left:0;top:16px;width:14px;height:14px}
+  .ok li::before{background:var(--vert);clip-path:polygon(0 50%,35% 100%,100% 15%,88% 0,35% 72%,12% 38%)}
+  .ko li::before{background:var(--ocre);clip-path:polygon(15% 0,50% 35%,85% 0,100% 15%,65% 50%,100% 85%,85% 100%,50% 65%,15% 100%,0 85%,35% 50%,0 15%)}
+
+  /* ---------- APPLICATIONS ---------- */
+  .apps{background:var(--indigo);background-image:var(--twill);color:var(--ecru)}
+  .apps .lead{color:#B9C4D9}
+  .app-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start}
+  .label{background:var(--ecru);color:var(--indigo);padding:22px 20px;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);position:relative}
+  .label::after{content:"";position:absolute;inset:8px;border:1.5px dashed var(--ocre);clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);pointer-events:none}
+  .label .wordmark{font-size:44px}
+  .label .meta{display:flex;justify-content:space-between;margin-top:14px;font-size:12px;color:#3b3f47}
+  .label .meta b{font-size:22px;font-family:var(--display);color:var(--indigo);display:block}
+  .story{aspect-ratio:9/16;background:var(--ecru);color:var(--indigo);padding:20px;display:flex;flex-direction:column;justify-content:space-between;max-width:240px;position:relative;overflow:hidden}
+  .story .denim{position:absolute;inset:auto 0 0 0;height:58%;background:var(--indigo);background-image:var(--twill)}
+  .story .denim::before{content:"";position:absolute;left:14%;top:0;bottom:0;width:0;border-left:2px dashed var(--ocre)}
+  .story .top{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;font-size:12px}
+  .story .top .wordmark{font-size:26px}
+  .story .bot{position:relative;z-index:1;color:var(--ecru)}
+  .story .bot h4{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.05;margin-bottom:8px}
+  .story .bot p{font-size:13px;color:#B9C4D9;max-width:none}
+  .story .bot .btn{margin-top:14px;background:var(--ecru);color:var(--indigo);font-size:13px;padding:10px 14px}
+  .card-thanks{background:#fff;color:var(--charbon);padding:24px;max-width:300px;position:relative}
+  .card-thanks::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--indigo)}
+  .card-thanks h4{font-family:var(--display);font-size:22px;color:var(--indigo);margin-bottom:8px}
+  .card-thanks p{font-size:14px;line-height:1.55;max-width:none}
+  .card-thanks .code{margin-top:14px;border:1.5px dashed var(--ocre);padding:10px 12px;font-weight:600;letter-spacing:.06em;display:inline-block}
+  .app-cap{font-size:13px;color:#B9C4D9;margin-top:12px}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:40px 0;font-size:13px;color:var(--fil);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+  @media (max-width:900px){
+    .hero .wrap{grid-template-columns:1fr}
+    .mono{width:88px;height:88px;font-size:52px}
+    .logo-grid{grid-template-columns:repeat(2,1fr)}
+    .rules,.type-grid,.comp-grid,.voice-grid,.dos{grid-template-columns:1fr}
+    .swatches{grid-template-columns:repeat(4,1fr)}
+    .app-grid{grid-template-columns:1fr}
+    section{padding:60px 0}
+    .wrap{padding:0 20px}
+    .hero-meta{position:static;margin-bottom:20px}
+  }
+  @media (max-width:520px){.swatches{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-meta">Charte graphique v2.0 — septembre 2026</div>
+  <div class="wrap">
+    <div>
+      <p class="kicker">Maison marocaine de denim.</p>
+      <div class="wordmark xl" aria-label="Maison Indigo"><span class="m">Maison</span><span class="s"></span><span class="i">Indigo</span></div>
+      <p class="tag">Le bleu, bien coupé.</p>
+      <p class="tag-ar" lang="ar">الأزرق، مفصّل على قدّكم</p>
+    </div>
+    <div class="mono" aria-label="Monogramme MI">MI</div>
+  </div>
+</header>
+
+<!-- ================= LOGO ================= -->
+<section id="logo">
+  <div class="wrap">
+    <h2>Le logo</h2>
+    <p class="lead">La maison — l'atelier, le savoir-faire — et l'indigo, la teinture même du jean. Le wordmark en Cormorant Garamond se lit sur deux lignes : « Maison » en petites capitales espacées, « Indigo » en grand. Un trait de surpiqûre ocre relie les deux. Le monogramme MI, dans un carré aux coins coupés, rappelle la patte cuir au dos d'un jean.</p>
+
+    <div class="logo-grid">
+      <figure class="tile t1"><div class="wordmark"><span class="m">Maison</span><span class="s"></span><span class="i">Indigo</span></div><figcaption>Indigo sur écru — usage principal</figcaption></figure>
+      <figure class="tile t2"><div class="wordmark"><span class="m">Maison</span><span class="s"></span><span class="i">Indigo</span></div><figcaption>Écru sur indigo — fonds denim, packaging</figcaption></figure>
+      <figure class="tile t3"><div class="wordmark"><span class="m">Maison</span><span class="s"></span><span class="i">Indigo</span></div><figcaption>Noir monochrome — factures, documents</figcaption></figure>
+      <figure class="tile t4"><div class="wordmark"><span class="m">Maison</span><span class="s"></span><span class="i">Indigo</span></div><figcaption>Blanc monochrome — vidéo, photo sombre</figcaption></figure>
+    </div>
+
+    <div class="rules">
+      <div>
+        <h3>Zone de protection</h3>
+        <p>La hauteur du « I » d'Indigo, libre sur les quatre côtés. Aucun texte, photo ou motif ne pénètre cette zone.</p>
+        <div class="clear"><div class="clearbox"><div class="wordmark"><span class="m">Maison</span><span class="s"></span><span class="i">Indigo</span></div></div></div>
+      </div>
+      <div>
+        <h3>Tailles et usages</h3>
+        <p>Taille minimale : 32 px de large sur écran, 20 mm à l'impression. En dessous de 48 px, utiliser le monogramme MI. En monochrome, la surpiqûre prend la couleur du texte.</p>
+        <p style="margin-top:12px">Ne jamais : étirer, incliner, ajouter une ombre, mettre les deux mots sur une seule ligne, changer la couleur de la surpiqûre, ou écrire le logo en bas de casse.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="stitch">
+
+<!-- ================= PALETTE ================= -->
+<section class="palette" id="couleurs">
+  <div class="wrap">
+    <h2>Les couleurs</h2>
+    <p class="lead">Une palette tirée du produit : la toile indigo, le fil de couture, le rivet cuivré, l'étiquette écrue. L'indigo porte la marque ; l'écru est le papier ; l'ocre ne dépasse jamais 10 % d'une composition.</p>
+
+    <div class="swatches">
+      <div class="sw" style="background:#1B2A4A"><b>Indigo Maison</b><small>#1B2A4A</small><small>Logo, titres, boutons</small></div>
+      <div class="sw" style="background:#0F1B33"><b>Indigo Nuit</b><small>#0F1B33</small><small>Fonds premium, packaging</small></div>
+      <div class="sw" style="background:#4F6D9A"><b>Bleu Stone</b><small>#4F6D9A</small><small>Liens, hover, badges</small></div>
+      <div class="sw light" style="background:#F4EFE6"><b>Écru Denim</b><small>#F4EFE6</small><small>Fonds, packaging</small></div>
+      <div class="sw" style="background:#8A8F98"><b>Gris Fil</b><small>#8A8F98</small><small>Textes secondaires</small></div>
+      <div class="sw" style="background:#141414"><b>Noir Charbon</b><small>#141414</small><small>Corps de texte</small></div>
+      <div class="sw" style="background:#D9822B"><b>Ocre Couture</b><small>#D9822B</small><small>Surpiqûre, éditions limitées</small></div>
+      <div class="sw" style="background:#2E7D5B"><b>Vert Validé</b><small>#2E7D5B</small><small>Stock, succès</small></div>
+    </div>
+
+    <div class="ratio">
+      <h3>Proportions recommandées</h3>
+      <div class="ratio-bar" aria-hidden="true">
+        <span style="width:45%;background:#F4EFE6"></span>
+        <span style="width:30%;background:#1B2A4A;border-left:1px solid rgba(255,255,255,.2)"></span>
+        <span style="width:12%;background:#4F6D9A"></span>
+        <span style="width:6%;background:#8A8F98"></span>
+        <span style="width:5%;background:#D9822B"></span>
+        <span style="width:2%;background:#2E7D5B"></span>
+      </div>
+      <div class="ratio-legend">
+        <span><i style="background:#F4EFE6"></i>Écru 45 %</span>
+        <span><i style="background:#1B2A4A;outline:1px solid rgba(255,255,255,.3)"></i>Indigo 30 %</span>
+        <span><i style="background:#4F6D9A"></i>Stone 12 %</span>
+        <span><i style="background:#8A8F98"></i>Gris 6 %</span>
+        <span><i style="background:#D9822B"></i>Ocre 5 %</span>
+        <span><i style="background:#2E7D5B"></i>Vert 2 %</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TYPO ================= -->
+<section id="typo">
+  <div class="wrap">
+    <h2>La typographie</h2>
+    <p class="lead">Un serif et un sans, un rôle chacun. Cormorant Garamond pour ce qui doit être vu : logo, titres, prix mis en avant. Inter pour ce qui doit être lu. IBM Plex Sans Arabic accompagne Inter pour l'arabe, avec des graisses équivalentes.</p>
+
+    <div class="type-grid">
+      <div>
+        <div class="specimen">
+          <div class="role">Cormorant Garamond 600 — titres, logo, prix mis en avant</div>
+          <div class="big">Le bleu,<br>bien coupé.</div>
+        </div>
+        <div class="specimen">
+          <div class="role">Inter 400 / 500 — corps, fiches produit, e-mails</div>
+          <p class="body">Coupe droite, taille mi-haute, denim japonais 13 oz avec 2 % d'élasthanne. Le modèle mesure 1,80 m et porte la taille 32 en longueur 32. Entre deux tailles, choisissez la plus petite : le tissu se détend légèrement.</p>
+        </div>
+        <div class="specimen">
+          <div class="role">IBM Plex Sans Arabic 600 — Darija, packaging, réseaux</div>
+          <p class="ar" lang="ar">جينز على قدّكم، بلا ما تقلق على الطول.</p>
+        </div>
+      </div>
+
+      <div>
+        <h3>Échelle web</h3>
+        <table class="scale">
+          <tr><td>H1</td><td class="s-h1">Nouveautés</td><td>44 / 48</td></tr>
+          <tr><td>H2</td><td class="s-h2">Coupes femme</td><td>32 / 36</td></tr>
+          <tr><td>H3</td><td class="s-h3">Wide Leg Stone</td><td>22 / 26</td></tr>
+          <tr><td>Body</td><td class="s-body">Livraison 24–48 h à Casablanca, Rabat, Tanger.</td><td>16 / 24</td></tr>
+          <tr><td>Prix</td><td class="s-body price">499,00 dh</td><td>16 tabulaire</td></tr>
+          <tr><td>Small</td><td class="s-small">Échange de taille offert sous 14 jours.</td><td>13 / 18</td></tr>
+        </table>
+        <p class="note">Les prix utilisent toujours les chiffres tabulaires d'Inter pour s'aligner dans les listes. Pas de capitales sur les libellés courants : « Nouveautés », pas « NOUVEAUTÉS ». Les capitales espacées sont réservées au logo et aux petits libellés (badges, « Maison »).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="stitch">
+
+<!-- ================= COMPOSANTS ================= -->
+<section class="comp" id="ui">
+  <div class="wrap">
+    <h2>Composants boutique</h2>
+    <p class="lead">Les briques Shopify. Angles vifs partout sauf sur les badges « patch », coupés en biais comme une étiquette cousue. Un seul bouton indigo par écran, beaucoup d'air autour.</p>
+
+    <div class="comp-grid">
+      <div>
+        <h3>Boutons</h3>
+        <div class="row">
+          <button class="btn btn-primary">Ajouter au panier</button>
+          <button class="btn btn-outline">Trouver ma taille</button>
+          <button class="btn btn-ghost">Guide des mesures</button>
+        </div>
+
+        <h3>Badges patch</h3>
+        <div class="row">
+          <span class="patch patch-new">Nouveau</span>
+          <span class="patch patch-promo">Édition limitée</span>
+          <span class="patch patch-best">Atelier</span>
+          <span class="patch patch-stock">En stock</span>
+        </div>
+
+        <h3>Sélecteur de taille</h3>
+        <div class="sizes">
+          <span class="size">28</span><span class="size">30</span><span class="size on">32</span><span class="size">34</span><span class="size off">36</span><span class="size">38</span>
+        </div>
+        <p class="note"><b>Règle :</b> une taille en rupture reste visible, barrée et en pointillé, avec « Me prévenir ». Ne jamais la masquer : la profondeur de tailles est un argument central de Maison Indigo.</p>
+      </div>
+
+      <div>
+        <h3>Carte produit</h3>
+        <article class="card">
+          <div class="img" role="img" aria-label="Photo produit sur fond indigo">
+            <span class="patch patch-new">Nouveau</span>
+            <div class="leg"></div>
+          </div>
+          <div class="info">
+            <div class="name">Straight Indigo Brut</div>
+            <div class="sub">Homme · denim japonais 13 oz · 28 – 42</div>
+            <div class="pr"><span class="price">499,00 dh</span></div>
+          </div>
+        </article>
+        <p class="note">Nommage : <b>Coupe + Lavage</b>, genre et matière en sous-titre. Jamais de prix barré hors vente privée. Photo studio sur fond écru ; le fond indigo ci-dessus est un gabarit d'attente.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VOIX ================= -->
+<section id="voix">
+  <div class="wrap">
+    <h2>La voix</h2>
+    <p class="lead">Maison Indigo parle comme un tailleur moderne : précis, chaleureux, sûr de lui. Vouvoiement sur le site et dans les e-mails ; le tutoiement n'existe qu'en légende sur les réseaux. Jamais de majuscules qui crient, jamais d'urgence artificielle.</p>
+
+    <div class="voice-grid">
+      <div class="bubble">
+        <div class="ctx">Fiche produit</div>
+        <p class="q">Taille mi-haute, jambe droite du genou à la cheville. Denim japonais 13 oz. Le modèle fait 1,80 m et porte du 32/32. Entre deux tailles, choisissez la plus petite.</p>
+        <div class="why">Précis, assuré. Toujours l'origine du denim, la taille du modèle et le conseil entre-deux.</div>
+      </div>
+      <div class="bubble">
+        <div class="ctx">Instagram / TikTok</div>
+        <p class="q">Le straight qui tombe juste. <span class="ar" lang="ar">الأزرق على قدّك.</span></p>
+        <div class="why">Chaleureux. Le tutoiement et la Darija sont tolérés ici, et seulement ici.</div>
+      </div>
+      <div class="bubble">
+        <div class="ctx">Service client</div>
+        <p class="q">Nous vous envoyons la 34 demain. Vous remettez la 32 au livreur, sans frais. Souhaitez-vous le même lavage ?</p>
+        <div class="why">La solution d'abord, l'excuse jamais. Une question pour avancer.</div>
+      </div>
+      <div class="bubble">
+        <div class="ctx">Vente privée</div>
+        <p class="q">Vente privée d'automne, du 3 au 6 octobre. Accès réservé aux membres.</p>
+        <div class="why">Les dates, le périmètre, rien d'autre. Pas de pourcentage en titre, pas de compte à rebours.</div>
+      </div>
+    </div>
+
+    <div class="dos">
+      <div>
+        <h3>À faire</h3>
+        <ul class="ok">
+          <li>Vouvoyer sur le site, les e-mails, le service client</li>
+          <li>Donner origine du denim, grammage et taille du modèle</li>
+          <li>Aucun point d'exclamation</li>
+          <li>Prix en dh, chiffres tabulaires, virgule décimale</li>
+          <li>Architecture marocaine sobre dans les photos</li>
+        </ul>
+      </div>
+      <div>
+        <h3>À éviter</h3>
+        <ul class="ko">
+          <li>Noms fantaisie de produits (« Dorty », « Blitch »)</li>
+          <li>Prix barré, badge promo ou compte à rebours hors vente privée</li>
+          <li>Capitales sur les titres courants</li>
+          <li>Photos smartphone, mannequins stock, fonds gris</li>
+          <li>Filtre orange/teal, typographies script, emojis</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="stitch">
+
+<!-- ================= APPLICATIONS ================= -->
+<section class="apps" id="applications">
+  <div class="wrap">
+    <h2>Applications</h2>
+    <p class="lead">Trois points de contact où la maison se voit le plus : l'étiquette, la story, la boîte.</p>
+
+    <div class="app-grid">
+      <div>
+        <div class="label">
+          <div class="wordmark"><span class="m">Maison</span><span class="s"></span><span class="i">Indigo</span></div>
+          <div class="meta">
+            <div>Taille<b>32 / 32</b></div>
+            <div>Coupe<b>Straight</b></div>
+            <div>Lavage<b>Brut</b></div>
+          </div>
+          <div style="margin-top:12px;font-size:11px;color:#3b3f47">Denim japonais 13 oz · 98 % coton, 2 % élasthanne · Maison Indigo, Maroc</div>
+        </div>
+        <p class="app-cap">Étiquette carton épais, coins coupés, surpiqûre ocre imprimée, attachée par fil ocre. Même gabarit pour l'étiquette tissée intérieure.</p>
+      </div>
+
+      <div>
+        <div class="story">
+          <div class="top"><div class="wordmark"><span class="m">Maison</span><span class="s"></span><span class="i">Indigo</span></div><span>@maisonindigo</span></div>
+          <div class="denim" aria-hidden="true"></div>
+          <div class="bot">
+            <h4>Quelle coupe pour vous ?</h4>
+            <p>Quatre questions, une recommandation précise.</p>
+            <button class="btn">Trouver ma coupe</button>
+          </div>
+        </div>
+        <p class="app-cap">Story 9:16 : écru en haut, denim en bas, une seule surpiqûre verticale. Texte toujours dans le tiers inférieur.</p>
+      </div>
+
+      <div>
+        <div class="card-thanks">
+          <h4>Votre bleu est arrivé.</h4>
+          <p>Lavez-le à l'envers, à 30°, le moins souvent possible : l'indigo aime ça. Si la taille ne convient pas, répondez à notre WhatsApp ; l'échange est offert.</p>
+          <div class="code">INDIGO10 — -10 % sur votre prochaine commande</div>
+        </div>
+        <p class="app-cap">Carte glissée dans chaque boîte, sur papier de soie indigo nuit. Bande indigo à gauche, code en encadré pointillé ocre.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <span>Maison Indigo — charte graphique v2.0</span>
+  <span>ARTGON MEDIA SARL · Nador · septembre 2026</span>
+</footer>
+
+</body>
+</html>
