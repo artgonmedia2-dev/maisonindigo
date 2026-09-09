@@ -1,0 +1,42 @@
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environnement et secrets
+.env
+.env.backup
+.env.production
+/auth.json
+
+# Dépendances et builds
+/vendor
+/node_modules
+/public/build
+/public/hot
+/bootstrap/ssr
+
+# Assets publiés par Filament (régénérés par filament:assets)
+/public/css/filament
+/public/fonts/filament
+/public/js/filament
+
+# Stockage local
+/public/storage
+/storage/*.key
+/storage/pail
+/database/*.sqlite
+/database/*.sqlite-journal
+
+# Caches d'outils
+.phpunit.result.cache
+/.phpunit.cache
+/.phpactor.json
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+
+Homestead.json
+Homestead.yaml
