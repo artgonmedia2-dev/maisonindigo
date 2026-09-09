@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+/* Sources hors détection automatique */
+@source "../views";
+@source "../js";
+
+/* ------------------------------------------------------------------ */
+/* Polices auto-hébergées (fontes variables, sous-ensemble latin)      */
+/* ------------------------------------------------------------------ */
+@font-face {
+    font-family: "Cormorant Garamond";
+    font-style: normal;
+    font-weight: 500 600;
+    font-display: swap;
+    src: url("/fonts/cormorant-garamond-latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 400 600;
+    font-display: swap;
+    src: url("/fonts/inter-latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ------------------------------------------------------------------ */
+/* Tokens de la maison (source : docs/MaisonIndigo_Charte_Graphique)   */
+/* ------------------------------------------------------------------ */
+@theme {
+    --color-mi-indigo: #1b2a4a; /* logo, titres, bouton principal */
+    --color-mi-indigo-deep: #0f1b33; /* indigo nuit : fonds premium, hover */
+    --color-mi-stone: #4f6d9a; /* liens, badges secondaires */
+    --color-mi-ecru: #f4efe6; /* fond de page */
+    --color-mi-fil: #8a8f98; /* texte secondaire */
+    --color-mi-charbon: #141414; /* texte */
+    --color-mi-ocre: #d9822b; /* surpiqûre, détails, éditions limitées : max 10 % d'un écran */
+    --color-mi-vert: #2e7d5b; /* stock, succès */
+    --color-mi-blanc: #ffffff;
+    --color-mi-ligne: #e3ded3; /* bordures fines sur écru */
+    --color-mi-ciel: #b9c4d9; /* texte secondaire sur fond indigo */
+
+    --font-display: "Cormorant Garamond", Georgia, serif;
+    --font-body: "Inter", system-ui, sans-serif;
+    --font-sans: "Inter", system-ui, sans-serif;
+    --font-serif: "Cormorant Garamond", Georgia, serif;
+
+    /* Échelle typographique : H1 44/48 · H2 32/36 · H3 22/26 · body 16/24 · small 13/18 */
+    --text-h1: 2.75rem;
+    --text-h1--line-height: 3rem;
+    --text-h2: 2rem;
+    --text-h2--line-height: 2.25rem;
+    --text-h3: 1.375rem;
+    --text-h3--line-height: 1.625rem;
+    --text-body: 1rem;
+    --text-body--line-height: 1.5rem;
+    --text-small: 0.8125rem;
+    --text-small--line-height: 1.125rem;
+
+    /* Angles vifs partout : aucun utilitaire d'arrondi */
+    --radius-*: initial;
+
+    /* Transitions uniquement sur les actions utilisateur, ≤ 200 ms */
+    --default-transition-duration: 150ms;
+
+    --container-mi: 70rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Règles globales                                                     */
+/* ------------------------------------------------------------------ */
+@layer base {
+    *,
+    ::before,
+    ::after {
+        border-radius: 0;
+    }
+
+    html {
+        font-family: var(--font-body);
+        background-color: var(--color-mi-ecru);
+        color: var(--color-mi-charbon);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    body {
+        min-block-size: 100dvh;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-family: var(--font-display);
+        font-weight: 600;
+        color: var(--color-mi-indigo);
+        text-wrap: balance;
+    }
+
+    a {
+        color: inherit;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-mi-indigo);
+        outline-offset: 3px;
+    }
+
+    ::selection {
+        background-color: var(--color-mi-indigo);
+        color: var(--color-mi-ecru);
+    }
+
+    button,
+    [role="button"] {
+        cursor: pointer;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        ::before,
+        ::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Utilitaires de la maison                                            */
+/* ------------------------------------------------------------------ */
+
+/* Conteneur éditorial : marges généreuses, propriétés logiques */
+@utility mi-container {
+    inline-size: 100%;
+    max-inline-size: var(--container-mi);
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+
+    @media (width >= 48rem) {
+        padding-inline: 2rem;
+    }
+}
+
+/* Séparateur surpiqûre : trait pointillé ocre 2 px, avec parcimonie */
+@utility mi-stitch {
+    border-block-start: 2px dashed var(--color-mi-ocre);
+}
+
+@utility mi-stitch-inline {
+    border-inline-start: 2px dashed var(--color-mi-ocre);
+}
+
+/* Badge patch : coins coupés en biais, 6 px */
+@utility mi-patch-clip {
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+/* Carré aux coins coupés (monogramme, étiquette) */
+@utility mi-label-clip {
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+}
+
+/* Toile denim : fin motif diagonal sur fond indigo */
+@utility mi-twill {
+    background-image: repeating-linear-gradient(135deg, rgb(255 255 255 / 0.035) 0 2px, transparent 2px 6px);
+}
+
+/* Petits libellés en capitales espacées (badges, « Maison ») */
+@utility mi-caps {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+    font-weight: 500;
+}

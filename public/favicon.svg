@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MI">
+  <path d="M8 0h56v56l-8 8H0V8z" fill="#1B2A4A"/>
+  <path d="M10.5 5.5h48v46l-5 5h-48v-46z" fill="none" stroke="#D9822B" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+  <text x="32" y="43" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-weight="600" font-size="30" letter-spacing="-1" fill="#F4EFE6">MI</text>
+</svg>

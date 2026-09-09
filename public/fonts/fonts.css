@@ -1,0 +1,17 @@
+/* Polices de la maison, auto-hébergées. Chargé par Filament ; la boutique
+   déclare les mêmes @font-face dans resources/css/app.css. */
+@font-face {
+    font-family: "Cormorant Garamond";
+    font-style: normal;
+    font-weight: 500 600;
+    font-display: swap;
+    src: url("/fonts/cormorant-garamond-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 400 600;
+    font-display: swap;
+    src: url("/fonts/inter-latin.woff2") format("woff2");
+}
