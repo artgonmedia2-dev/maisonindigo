@@ -1,0 +1,104 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+/* Polices de la maison, auto-hébergées (voir public/fonts/fonts.css chargé par le panel) */
+@theme {
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --color-mi-indigo: #1b2a4a;
+    --color-mi-indigo-deep: #0f1b33;
+    --color-mi-stone: #4f6d9a;
+    --color-mi-ecru: #f4efe6;
+    --color-mi-fil: #8a8f98;
+    --color-mi-charbon: #141414;
+    --color-mi-ocre: #d9822b;
+    --color-mi-vert: #2e7d5b;
+}
+
+/* Angles vifs, comme sur la boutique */
+:root {
+    --radius-xs: 0;
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+    --radius-xl: 0;
+    --radius-2xl: 0;
+    --radius-3xl: 0;
+}
+
+.fi-body {
+    background-color: var(--color-mi-ecru);
+    color: var(--color-mi-charbon);
+}
+
+.fi-sidebar,
+.fi-topbar nav {
+    background-color: #ffffff;
+    border-color: #e3ded3;
+}
+
+/* Titres en Cormorant Garamond, bas de casse */
+.fi-header-heading,
+.fi-section-header-heading,
+.fi-modal-heading,
+.fi-simple-header-heading,
+.fi-wi-stats-overview-stat-value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--color-mi-indigo);
+    letter-spacing: -0.01em;
+}
+
+.fi-header-heading {
+    font-size: 2rem;
+    line-height: 2.25rem;
+}
+
+/* Wordmark deux lignes dans la barre latérale et la page de connexion */
+.mi-brand {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 0.95;
+    color: var(--color-mi-indigo);
+    white-space: nowrap;
+}
+
+.mi-brand__maison {
+    font-size: 0.6875rem;
+    letter-spacing: 0.32em;
+    font-weight: 500;
+    text-transform: uppercase;
+    padding-inline-start: 0.06em;
+}
+
+.mi-brand__stitch {
+    inline-size: 100%;
+    border-block-start: 1.5px dashed var(--color-mi-ocre);
+    margin-block: 0.15rem;
+}
+
+.mi-brand__indigo {
+    font-size: 1.75rem;
+    letter-spacing: 0.06em;
+}
+
+/* Focus visible indigo */
+.fi-body :focus-visible {
+    outline: 2px solid var(--color-mi-indigo);
+    outline-offset: 3px;
+}
+
+/* Page de connexion sur fond écru, carte blanche à bord fin */
+.fi-simple-layout {
+    background-color: var(--color-mi-ecru);
+}
+
+.fi-simple-main {
+    border: 1px solid #e3ded3;
+    box-shadow: none;
+}
