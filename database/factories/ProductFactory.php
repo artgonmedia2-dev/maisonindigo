@@ -54,6 +54,18 @@ class ProductFactory extends Factory
         ];
     }
 
+    /**
+     * Le titre « {Coupe} {Lavage} » et le slug suivent toujours les attributs finaux,
+     * y compris quand un test force le genre, la coupe ou le lavage.
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (Product $product): void {
+            $product->title = "{$product->cut->getLabel()} {$product->wash->getLabel()}";
+            $product->slug = Str::slug("{$product->title} {$product->gender->value}");
+        });
+    }
+
     public function draft(): static
     {
         return $this->state(fn (array $attributes) => ['status' => ProductStatus::Draft]);

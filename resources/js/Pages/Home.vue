@@ -3,6 +3,7 @@ import MiButton from '@/Components/mi/MiButton.vue';
 import MiDenimTile from '@/Components/mi/MiDenimTile.vue';
 import MiIcon from '@/Components/mi/MiIcon.vue';
 import MiPatch from '@/Components/mi/MiPatch.vue';
+import MiProductCard from '@/Components/mi/MiProductCard.vue';
 import { useI18n } from '@/composables/useI18n';
 import { useRoute } from '@/composables/useRoute';
 import type { TranslationKey } from '@/i18n';
@@ -22,6 +23,10 @@ const arguments_: ReadonlyArray<{ index: string; title: TranslationKey; text: Tr
     { index: '02', title: 'home.argSizesTitle', text: 'home.argSizesText' },
     { index: '03', title: 'home.argServiceTitle', text: 'home.argServiceText' },
 ];
+
+const heroWebp = '/images/hero-480.webp 480w, /images/hero-800.webp 800w, /images/hero-1200.webp 1200w';
+const heroAvif = '/images/hero-480.avif 480w, /images/hero-800.avif 800w, /images/hero-1200.avif 1200w';
+const heroSizes = '(min-width: 1024px) 34vw, (min-width: 768px) 42vw, 100vw';
 </script>
 
 <template>
@@ -53,13 +58,32 @@ const arguments_: ReadonlyArray<{ index: string; title: TranslationKey; text: Tr
             </div>
 
             <div class="md:col-span-5">
-                <MiDenimTile variant="story" :label="t('home.storyTitle')">
-                    <p class="font-display text-[1.75rem] font-semibold leading-tight text-mi-ecru">{{ t('home.storyTitle') }}</p>
-                    <p class="mt-2 text-small text-mi-ciel">{{ t('home.storyText') }}</p>
-                    <MiButton variant="outline" tone="ecru" size="sm" :href="route('size-quiz')" class="mt-5">
-                        {{ t('home.ctaQuiz') }}
-                    </MiButton>
-                </MiDenimTile>
+                <figure class="relative overflow-hidden bg-mi-ecru">
+                    <picture>
+                        <source type="image/avif" :srcset="heroAvif" :sizes="heroSizes" />
+                        <img
+                            src="/images/hero-800.webp"
+                            :srcset="heroWebp"
+                            :sizes="heroSizes"
+                            width="800"
+                            height="1000"
+                            :alt="t('home.heroAlt')"
+                            fetchpriority="high"
+                            decoding="async"
+                            class="aspect-[4/5] w-full object-cover"
+                        />
+                    </picture>
+                    <span class="absolute start-4 top-4"><MiPatch kind="new" /></span>
+                    <div class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 bg-gradient-to-t from-mi-indigo-deep/70 to-transparent p-5 text-mi-ecru">
+                        <div>
+                            <p class="font-display text-[1.5rem] font-semibold leading-tight">{{ t('home.storyTitle') }}</p>
+                            <p class="mt-1 text-small text-mi-ciel">{{ t('home.storyText') }}</p>
+                        </div>
+                        <Link :href="route('size-quiz')" class="mi-link inline-flex shrink-0 items-center gap-1.5 text-small font-semibold">
+                            {{ t('home.ctaQuiz') }} <MiIcon name="arrow" :size="16" />
+                        </Link>
+                    </div>
+                </figure>
             </div>
         </section>
 
@@ -67,8 +91,22 @@ const arguments_: ReadonlyArray<{ index: string; title: TranslationKey; text: Tr
             <hr class="mi-stitch border-0" />
         </div>
 
+        <!-- Nouveautés -->
+        <section v-if="props.newProducts.length > 0" class="mi-container py-16 md:py-24">
+            <div class="flex flex-wrap items-end justify-between gap-6">
+                <div class="max-w-2xl">
+                    <p class="mi-caps text-mi-stone">{{ t('home.newKicker') }}</p>
+                    <h2 class="mt-4 text-h2 md:text-[2.5rem] md:leading-[1.1]">{{ t('home.newTitle') }}</h2>
+                </div>
+                <MiButton variant="ghost" :href="route('collections.new')" arrow>{{ t('home.newAll') }}</MiButton>
+            </div>
+            <div class="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 md:gap-x-8">
+                <MiProductCard v-for="product in props.newProducts" :key="product.id" :product="product" />
+            </div>
+        </section>
+
         <!-- Femme / Homme -->
-        <section class="mi-container py-16 md:py-24">
+        <section class="mi-container py-16 md:py-24" :class="props.newProducts.length > 0 ? 'border-t border-mi-ligne' : ''">
             <div class="max-w-2xl">
                 <p class="mi-caps text-mi-stone">{{ t('home.collectionsKicker') }}</p>
                 <h2 class="mt-4 text-h2 md:text-[2.5rem] md:leading-[1.1]">{{ t('home.collectionsTitle') }}</h2>
@@ -151,7 +189,7 @@ const arguments_: ReadonlyArray<{ index: string; title: TranslationKey; text: Tr
             </div>
         </section>
 
-        <section class="mi-container py-12 text-center text-small text-mi-fil">
+        <section v-if="props.newProducts.length === 0" class="mi-container py-12 text-center text-small text-mi-fil">
             {{ t('home.comingSoon') }}
         </section>
     </StorefrontLayout>

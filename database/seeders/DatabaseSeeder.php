@@ -10,7 +10,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AdminSeeder::class,
-            // Sprint 1 : DemoCatalogSeeder, SizeChartsSeeder, ShippingZonesSeeder, PagesSeeder
+            SizeChartsSeeder::class,
+            ShippingZonesSeeder::class,
+            DemoCatalogSeeder::class,
+            // Sprint 5 : PagesSeeder
         ]);
     }
 }
