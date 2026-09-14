@@ -8,24 +8,41 @@ import type { TranslationKey } from '@/i18n';
  */
 const { t } = useI18n();
 
-const items: ReadonlyArray<{ icon: MiIconName; key: TranslationKey }> = [
-    { icon: 'cash', key: 'trust.cod' },
-    { icon: 'exchange', key: 'trust.exchange' },
-    { icon: 'box', key: 'trust.delivery' },
+interface TrustItem {
+    icon: MiIconName;
+    key: TranslationKey;
+    desc: string;
+}
+
+const items: ReadonlyArray<TrustItem> = [
+    { icon: 'cash', key: 'trust.cod', desc: 'Règlement en espèces à la réception' },
+    { icon: 'exchange', key: 'trust.exchange', desc: 'Nouvelle taille envoyée sans aucun frais' },
+    { icon: 'box', key: 'trust.delivery', desc: 'Expédition soignée dans toutes les villes' },
 ];
 </script>
 
 <template>
-    <section class="border-y border-mi-ligne bg-mi-blanc">
-        <ul class="mi-container grid grid-cols-1 divide-y divide-mi-ligne sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            <li
-                v-for="item in items"
-                :key="item.key"
-                class="flex items-center justify-center gap-3 py-4 text-small font-medium text-mi-charbon sm:py-5"
-            >
-                <MiIcon :name="item.icon" :size="20" class="shrink-0 text-mi-stone" />
-                <span>{{ t(item.key) }}</span>
-            </li>
-        </ul>
+    <section class="border-y border-mi-ligne bg-gradient-to-b from-mi-blanc via-mi-ecru/40 to-mi-blanc py-6 md:py-8">
+        <div class="mi-container">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6">
+                <div
+                    v-for="item in items"
+                    :key="item.key"
+                    class="group flex items-start gap-4 border border-mi-ligne/70 bg-mi-blanc p-4 transition-all duration-200 hover:border-mi-indigo/30 hover:shadow-sm sm:items-center sm:p-5"
+                >
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center bg-mi-indigo/5 text-mi-indigo transition-colors duration-200 group-hover:bg-mi-indigo group-hover:text-mi-ecru">
+                        <MiIcon :name="item.icon" :size="22" />
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-display text-[1.0625rem] font-semibold leading-snug text-mi-indigo">
+                            {{ t(item.key) }}
+                        </p>
+                        <p class="mt-0.5 text-[13px] text-mi-fil">
+                            {{ item.desc }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 </template>

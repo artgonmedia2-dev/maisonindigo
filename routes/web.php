@@ -6,11 +6,13 @@ use App\Http\Controllers\Storefront\CheckoutController;
 use App\Http\Controllers\Storefront\CollectionController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\ProductController;
+use App\Http\Controllers\Storefront\SitemapController;
 use App\Http\Controllers\Storefront\SizeQuizController;
 use App\Http\Controllers\Storefront\StockAlertController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/', HomeController::class)->name('home');
 
 // Collections
@@ -40,6 +42,39 @@ Route::get('/commande/merci/{order:number}', [CheckoutController::class, 'confir
 Route::get('/trouver-ma-taille', [SizeQuizController::class, 'show'])->name('size-quiz');
 Route::post('/trouver-ma-taille', [SizeQuizController::class, 'store'])->middleware('throttle:size-quiz')->name('size-quiz.store');
 Route::delete('/trouver-ma-taille', [SizeQuizController::class, 'reset'])->name('size-quiz.reset');
+
+// Pages d'information & légales
+Route::get('/guide-des-tailles', function () {
+    return Inertia::render('Static/GuideDesTailles');
+})->name('size-guide');
+
+Route::get('/la-maison', function () {
+    return Inertia::render('Static/LaMaison');
+})->name('about');
+
+Route::get('/entretien', function () {
+    return Inertia::render('Static/Entretien');
+})->name('care');
+
+Route::get('/faq', function () {
+    return Inertia::render('Static/Faq');
+})->name('faq');
+
+Route::get('/contact', function () {
+    return Inertia::render('Static/Contact');
+})->name('contact');
+
+Route::get('/cgv', function () {
+    return Inertia::render('Static/Cgv');
+})->name('terms');
+
+Route::get('/retours', function () {
+    return Inertia::render('Static/Retours');
+})->name('returns');
+
+Route::get('/confidentialite', function () {
+    return Inertia::render('Static/Confidentialite');
+})->name('privacy');
 
 // Espace client
 Route::get('/dashboard', function () {

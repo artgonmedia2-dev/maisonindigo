@@ -98,10 +98,10 @@ const flashError = computed(() => (page.props.flash.error !== dismissed.value ? 
         </a>
 
         <!-- En-tête -->
-        <header class="sticky top-0 z-40 border-b border-mi-ligne bg-mi-ecru/95 backdrop-blur-sm">
-            <div class="mi-container grid h-[4.25rem] grid-cols-[1fr_auto_1fr] items-center md:h-[5.5rem] md:grid-cols-[auto_1fr_auto] md:gap-10">
+        <header class="sticky top-0 z-40 border-b border-mi-ligne bg-mi-ecru/95 backdrop-blur-sm max-w-full overflow-x-hidden">
+            <div class="mi-container grid h-[4.25rem] grid-cols-[auto_1fr_auto] items-center gap-2 md:h-[5.5rem] md:gap-10">
                 <!-- Début : menu mobile / logo desktop -->
-                <div class="flex items-center">
+                <div class="flex items-center min-w-0">
                     <button
                         type="button"
                         class="-ms-2.5 p-2.5 text-mi-indigo md:hidden"
@@ -113,14 +113,14 @@ const flashError = computed(() => (page.props.flash.error !== dismissed.value ? 
                         <MiIcon :name="menuOpen ? 'close' : 'menu'" :size="24" />
                     </button>
 
-                    <Link :href="route('home')" class="hidden items-center md:flex" :aria-label="t('a11y.logo')">
+                    <Link :href="route('home')" class="hidden items-center md:flex shrink-0" :aria-label="t('a11y.logo')">
                         <MiLogo tone="indigo" :width="140" />
                     </Link>
                 </div>
 
                 <!-- Centre : logo mobile / navigation desktop -->
-                <Link :href="route('home')" class="flex items-center justify-center md:hidden" :aria-label="t('a11y.logo')">
-                    <MiLogo variant="wordmark" tone="indigo" :width="112" />
+                <Link :href="route('home')" class="flex items-center justify-center min-w-0 overflow-hidden md:hidden" :aria-label="t('a11y.logo')">
+                    <MiLogo variant="wordmark" tone="indigo" :width="104" class="max-w-full h-auto shrink" />
                 </Link>
 
                 <nav class="hidden justify-center md:flex" :aria-label="t('a11y.mainNavigation')">
