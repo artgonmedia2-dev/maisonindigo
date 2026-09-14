@@ -2,26 +2,31 @@
 # Repli rapide quand TOUTE l'application a été envoyée à la racine de
 # public_html (app/, vendor/, public/, .env… directement dedans).
 #
-# À copier en public_html/.htaccess. Tout est renvoyé vers public/ et
-# le reste de l'application devient inaccessible depuis le web.
+# À copier en public_html/.htaccess, après avoir supprimé default.php.
+# Tout est renvoyé vers public/ et le reste de l'application devient
+# inaccessible depuis le web.
 #
 # Préférer, dès que possible, la structure propre décrite dans
 # docs/Deploiement_Hostinger.md (application à côté de public_html).
 # ------------------------------------------------------------------
 
-Options -Indexes
+# La page d'index est celle de Laravel, jamais default.php
+DirectoryIndex public/index.php
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Racine du site → public/index.php
+    RewriteRule ^$ public/index.php [L]
+
     # Tout ce qui ne vise pas déjà public/ y est réécrit en interne
     RewriteCond %{REQUEST_URI} !^/public/
-    RewriteRule ^(.*)$ public/$1 [L]
+    RewriteRule ^(.+)$ public/$1 [L]
 </IfModule>
 
 # Rien d'autre que public/ n'est accessible, même en URL directe
 <IfModule mod_alias.c>
-    RedirectMatch 404 ^/(?!public/)(app|bootstrap|config|database|deploy|docs|lang|node_modules|resources|routes|storage|tests|vendor|\.git|\.github)(/|$)
+    RedirectMatch 404 ^/(app|bootstrap|config|database|deploy|docs|lang|node_modules|resources|routes|storage|tests|vendor|\.git|\.github)(/|$)
 </IfModule>
 
 <FilesMatch "^(\.env|\.env\..*|\.git.*|\.editorconfig|artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|phpstan\.neon|pint\.json|tsconfig\.json|vite\.config\.ts|README\.md|default\.php)$">
