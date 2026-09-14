@@ -139,6 +139,16 @@ Cette ligne suffit : le planificateur lance le worker de file d'attente (message
 
 Symptôme : `public_html` contient `app/`, `vendor/`, `.env`, `public/`… et le navigateur montre « Vous êtes prêt à partir ! » (le fichier `default.php` de Hostinger). Cause : Hostinger cherche `index.php` à la racine de `public_html`, or celui de Laravel est dans `public/`. En plus, `.env` et `vendor/` sont exposés sur Internet.
 
+### Solution la plus simple : changer le dossier racine du site (hPanel, sans terminal)
+
+hPanel → Sites web → le site → Tableau de bord → **Avancé** → **Changer le dossier racine du site**, puis saisir :
+
+```
+public_html/public
+```
+
+Le serveur sert alors directement `public/`, le `.htaccess` de Laravel s'applique, et tout le reste de l'application (`.env`, `vendor/`, `storage/`) sort du dossier public : inaccessible depuis Internet. Aucun fichier à créer.
+
 ### Remise en ordre propre (SSH, 5 minutes)
 
 ```bash
