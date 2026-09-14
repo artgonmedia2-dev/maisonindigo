@@ -1,4 +1,5 @@
 import { Config } from 'ziggy-js';
+import type { CartSummary } from './Cart';
 
 /** Client connecté (props partagées `auth.user`). Nul pour un visiteur. */
 export interface AuthUser {
@@ -24,6 +25,8 @@ export interface MaisonProps {
 export interface FlashProps {
     success: string | null;
     error: string | null;
+    /** Identifiant de la variante qui vient d'être ajoutée au panier. */
+    cart_added: number | null;
 }
 
 /** Métadonnées SEO d'une page. `title` nul = titre par défaut de la maison. */
@@ -39,9 +42,7 @@ export type PageProps<
         user: AuthUser | null;
     };
     maison: MaisonProps;
-    cart: {
-        count: number;
-    };
+    cart: CartSummary;
     flash: FlashProps;
     ziggy: Config & { location: string };
 };

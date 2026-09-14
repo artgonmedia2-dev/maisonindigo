@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import MiButton from '@/Components/mi/MiButton.vue';
+import MiCartDrawer from '@/Components/mi/MiCartDrawer.vue';
 import MiIcon from '@/Components/mi/MiIcon.vue';
 import MiLogo from '@/Components/mi/MiLogo.vue';
 import MiNotice from '@/Components/mi/MiNotice.vue';
 import MiTrustBar from '@/Components/mi/MiTrustBar.vue';
+import { useCart } from '@/composables/useCart';
 import { useI18n } from '@/composables/useI18n';
 import { useRoute } from '@/composables/useRoute';
 import type { TranslationKey } from '@/i18n';
@@ -13,6 +15,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 const { t, tc } = useI18n();
 const route = useRoute();
 const page = usePage();
+const { openDrawer } = useCart();
 
 const maison = computed(() => page.props.maison);
 const cartCount = computed(() => page.props.cart.count);
@@ -157,6 +160,7 @@ const flashError = computed(() => (page.props.flash.error !== dismissed.value ? 
                         class="relative -me-2.5 p-2.5 transition-colors duration-150 hover:text-mi-stone"
                         :aria-label="tc('nav.cartCount', 'nav.cartCountPlural', cartCount)"
                         :title="t('nav.cart')"
+                        @click="openDrawer"
                     >
                         <MiIcon name="cart" />
                         <span
@@ -245,6 +249,8 @@ const flashError = computed(() => (page.props.flash.error !== dismissed.value ? 
         </main>
 
         <MiTrustBar />
+
+        <MiCartDrawer />
 
         <!-- Pied de page -->
         <footer class="mi-twill bg-mi-indigo text-mi-ecru">

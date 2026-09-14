@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\Cart\ResolveCart;
+use App\Actions\Cart\SummarizeCart;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -12,6 +14,11 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    public function __construct(
+        private readonly ResolveCart $resolveCart,
+        private readonly SummarizeCart $summarizeCart,
+    ) {}
 
     public function version(Request $request): ?string
     {
@@ -46,13 +53,14 @@ class HandleInertiaRequests extends Middleware
                     'city' => config('maison.contact.city'),
                 ],
             ],
-            // Sprint 2 : nombre d'articles du panier
-            'cart' => [
-                'count' => 0,
-            ],
+            'cart' => fn (): array => $this->summarizeCart->handle(
+                $this->resolveCart->handle($request),
+                $request->hasSession() ? $request->session()->get('discount_code') : null,
+            ),
             'flash' => [
                 'success' => fn () => $request->hasSession() ? $request->session()->get('success') : null,
                 'error' => fn () => $request->hasSession() ? $request->session()->get('error') : null,
+                'cart_added' => fn () => $request->hasSession() ? $request->session()->get('cart_added') : null,
             ],
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),

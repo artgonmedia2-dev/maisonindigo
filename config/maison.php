@@ -28,6 +28,12 @@ return [
         'city' => 'Casablanca',
     ],
 
+    'bank' => [
+        'holder' => env('BANK_HOLDER'),
+        'name' => env('BANK_NAME'),
+        'iban' => env('BANK_IBAN'),
+    ],
+
     'whatsapp' => [
         'token' => env('WHATSAPP_TOKEN'),
         'phone_id' => env('WHATSAPP_PHONE_ID'),
