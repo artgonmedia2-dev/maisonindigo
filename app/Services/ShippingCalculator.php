@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Data\ShippingQuote;
 use App\Models\ShippingZone;
+use App\Settings\ShopSettings;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use RuntimeException;
@@ -84,10 +85,17 @@ class ShippingCalculator
     }
 
     /**
-     * Seuil de livraison offerte le plus courant (affiché dans le panier).
+     * Seuil de livraison offerte affiché dans le panier. Réglé dans le back-office ;
+     * à défaut, le seuil le plus courant parmi les zones.
      */
     public function freeThreshold(): ?int
     {
+        $configured = app(ShopSettings::class)->free_shipping_threshold;
+
+        if ($configured > 0) {
+            return $configured;
+        }
+
         $thresholds = $this->zones()
             ->map(fn (ShippingZone $zone): ?int => $zone->rate?->free_threshold)
             ->filter()

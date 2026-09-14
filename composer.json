@@ -11,6 +11,8 @@
     "require": {
         "php": "^8.3",
         "filament/filament": "^4.0",
+        "filament/spatie-laravel-media-library-plugin": "^4.0",
+        "filament/spatie-laravel-settings-plugin": "^4.0",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.49",

@@ -40,3 +40,7 @@ desktop.ini
 
 Homestead.json
 Homestead.yaml
+
+# Archives de déploiement et captures de débogage
+/deploy-hostinger.zip
+/response.html

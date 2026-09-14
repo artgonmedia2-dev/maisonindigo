@@ -3,14 +3,16 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Widgets\HouseStatsWidget;
+use App\Filament\Widgets\LatestOrdersWidget;
+use App\Filament\Widgets\LowStockWidget;
 use App\Filament\Widgets\MaisonWelcomeWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Widgets\Widget;
 use Filament\Widgets\WidgetConfiguration;
 
 /**
- * Tableau de bord de la maison : accueil, chiffres du jour.
- * Les résumés de commandes et de stock arrivent avec les sprints 1 et 4.
+ * Tableau de bord de la maison : accueil, chiffres du jour, dernières commandes,
+ * tailles à réassortir.
  */
 class Dashboard extends BaseDashboard
 {
@@ -32,6 +34,8 @@ class Dashboard extends BaseDashboard
         return [
             MaisonWelcomeWidget::class,
             HouseStatsWidget::class,
+            LatestOrdersWidget::class,
+            LowStockWidget::class,
         ];
     }
 }

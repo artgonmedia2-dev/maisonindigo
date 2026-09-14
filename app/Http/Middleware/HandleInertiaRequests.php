@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Actions\Cart\ResolveCart;
 use App\Actions\Cart\SummarizeCart;
+use App\Settings\ShopSettings;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -18,6 +19,7 @@ class HandleInertiaRequests extends Middleware
     public function __construct(
         private readonly ResolveCart $resolveCart,
         private readonly SummarizeCart $summarizeCart,
+        private readonly ShopSettings $settings,
     ) {}
 
     public function version(Request $request): ?string
@@ -48,10 +50,14 @@ class HandleInertiaRequests extends Middleware
                 'name' => config('maison.name'),
                 'tagline' => config('maison.tagline'),
                 'contact' => [
-                    'email' => config('maison.contact.email'),
-                    'whatsapp' => config('maison.contact.whatsapp'),
-                    'city' => config('maison.contact.city'),
+                    'email' => $this->settings->contact_email,
+                    'whatsapp' => $this->settings->contact_whatsapp,
+                    'city' => $this->settings->contact_city,
                 ],
+                'exchange_days' => $this->settings->exchange_days,
+                'announcement' => $this->settings->announcement_enabled && filled($this->settings->announcement_text)
+                    ? $this->settings->announcement_text
+                    : null,
             ],
             'cart' => fn (): array => $this->summarizeCart->handle(
                 $this->resolveCart->handle($request),

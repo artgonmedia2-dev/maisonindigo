@@ -38,7 +38,7 @@ it('affiche les chiffres de la maison', function () {
 
     expect($html)
         ->toContain('Produits actifs')
-        ->and(substr_count($html, 'fi-wi-stats-overview-stat-value'))->toBe(4);
+        ->and(substr_count($html, 'fi-wi-stats-overview-stat-value'))->toBe(6);
 });
 
 it('charge le thème de la maison et désactive le mode sombre', function () {

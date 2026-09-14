@@ -139,6 +139,21 @@ class Product extends Model implements HasMedia
         return implode('-', ['MI', $this->gender->skuCode(), $this->cut->skuCode(), $this->wash->skuCode()]);
     }
 
+    /**
+     * Titre de la maison : « {Coupe} {Lavage} ». Le genre reste un champ.
+     */
+    public static function composeTitle(Cut|string|null $cut, Wash|string|null $wash): string
+    {
+        $cut = $cut instanceof Cut ? $cut : Cut::tryFrom((string) $cut);
+        $wash = $wash instanceof Wash ? $wash : Wash::tryFrom((string) $wash);
+
+        if ($cut === null || $wash === null) {
+            return '';
+        }
+
+        return "{$cut->getLabel()} {$wash->getLabel()}";
+    }
+
     public function isActive(): bool
     {
         return $this->status === ProductStatus::Active;

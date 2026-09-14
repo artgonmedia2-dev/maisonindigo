@@ -16,6 +16,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ShippingZone;
 use App\Services\ShippingCalculator;
+use App\Settings\ShopSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -118,7 +119,7 @@ class CheckoutController extends Controller
         return redirect()->route('checkout.confirmation', $order);
     }
 
-    public function confirmation(Request $request, Order $order): Response
+    public function confirmation(Request $request, Order $order, ShopSettings $settings): Response
     {
         /** @var list<string> $placed */
         $placed = $request->session()->get(self::SESSION_ORDERS, []);
@@ -154,9 +155,9 @@ class CheckoutController extends Controller
                 ])->values()->all(),
             ],
             'bank' => [
-                'holder' => config('maison.bank.holder'),
-                'iban' => config('maison.bank.iban'),
-                'bank' => config('maison.bank.name'),
+                'holder' => $settings->bank_holder,
+                'iban' => $settings->bank_iban,
+                'bank' => $settings->bank_name,
             ],
         ]);
     }

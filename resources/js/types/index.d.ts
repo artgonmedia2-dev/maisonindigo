@@ -20,6 +20,10 @@ export interface MaisonProps {
         whatsapp: string;
         city: string;
     };
+    /** Durée de l'échange offert, réglée dans le back-office. */
+    exchange_days: number;
+    /** Bandeau d'annonce, nul quand il est désactivé. */
+    announcement: string | null;
 }
 
 export interface FlashProps {
