@@ -1,66 +1,51 @@
 <script setup lang="ts">
+import MiButton from '@/Components/mi/MiButton.vue';
+import MiInput from '@/Components/mi/MiInput.vue';
+import MiNotice from '@/Components/mi/MiNotice.vue';
+import { useI18n } from '@/composables/useI18n';
+import { useRoute } from '@/composables/useRoute';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 
 defineProps<{
     status?: string;
 }>();
 
+const { t } = useI18n();
+const route = useRoute();
+
 const form = useForm({
     email: '',
 });
 
-const submit = () => {
+const submit = (): void => {
     form.post(route('password.email'));
 };
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Forgot Password" />
+    <Head :title="t('auth.forgot')" />
 
-        <div class="mb-4 text-sm text-gray-600">
-            Forgot your password? No problem. Just let us know your email
-            address and we will email you a password reset link that will allow
-            you to choose a new one.
-        </div>
+    <GuestLayout :title="t('auth.forgotTitle')" :lead="t('auth.forgotLead')">
+        <MiNotice v-if="status" kind="success" class="mb-6">{{ status }}</MiNotice>
 
-        <div
-            v-if="status"
-            class="mb-4 text-sm font-medium text-green-600"
-        >
-            {{ status }}
-        </div>
+        <form class="flex flex-col gap-6" @submit.prevent="submit">
+            <MiInput
+                v-model="form.email"
+                type="email"
+                name="email"
+                :label="t('auth.email')"
+                :error="form.errors.email"
+                autocomplete="username"
+                required
+                autofocus
+            />
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
-
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4 flex items-center justify-end">
-                <PrimaryButton
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Email Password Reset Link
-                </PrimaryButton>
-            </div>
+            <MiButton type="submit" variant="primary" block :loading="form.processing">{{ t('auth.sendLink') }}</MiButton>
         </form>
+
+        <p class="mt-8 text-[15px]">
+            <Link :href="route('login')" class="mi-link font-medium text-mi-stone">{{ t('auth.backToLogin') }}</Link>
+        </p>
     </GuestLayout>
 </template>

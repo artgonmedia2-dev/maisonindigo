@@ -1,110 +1,74 @@
 <script setup lang="ts">
-import DangerButton from '@/Components/DangerButton.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import Modal from '@/Components/Modal.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import MiButton from '@/Components/mi/MiButton.vue';
+import MiInput from '@/Components/mi/MiInput.vue';
+import MiModal from '@/Components/mi/MiModal.vue';
+import { useI18n } from '@/composables/useI18n';
+import { useRoute } from '@/composables/useRoute';
 import { useForm } from '@inertiajs/vue3';
 import { nextTick, ref } from 'vue';
 
-const confirmingUserDeletion = ref(false);
-const passwordInput = ref<HTMLInputElement | null>(null);
+const { t } = useI18n();
+const route = useRoute();
+
+const confirming = ref(false);
+const passwordInput = ref<InstanceType<typeof MiInput> | null>(null);
 
 const form = useForm({
     password: '',
 });
 
-const confirmUserDeletion = () => {
-    confirmingUserDeletion.value = true;
-
-    nextTick(() => passwordInput.value?.focus());
+const openConfirmation = (): void => {
+    confirming.value = true;
+    void nextTick(() => passwordInput.value?.focus());
 };
 
-const deleteUser = () => {
+const closeConfirmation = (): void => {
+    confirming.value = false;
+    form.clearErrors();
+    form.reset();
+};
+
+const deleteAccount = (): void => {
     form.delete(route('profile.destroy'), {
         preserveScroll: true,
-        onSuccess: () => closeModal(),
+        onSuccess: () => closeConfirmation(),
         onError: () => passwordInput.value?.focus(),
         onFinish: () => {
             form.reset();
         },
     });
 };
-
-const closeModal = () => {
-    confirmingUserDeletion.value = false;
-
-    form.clearErrors();
-    form.reset();
-};
 </script>
 
 <template>
-    <section class="space-y-6">
+    <section>
         <header>
-            <h2 class="text-lg font-medium text-gray-900">
-                Delete Account
-            </h2>
-
-            <p class="mt-1 text-sm text-gray-600">
-                Once your account is deleted, all of its resources and data will
-                be permanently deleted. Before deleting your account, please
-                download any data or information that you wish to retain.
-            </p>
+            <h2 class="text-h3">{{ t('profile.deleteTitle') }}</h2>
+            <p class="mt-2 text-[15px] leading-relaxed text-mi-charbon/85">{{ t('profile.deleteLead') }}</p>
         </header>
 
-        <DangerButton @click="confirmUserDeletion">Delete Account</DangerButton>
+        <MiButton variant="outline" class="mt-7" @click="openConfirmation">{{ t('profile.delete') }}</MiButton>
 
-        <Modal :show="confirmingUserDeletion" @close="closeModal">
-            <div class="p-6">
-                <h2
-                    class="text-lg font-medium text-gray-900"
-                >
-                    Are you sure you want to delete your account?
-                </h2>
+        <MiModal :show="confirming" :title="t('profile.deleteConfirmTitle')" @close="closeConfirmation">
+            <p class="text-[15px] leading-relaxed text-mi-charbon/85">{{ t('profile.deleteConfirmLead') }}</p>
 
-                <p class="mt-1 text-sm text-gray-600">
-                    Once your account is deleted, all of its resources and data
-                    will be permanently deleted. Please enter your password to
-                    confirm you would like to permanently delete your account.
-                </p>
+            <form class="mt-6 flex flex-col gap-6" @submit.prevent="deleteAccount">
+                <MiInput
+                    ref="passwordInput"
+                    v-model="form.password"
+                    type="password"
+                    name="password"
+                    :label="t('auth.password')"
+                    :error="form.errors.password"
+                    autocomplete="current-password"
+                    required
+                />
 
-                <div class="mt-6">
-                    <InputLabel
-                        for="password"
-                        value="Password"
-                        class="sr-only"
-                    />
-
-                    <TextInput
-                        id="password"
-                        ref="passwordInput"
-                        v-model="form.password"
-                        type="password"
-                        class="mt-1 block w-3/4"
-                        placeholder="Password"
-                        @keyup.enter="deleteUser"
-                    />
-
-                    <InputError :message="form.errors.password" class="mt-2" />
+                <div class="flex flex-wrap items-center justify-end gap-4">
+                    <MiButton variant="ghost" @click="closeConfirmation">{{ t('profile.cancel') }}</MiButton>
+                    <MiButton type="submit" variant="primary" :loading="form.processing">{{ t('profile.delete') }}</MiButton>
                 </div>
-
-                <div class="mt-6 flex justify-end">
-                    <SecondaryButton @click="closeModal">
-                        Cancel
-                    </SecondaryButton>
-
-                    <DangerButton
-                        class="ms-3"
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing"
-                        @click="deleteUser"
-                    >
-                        Delete Account
-                    </DangerButton>
-                </div>
-            </div>
-        </Modal>
+            </form>
+        </MiModal>
     </section>
 </template>

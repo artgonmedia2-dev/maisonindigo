@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import Checkbox from '@/Components/Checkbox.vue';
+import MiButton from '@/Components/mi/MiButton.vue';
+import MiCheckbox from '@/Components/mi/MiCheckbox.vue';
+import MiInput from '@/Components/mi/MiInput.vue';
+import MiNotice from '@/Components/mi/MiNotice.vue';
+import { useI18n } from '@/composables/useI18n';
+import { useRoute } from '@/composables/useRoute';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 defineProps<{
@@ -12,13 +13,16 @@ defineProps<{
     status?: string;
 }>();
 
+const { t } = useI18n();
+const route = useRoute();
+
 const form = useForm({
     email: '',
     password: '',
     remember: false,
 });
 
-const submit = () => {
+const submit = (): void => {
     form.post(route('login'), {
         onFinish: () => {
             form.reset('password');
@@ -28,71 +32,46 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Log in" />
+    <Head :title="t('auth.login')" />
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
-            {{ status }}
-        </div>
+    <GuestLayout :title="t('auth.loginTitle')" :lead="t('auth.loginLead')">
+        <MiNotice v-if="status" kind="success" class="mb-6">{{ status }}</MiNotice>
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
+        <form class="flex flex-col gap-6" @submit.prevent="submit">
+            <MiInput
+                v-model="form.email"
+                type="email"
+                name="email"
+                :label="t('auth.email')"
+                :error="form.errors.email"
+                autocomplete="username"
+                required
+                autofocus
+            />
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
+            <MiInput
+                v-model="form.password"
+                type="password"
+                name="password"
+                :label="t('auth.password')"
+                :error="form.errors.password"
+                autocomplete="current-password"
+                required
+            />
 
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                />
-
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
-
-            <div class="mt-4 block">
-                <label class="flex items-center">
-                    <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600"
-                        >Remember me</span
-                    >
-                </label>
-            </div>
-
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                    Forgot your password?
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <MiCheckbox v-model="form.remember" name="remember" :label="t('auth.remember')" />
+                <Link v-if="canResetPassword" :href="route('password.request')" class="mi-link text-small font-medium text-mi-stone">
+                    {{ t('auth.forgot') }}
                 </Link>
-
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Log in
-                </PrimaryButton>
             </div>
+
+            <MiButton type="submit" variant="primary" block :loading="form.processing">{{ t('auth.login') }}</MiButton>
         </form>
+
+        <p class="mt-8 text-[15px] text-mi-fil">
+            {{ t('auth.noAccount') }} ·
+            <Link :href="route('register')" class="mi-link font-medium text-mi-indigo">{{ t('auth.register') }}</Link>
+        </p>
     </GuestLayout>
 </template>

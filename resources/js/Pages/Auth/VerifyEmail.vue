@@ -1,59 +1,42 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import MiButton from '@/Components/mi/MiButton.vue';
+import MiNotice from '@/Components/mi/MiNotice.vue';
+import { useI18n } from '@/composables/useI18n';
+import { useRoute } from '@/composables/useRoute';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const props = defineProps<{
     status?: string;
 }>();
 
+const { t } = useI18n();
+const route = useRoute();
+
 const form = useForm({});
 
-const submit = () => {
+const submit = (): void => {
     form.post(route('verification.send'));
 };
 
-const verificationLinkSent = computed(
-    () => props.status === 'verification-link-sent',
-);
+const verificationLinkSent = computed(() => props.status === 'verification-link-sent');
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Email Verification" />
+    <Head :title="t('auth.verifyTitle')" />
 
-        <div class="mb-4 text-sm text-gray-600">
-            Thanks for signing up! Before getting started, could you verify your
-            email address by clicking on the link we just emailed to you? If you
-            didn't receive the email, we will gladly send you another.
-        </div>
+    <GuestLayout :title="t('auth.verifyTitle')" :lead="t('auth.verifyLead')">
+        <MiNotice v-if="verificationLinkSent" kind="success" class="mb-6">{{ t('auth.verifySent') }}</MiNotice>
 
-        <div
-            class="mb-4 text-sm font-medium text-green-600"
-            v-if="verificationLinkSent"
-        >
-            A new verification link has been sent to the email address you
-            provided during registration.
-        </div>
-
-        <form @submit.prevent="submit">
-            <div class="mt-4 flex items-center justify-between">
-                <PrimaryButton
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Resend Verification Email
-                </PrimaryButton>
-
-                <Link
-                    :href="route('logout')"
-                    method="post"
-                    as="button"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >Log Out</Link
-                >
-            </div>
+        <form class="flex flex-col gap-6" @submit.prevent="submit">
+            <MiButton type="submit" variant="primary" block :loading="form.processing">{{ t('auth.resend') }}</MiButton>
         </form>
+
+        <p class="mt-8 text-[15px]">
+            <Link :href="route('logout')" method="post" as="button" class="mi-link font-medium text-mi-stone">
+                {{ t('auth.logout') }}
+            </Link>
+        </p>
     </GuestLayout>
 </template>
