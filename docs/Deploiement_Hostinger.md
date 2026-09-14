@@ -134,3 +134,35 @@ Cette ligne suffit : le planificateur lance le worker de file d'attente (message
 - Le worker tourne au plus 55 secondes par minute : un message WhatsApp peut partir jusqu'à une minute après la commande.
 - Les webhooks WhatsApp (sprint 4) et les pixels serveur (sprint 5) fonctionnent, mais surveillez les limites de processus PHP de l'offre.
 - Quand les commandes dépasseront quelques dizaines par jour, ou dès que le SSR et Horizon deviennent nécessaires, reprendre le plan Coolify + VPS de `docs/MaisonIndigo_MVP_Roadmap.md` : seul le `.env` change.
+
+## 9. Dépannage : « j'ai tout envoyé dans public_html et le site affiche la page Hostinger »
+
+Symptôme : `public_html` contient `app/`, `vendor/`, `.env`, `public/`… et le navigateur montre « Vous êtes prêt à partir ! » (le fichier `default.php` de Hostinger). Cause : Hostinger cherche `index.php` à la racine de `public_html`, or celui de Laravel est dans `public/`. En plus, `.env` et `vendor/` sont exposés sur Internet.
+
+### Remise en ordre propre (SSH, 5 minutes)
+
+```bash
+cd ~/domains/DOMAINE
+mkdir maison-indigo
+# tout déplacer, fichiers cachés compris, sauf le placeholder Hostinger
+shopt -s dotglob && mv public_html/* maison-indigo/ && shopt -u dotglob
+rm -f maison-indigo/default.php
+rm -rf maison-indigo/node_modules maison-indigo/.git maison-indigo/tests   # inutiles en production
+rmdir public_html && ln -s maison-indigo/public public_html
+cd maison-indigo
+cp .env.production.example .env && nano .env      # DB_*, ADMIN_*, CONTACT_*, MAIL_*, APP_URL
+php artisan key:generate --force
+bash deploy/hostinger/release.sh
+php artisan db:seed --class=AdminSeeder --force
+php artisan db:seed --class=SizeChartsSeeder --force
+php artisan db:seed --class=ShippingZonesSeeder --force
+```
+
+### Repli sans SSH (Gestionnaire de fichiers hPanel)
+
+1. Supprimer `public_html/default.php`.
+2. Copier le contenu de `deploy/hostinger/public_html-racine.htaccess` dans un nouveau fichier `public_html/.htaccess`.
+3. Réécrire `public_html/.env` à partir de `.env.production.example` (base MySQL, `APP_URL`, comptes). Sans SSH, `APP_KEY` se génère en local : `php artisan key:generate --show`, puis coller la valeur.
+4. Les migrations et le lien `storage` exigent tout de même un passage par SSH (`php artisan migrate --force`, `php artisan storage:link`). Hostinger Premium inclut l'accès SSH : hPanel → Avancé → Accès SSH.
+
+Vérifier ensuite `https://DOMAINE/up` (doit répondre 200) et `https://DOMAINE/.env` (doit répondre 403 ou 404, jamais le contenu).
