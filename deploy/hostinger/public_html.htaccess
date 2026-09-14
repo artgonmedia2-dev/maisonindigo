@@ -1,0 +1,25 @@
+# ------------------------------------------------------------------
+# Solution de repli UNIQUEMENT si public_html ne peut pas être un lien
+# symbolique vers maison-indigo/public (voir docs/Deploiement_Hostinger.md).
+#
+# Dans ce cas l'application entière vit dans public_html/maison-indigo et ce
+# fichier, placé dans public_html/.htaccess, renvoie tout vers public/ tout en
+# interdisant l'accès au reste de l'application.
+# ------------------------------------------------------------------
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Tout ce qui n'est pas déjà dans public/ y est redirigé en interne
+    RewriteCond %{REQUEST_URI} !^/maison-indigo/public/
+    RewriteRule ^(.*)$ maison-indigo/public/$1 [L]
+</IfModule>
+
+# Rien d'autre que public/ n'est accessible
+<IfModule mod_alias.c>
+    RedirectMatch 404 ^/maison-indigo/(?!public/)
+</IfModule>
+
+<FilesMatch "^(\.env|\.env\..*|composer\.(json|lock)|artisan)$">
+    Require all denied
+</FilesMatch>

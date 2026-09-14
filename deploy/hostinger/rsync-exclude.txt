@@ -1,0 +1,36 @@
+# Fichiers jamais envoyés sur le serveur (rsync --exclude-from)
+.git
+.github
+.gitattributes
+.editorconfig
+node_modules
+tests
+docs
+phpunit.xml
+phpstan.neon
+pint.json
+.phpunit.result.cache
+.phpunit.cache
+
+# Environnement : le .env du serveur est la référence
+.env
+.env.backup
+.env.production
+database/*.sqlite
+database/*.sqlite-journal
+
+# Stockage du serveur (médias, sessions, logs) : jamais écrasé
+storage/app/**
+storage/framework/**
+storage/logs/**
+public/storage
+
+# Rendu serveur inutilisable sur mutualisé, Vite dev
+bootstrap/ssr
+public/hot
+
+# Système
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log

@@ -14,6 +14,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,6 +28,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        // Derrière un proxy TLS (Hostinger, Cloudflare), toutes les URL en https.
+        if (config('maison.force_https') === true) {
+            URL::forceScheme('https');
+        }
 
         // Pas de N+1 : le chargement paresseux lève une exception hors production.
         Model::preventLazyLoading(! $this->app->environment('production'));

@@ -1,0 +1,85 @@
+name: Déploiement Hostinger
+
+# Déclenché après une CI verte sur main, ou à la main depuis l'onglet Actions.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deployer:
+    name: Build puis rsync vers Hostinger
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    environment:
+      name: production
+      url: ${{ vars.APP_URL }}
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Installer PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, gd, exif, zip
+          coverage: none
+
+      - name: Installer Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Dépendances PHP (production, sans outils de dev)
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress --no-scripts
+
+      - name: Scripts Composer (découverte des paquets, assets Filament)
+        run: |
+          cp .env.example .env
+          php artisan package:discover --ansi
+          php artisan filament:upgrade
+          rm .env
+
+      - name: Dépendances Node et build Vite (client uniquement, sans SSR)
+        run: |
+          npm ci
+          npx vue-tsc
+          npx vite build
+
+      - name: Clé SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_SSH_KEY }}
+
+      - name: Empreinte du serveur
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "${{ secrets.HOSTINGER_SSH_PORT }}" "${{ secrets.HOSTINGER_SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Synchroniser les fichiers
+        run: |
+          rsync -az --delete \
+            --exclude-from=deploy/hostinger/rsync-exclude.txt \
+            -e "ssh -p ${{ secrets.HOSTINGER_SSH_PORT }}" \
+            ./ "${{ secrets.HOSTINGER_SSH_USER }}@${{ secrets.HOSTINGER_SSH_HOST }}:${{ secrets.HOSTINGER_APP_PATH }}/"
+
+      - name: Mise en production (migrations, caches, maintenance)
+        run: |
+          ssh -p "${{ secrets.HOSTINGER_SSH_PORT }}" "${{ secrets.HOSTINGER_SSH_USER }}@${{ secrets.HOSTINGER_SSH_HOST }}" \
+            "cd '${{ secrets.HOSTINGER_APP_PATH }}' && bash deploy/hostinger/release.sh"
+
+      - name: Vérification
+        run: |
+          sleep 5
+          curl --fail --silent --show-error --location "${{ vars.APP_URL }}/up" > /dev/null
+          echo "Site en ligne : ${{ vars.APP_URL }}"

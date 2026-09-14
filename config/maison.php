@@ -16,6 +16,13 @@ return [
 
     'tagline' => 'Le bleu, bien coupé.',
 
+    /*
+    | Hébergement. TRUSTED_PROXIES : « * » derrière un proxy (Hostinger LiteSpeed, Cloudflare),
+    | vide en local. FORCE_HTTPS : génère toutes les URL en https.
+    */
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
+    'force_https' => (bool) env('FORCE_HTTPS', false),
+
     'admin' => [
         'name' => env('ADMIN_NAME', 'Maison Indigo'),
         'email' => env('ADMIN_EMAIL'),

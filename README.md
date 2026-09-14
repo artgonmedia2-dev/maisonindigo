@@ -40,6 +40,11 @@ composer test         # pest
 npm run build         # vue-tsc + vite (client et SSR)
 ```
 
+## Déploiement
+
+- **Hostinger Hébergement Premium** (mutualisé) : guide complet dans [docs/Deploiement_Hostinger.md](docs/Deploiement_Hostinger.md). Modèle d'environnement `.env.production.example`, script `deploy/hostinger/release.sh`, cron `deploy/hostinger/crontab.txt`, workflow `.github/workflows/deploy.yml` (build des assets puis rsync après CI verte).
+- **VPS + Coolify** (cible du roadmap) : même code, `.env` avec Redis, Horizon et SSR activés.
+
 ## Note Windows
 
 Horizon déclare `ext-pcntl` et `ext-posix`, absentes sur Windows. `composer.json` les déclare en `config.platform` pour que l'installation passe ; en production (Linux) les extensions réelles sont utilisées.

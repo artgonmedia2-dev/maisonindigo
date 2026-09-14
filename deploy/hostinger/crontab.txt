@@ -1,0 +1,5 @@
+# hPanel → Avancé → Tâches cron → « Personnalisé », toutes les minutes.
+# Remplacer USER et DOMAINE. Une seule ligne suffit : le planificateur Laravel
+# lance le worker de file d'attente, le ménage et les tâches futures.
+
+* * * * * cd /home/USER/domains/DOMAINE/maison-indigo && /usr/bin/php artisan schedule:run >> /dev/null 2>&1

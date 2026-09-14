@@ -1,0 +1,136 @@
+# Déploiement sur Hostinger — Hébergement Premium
+
+Guide pas à pas pour mettre Maison Indigo en ligne sur un hébergement mutualisé Hostinger (offre Premium). Compter une heure la première fois, cinq minutes ensuite.
+
+## 1. Ce qui change par rapport au VPS prévu
+
+L'hébergement mutualisé ne permet ni Redis, ni processus permanents (Horizon, serveur SSR Node). Le projet s'adapte tout seul via le `.env` :
+
+| Sujet | VPS (Coolify) | Hostinger Premium |
+|-------|---------------|-------------------|
+| Cache | Redis | Fichier (`CACHE_STORE=file`) |
+| Sessions | Redis | Base de données |
+| File d'attente (WhatsApp, e-mails, images) | Redis + Horizon | Base de données, vidée chaque minute par le cron (`routes/console.php`) |
+| Rendu côté serveur (SSR) | Activé | Désactivé (`INERTIA_SSR_ENABLED=false`) : le site reste indexable, le premier affichage est rendu par le navigateur |
+| Conversions d'images | En arrière-plan | À l'envoi (`QUEUE_CONVERSIONS_BY_DEFAULT=false`) |
+| HTTPS | Cloudflare / Traefik | Certificat Hostinger + `TRUSTED_PROXIES=*` et `FORCE_HTTPS=true` |
+| Base de données | MySQL 8 | MariaDB (compatible, aucune migration à changer) |
+
+Le `.htaccess` de `public/` force le https, interdit les fichiers sensibles, met les assets en cache un an et ajoute les en-têtes de sécurité.
+
+## 2. Préparer l'hébergement (hPanel)
+
+1. **PHP** : hPanel → Avancé → Configuration PHP → version **8.3**. Onglet Extensions : cocher `intl`, `gd`, `exif`, `fileinfo`, `mbstring`, `zip`, `pdo_mysql`, `curl`, `sodium`. Onglet Options : `memory_limit` 256M, `upload_max_filesize` et `post_max_size` 32M, `max_execution_time` 120.
+2. **Base de données** : hPanel → Bases de données → MySQL : créer la base et l'utilisateur (tout accès). Noter nom, utilisateur, mot de passe. L'hôte est `localhost`.
+3. **SSH** : hPanel → Avancé → Accès SSH : activer, noter l'IP, le port (généralement `65002`) et l'utilisateur (`u123456789`). Ajouter une clé publique (celle de votre poste, et celle de GitHub Actions, voir §5).
+4. **Domaine et certificat** : rattacher le domaine, activer le certificat SSL Hostinger et « Forcer HTTPS ».
+5. **E-mail** : créer `bonjour@votre-domaine` dans hPanel → E-mails pour l'envoi SMTP (`smtp.hostinger.com`, port 465, SSL).
+
+## 3. Arborescence sur le serveur
+
+Hostinger sert `~/domains/DOMAINE/public_html`. L'application doit vivre **à côté**, jamais dedans, pour que `.env`, `storage/` et `vendor/` restent inaccessibles.
+
+```
+~/domains/DOMAINE/
+├── maison-indigo/        ← l'application (ce dépôt)
+│   ├── public/
+│   ├── storage/
+│   └── .env
+└── public_html → maison-indigo/public   (lien symbolique)
+```
+
+Depuis SSH :
+
+```bash
+cd ~/domains/DOMAINE
+mkdir -p maison-indigo
+rm -rf public_html            # vide à la création du domaine
+ln -s maison-indigo/public public_html
+```
+
+Si le lien symbolique est refusé (rare), placer l'application dans `public_html/maison-indigo` et copier `deploy/hostinger/public_html.htaccess` vers `public_html/.htaccess`.
+
+## 4. Premier déploiement
+
+### Option A — automatique par GitHub Actions (recommandée)
+
+Le workflow `.github/workflows/deploy.yml` construit les assets, envoie les fichiers par `rsync` et lance `deploy/hostinger/release.sh` après chaque CI verte sur `main` (ou à la main : onglet Actions → « Déploiement Hostinger » → Run workflow).
+
+1. Générer une paire de clés dédiée sur votre poste : `ssh-keygen -t ed25519 -C "github-actions maison-indigo" -f hostinger-deploy`. Ajouter `hostinger-deploy.pub` dans hPanel → Accès SSH → Clés.
+2. Dans GitHub → Settings → Environments → créer `production`, puis y définir :
+
+| Type | Nom | Valeur |
+|------|-----|--------|
+| Secret | `HOSTINGER_SSH_HOST` | IP donnée par hPanel |
+| Secret | `HOSTINGER_SSH_PORT` | `65002` |
+| Secret | `HOSTINGER_SSH_USER` | `u123456789` |
+| Secret | `HOSTINGER_SSH_KEY` | contenu de `hostinger-deploy` (clé privée) |
+| Secret | `HOSTINGER_APP_PATH` | `/home/u123456789/domains/DOMAINE/maison-indigo` |
+| Variable | `APP_URL` | `https://www.DOMAINE` |
+
+3. Sur le serveur, créer le `.env` **avant** le premier lancement :
+
+```bash
+cd ~/domains/DOMAINE/maison-indigo
+cp .env.production.example .env     # après un premier rsync, ou copier le fichier à la main
+nano .env                            # DB_*, ADMIN_*, CONTACT_*, MAIL_*, BANK_*, APP_URL
+```
+
+4. Lancer le workflow. Il migre la base, crée le lien `public/storage`, met les caches et vérifie `/up`.
+5. Créer l'administrateur et le catalogue de départ, une seule fois :
+
+```bash
+php artisan db:seed --class=AdminSeeder --force
+php artisan db:seed --class=SizeChartsSeeder --force
+php artisan db:seed --class=ShippingZonesSeeder --force
+php artisan db:seed --class=DemoCatalogSeeder --force     # facultatif : dix références de démonstration
+```
+
+### Option B — à la main depuis votre poste
+
+Hostinger n'a pas Node : les assets se construisent en local.
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm ci && npx vite build
+rsync -az --delete --exclude-from=deploy/hostinger/rsync-exclude.txt \
+  -e "ssh -p 65002" ./ u123456789@IP:/home/u123456789/domains/DOMAINE/maison-indigo/
+ssh -p 65002 u123456789@IP "cd domains/DOMAINE/maison-indigo && bash deploy/hostinger/release.sh"
+```
+
+## 5. Le cron (obligatoire)
+
+hPanel → Avancé → Tâches cron → Personnalisé, **toutes les minutes** (voir `deploy/hostinger/crontab.txt`) :
+
+```
+* * * * * cd /home/u123456789/domains/DOMAINE/maison-indigo && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
+```
+
+Cette ligne suffit : le planificateur lance le worker de file d'attente (messages WhatsApp, e-mails), le ménage des jobs échoués et, plus tard, les sauvegardes.
+
+## 6. Vérifications après mise en ligne
+
+- `https://www.DOMAINE/up` répond `200`.
+- La home affiche les polices de la maison et l'image hero (assets servis depuis `/build`).
+- `/admin` : connexion, puis Profil → activer la double authentification.
+- Passer une commande test en paiement à la livraison : elle apparaît dans `/admin/orders` ; `storage/logs/laravel-*.log` trace le message WhatsApp tant que `WHATSAPP_TOKEN` est vide.
+- `php artisan schedule:list` montre `queue:work database …` toutes les minutes.
+- Un envoi d'image produit dans Filament crée les conversions dans `storage/app/public`.
+
+## 7. Exploitation
+
+| Besoin | Commande (SSH, dans `maison-indigo/`) |
+|--------|----------------------------------------|
+| Redéployer | relancer le workflow, ou `bash deploy/hostinger/release.sh` |
+| Journaux | `tail -n 100 storage/logs/laravel-$(date +%F).log` |
+| Jobs échoués | `php artisan queue:failed`, `php artisan queue:retry all` |
+| Vider les caches | `php artisan optimize:clear && php artisan optimize` |
+| Maintenance | `php artisan down --render="errors::503"` puis `php artisan up` |
+| Sauvegarde base | hPanel → Fichiers → Sauvegardes (quotidiennes, incluses dans l'offre), ou `mysqldump` |
+
+## 8. Limites connues et moment de migrer vers un VPS
+
+- Pas de SSR : le rendu initial dépend du navigateur ; Google indexe les pages, mais le score Lighthouse « performance » sera un peu plus bas que sur VPS.
+- Le worker tourne au plus 55 secondes par minute : un message WhatsApp peut partir jusqu'à une minute après la commande.
+- Les webhooks WhatsApp (sprint 4) et les pixels serveur (sprint 5) fonctionnent, mais surveillez les limites de processus PHP de l'offre.
+- Quand les commandes dépasseront quelques dizaines par jour, ou dès que le SSR et Horizon deviennent nécessaires, reprendre le plan Coolify + VPS de `docs/MaisonIndigo_MVP_Roadmap.md` : seul le `.env` change.

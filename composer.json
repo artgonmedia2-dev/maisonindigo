@@ -109,7 +109,8 @@
         "platform": {
             "ext-pcntl": "8.3",
             "ext-posix": "8.3"
-        }
+        },
+        "platform-check": "php-only"
     },
     "minimum-stability": "stable",
     "prefer-stable": true

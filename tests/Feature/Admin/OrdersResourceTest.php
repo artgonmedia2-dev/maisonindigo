@@ -31,7 +31,7 @@ it('affiche le détail d’une commande', function () {
         ->assertOk()
         ->assertSee('MI-2026-000008')
         ->assertSee($item->title)
-        ->assertSee('32 / 32')
+        ->assertSee("{$item->size} / {$item->length}")
         ->assertSee($order->shipping_address['name']);
 });
 
