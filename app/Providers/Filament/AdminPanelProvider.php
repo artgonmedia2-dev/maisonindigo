@@ -2,16 +2,18 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Dashboard;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
+use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -50,7 +52,17 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => Color::hex('#8A8F98'),
             ])
             ->viteTheme('resources/css/filament/admin/theme.css')
+            ->darkMode(false)
+            ->spa()
+            ->maxContentWidth(Width::SevenExtraLarge)
             ->sidebarCollapsibleOnDesktop()
+            ->navigationGroups([
+                NavigationGroup::make()->label(fn (): string => __('admin.navigation.catalog')),
+                NavigationGroup::make()->label(fn (): string => __('admin.navigation.orders')),
+                NavigationGroup::make()->label(fn (): string => __('admin.navigation.customers')),
+                NavigationGroup::make()->label(fn (): string => __('admin.navigation.content')),
+                NavigationGroup::make()->label(fn (): string => __('admin.navigation.settings')),
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

@@ -3,7 +3,9 @@
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 
-/* Polices de la maison, auto-hébergées (voir public/fonts/fonts.css chargé par le panel) */
+/* ------------------------------------------------------------------ */
+/* Tokens de la maison (polices chargées par public/fonts/fonts.css)   */
+/* ------------------------------------------------------------------ */
 @theme {
     --font-display: 'Cormorant Garamond', Georgia, serif;
     --font-sans: 'Inter', system-ui, sans-serif;
@@ -15,6 +17,8 @@
     --color-mi-charbon: #141414;
     --color-mi-ocre: #d9822b;
     --color-mi-vert: #2e7d5b;
+    --color-mi-ligne: #e3ded3;
+    --color-mi-ciel: #b9c4d9;
 }
 
 /* Angles vifs, comme sur la boutique */
@@ -26,24 +30,87 @@
     --radius-xl: 0;
     --radius-2xl: 0;
     --radius-3xl: 0;
+    --sidebar-width: 17rem;
 }
 
+/* ------------------------------------------------------------------ */
+/* Structure : fond écru, barre latérale et barre haute blanches       */
+/* ------------------------------------------------------------------ */
 .fi-body {
     background-color: var(--color-mi-ecru);
     color: var(--color-mi-charbon);
+    font-family: var(--font-sans);
 }
 
-.fi-sidebar,
-.fi-topbar nav {
+.fi-sidebar {
     background-color: #ffffff;
-    border-color: #e3ded3;
+    border-inline-end: 1px solid var(--color-mi-ligne);
 }
 
-/* Titres en Cormorant Garamond, bas de casse */
+.fi-sidebar.fi-sidebar-open {
+    box-shadow: none;
+    --tw-ring-shadow: 0 0 #0000;
+}
+
+.fi-sidebar-header {
+    background-color: #ffffff;
+    box-shadow: none;
+    --tw-ring-shadow: 0 0 #0000;
+    border-block-end: 1px solid var(--color-mi-ligne);
+}
+
+.fi-topbar {
+    background-color: #ffffff;
+    box-shadow: none;
+    --tw-ring-shadow: 0 0 #0000;
+    border-block-end: 1px solid var(--color-mi-ligne);
+}
+
+.fi-main {
+    max-inline-size: 84rem;
+}
+
+/* Navigation : libellés de groupe en capitales espacées, élément actif surpiqué */
+.fi-sidebar-group-label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-mi-fil);
+}
+
+.fi-sidebar-item-btn {
+    border-inline-start: 2px solid transparent;
+    transition: background-color 150ms, color 150ms;
+}
+
+.fi-sidebar-item-label {
+    font-weight: 500;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background-color: var(--color-mi-ecru);
+    border-inline-start-color: var(--color-mi-ocre);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label,
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon {
+    color: var(--color-mi-indigo);
+}
+
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover {
+    background-color: var(--color-mi-ecru);
+}
+
+/* ------------------------------------------------------------------ */
+/* Typographie : titres en Cormorant Garamond, bas de casse            */
+/* ------------------------------------------------------------------ */
 .fi-header-heading,
 .fi-section-header-heading,
 .fi-modal-heading,
 .fi-simple-header-heading,
+.fi-ta-header-heading,
+.fi-ta-empty-state-heading,
 .fi-wi-stats-overview-stat-value {
     font-family: var(--font-display);
     font-weight: 600;
@@ -52,11 +119,125 @@
 }
 
 .fi-header-heading {
-    font-size: 2rem;
-    line-height: 2.25rem;
+    font-size: 2.25rem;
+    line-height: 2.5rem;
 }
 
+.fi-header-subheading {
+    color: var(--color-mi-fil);
+}
+
+.fi-section-header-heading {
+    font-size: 1.375rem;
+    line-height: 1.625rem;
+}
+
+.fi-modal-heading {
+    font-size: 1.75rem;
+    line-height: 2rem;
+}
+
+.fi-breadcrumbs {
+    font-size: 0.8125rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Surfaces : blanc, bord fin, aucune ombre                            */
+/* ------------------------------------------------------------------ */
+.fi-section:not(.fi-section-not-contained):not(.fi-aside),
+.fi-section:not(.fi-section-not-contained).fi-aside > .fi-section-content-ctn,
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat,
+.fi-dropdown-panel {
+    box-shadow: none;
+    --tw-ring-shadow: 0 0 #0000;
+    border: 1px solid var(--color-mi-ligne);
+    background-color: #ffffff;
+}
+
+.fi-dropdown-panel {
+    box-shadow: 0 12px 32px -12px rgb(15 27 51 / 0.25);
+}
+
+.fi-modal-window {
+    border: 1px solid var(--color-mi-ligne);
+}
+
+/* Tableaux : en-têtes sur écru, capitales espacées */
+.fi-ta-header-cell {
+    background-color: var(--color-mi-ecru);
+}
+
+.fi-ta-header-cell,
+.fi-ta-header-cell-sort-btn {
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-mi-fil);
+}
+
+.fi-ta-row:hover {
+    background-color: rgb(244 239 230 / 0.55);
+}
+
+/* Statistiques : valeur en Cormorant, libellé en petites capitales */
+.fi-wi-stats-overview-stat-value {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.fi-wi-stats-overview-stat-label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-mi-fil);
+}
+
+/* Badges : patch aux coins coupés, comme une étiquette cousue */
+.fi-badge {
+    clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+    font-weight: 600;
+    --tw-ring-shadow: 0 0 #0000;
+}
+
+/* Boutons et champs */
+.fi-btn {
+    font-weight: 600;
+    letter-spacing: 0;
+    transition: background-color 150ms, color 150ms, border-color 150ms;
+}
+
+.fi-input-wrp {
+    background-color: #ffffff;
+    box-shadow: none;
+    --tw-ring-shadow: 0 0 #0000;
+    border: 1.5px solid var(--color-mi-ligne);
+    transition: border-color 150ms;
+}
+
+.fi-input-wrp:hover {
+    border-color: #cfcac0;
+}
+
+.fi-input-wrp:focus-within {
+    border-color: var(--color-mi-indigo);
+}
+
+.fi-fo-field-label-content {
+    font-weight: 500;
+}
+
+/* Focus visible indigo */
+.fi-body :focus-visible {
+    outline: 2px solid var(--color-mi-indigo);
+    outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------------ */
 /* Wordmark deux lignes dans la barre latérale et la page de connexion */
+/* ------------------------------------------------------------------ */
 .mi-brand {
     display: inline-flex;
     flex-direction: column;
@@ -87,18 +268,84 @@
     letter-spacing: 0.06em;
 }
 
-/* Focus visible indigo */
-.fi-body :focus-visible {
-    outline: 2px solid var(--color-mi-indigo);
-    outline-offset: 3px;
-}
-
-/* Page de connexion sur fond écru, carte blanche à bord fin */
+/* ------------------------------------------------------------------ */
+/* Page de connexion : fond écru, carte blanche à bord fin             */
+/* ------------------------------------------------------------------ */
 .fi-simple-layout {
     background-color: var(--color-mi-ecru);
 }
 
 .fi-simple-main {
-    border: 1px solid #e3ded3;
+    border: 1px solid var(--color-mi-ligne);
     box-shadow: none;
+    --tw-ring-shadow: 0 0 #0000;
+}
+
+.fi-simple-header-heading {
+    font-size: 2rem;
+    line-height: 2.25rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Widget d'accueil du tableau de bord                                 */
+/* ------------------------------------------------------------------ */
+.mi-welcome {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    gap: 2rem;
+    padding: 2rem;
+    background-color: var(--color-mi-indigo);
+    background-image: repeating-linear-gradient(135deg, rgb(255 255 255 / 0.035) 0 2px, transparent 2px 6px);
+    color: var(--color-mi-ecru);
+}
+
+@media (width >= 64rem) {
+    .mi-welcome {
+        grid-template-columns: 1fr auto;
+        align-items: end;
+        padding: 2.5rem;
+    }
+}
+
+.mi-welcome__kicker {
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-mi-ciel);
+}
+
+.mi-welcome__title {
+    margin-block-start: 0.75rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 2.25rem;
+    line-height: 1.1;
+    color: var(--color-mi-ecru);
+}
+
+.mi-welcome__text {
+    margin-block-start: 0.75rem;
+    max-inline-size: 48ch;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-mi-ciel);
+}
+
+.mi-welcome__steps {
+    display: grid;
+    gap: 0.75rem;
+    padding-inline-start: 1.25rem;
+    border-inline-start: 2px dashed var(--color-mi-ocre);
+    font-size: 0.875rem;
+    color: var(--color-mi-ecru);
+}
+
+.mi-welcome__steps span {
+    display: block;
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-mi-ciel);
 }
