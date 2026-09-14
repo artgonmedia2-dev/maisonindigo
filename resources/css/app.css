@@ -40,6 +40,7 @@
     --color-mi-blanc: #ffffff;
     --color-mi-ligne: #e3ded3; /* bordures fines sur écru */
     --color-mi-ciel: #b9c4d9; /* texte secondaire sur fond indigo */
+    --color-mi-erreur: #b23a3a; /* fonctionnel : erreurs de formulaire uniquement */
 
     --font-display: "Cormorant Garamond", Georgia, serif;
     --font-body: "Inter", system-ui, sans-serif;
@@ -47,6 +48,8 @@
     --font-serif: "Cormorant Garamond", Georgia, serif;
 
     /* Échelle typographique : H1 44/48 · H2 32/36 · H3 22/26 · body 16/24 · small 13/18 */
+    --text-hero: clamp(2.75rem, 6.5vw, 5.25rem);
+    --text-hero--line-height: 1.02;
     --text-h1: 2.75rem;
     --text-h1--line-height: 3rem;
     --text-h2: 2rem;
@@ -64,7 +67,7 @@
     /* Transitions uniquement sur les actions utilisateur, ≤ 200 ms */
     --default-transition-duration: 150ms;
 
-    --container-mi: 70rem;
+    --container-mi: 72rem;
 }
 
 /* ------------------------------------------------------------------ */
@@ -100,6 +103,10 @@
         text-wrap: balance;
     }
 
+    p {
+        text-wrap: pretty;
+    }
+
     a {
         color: inherit;
     }
@@ -117,6 +124,18 @@
     button,
     [role="button"] {
         cursor: pointer;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+        font: inherit;
+        letter-spacing: inherit;
+    }
+
+    dialog::backdrop {
+        background-color: rgb(15 27 51 / 0.55);
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -143,7 +162,7 @@
     padding-inline: 1.25rem;
 
     @media (width >= 48rem) {
-        padding-inline: 2rem;
+        padding-inline: 2.5rem;
     }
 }
 
@@ -178,4 +197,90 @@
     font-size: var(--text-small);
     line-height: var(--text-small--line-height);
     font-weight: 500;
+}
+
+/* Lien éditorial : soulignement fin qui apparaît au survol */
+@utility mi-link {
+    text-decoration-line: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.3em;
+    transition-property: text-decoration-color, color;
+    transition-duration: 150ms;
+
+    &:hover,
+    &:focus-visible {
+        text-decoration-color: currentColor;
+    }
+}
+
+/* Lien de navigation : trait ocre qui se déploie depuis le centre */
+@utility mi-nav-link {
+    position: relative;
+    padding-block: 0.25rem;
+
+    &::after {
+        content: "";
+        position: absolute;
+        inset-inline: 0;
+        inset-block-end: -2px;
+        block-size: 2px;
+        background-color: var(--color-mi-ocre);
+        transform: scaleX(0);
+        transition: transform 150ms;
+    }
+
+    &:hover::after,
+    &:focus-visible::after,
+    &[aria-current="page"]::after {
+        transform: scaleX(1);
+    }
+}
+
+/* Champ de formulaire : fond blanc, bord fin, focus indigo */
+@utility mi-input {
+    display: block;
+    inline-size: 100%;
+    background-color: var(--color-mi-blanc);
+    color: var(--color-mi-charbon);
+    border: 1.5px solid var(--color-mi-ligne);
+    padding-block: 0.8125rem;
+    padding-inline: 1rem;
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+    transition: border-color 150ms;
+
+    &::placeholder {
+        color: var(--color-mi-fil);
+    }
+
+    &:hover {
+        border-color: #cfcac0;
+    }
+
+    &:focus {
+        border-color: var(--color-mi-indigo);
+        outline: none;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-mi-indigo);
+        outline-offset: 3px;
+    }
+
+    &[aria-invalid="true"] {
+        border-color: var(--color-mi-erreur);
+    }
+
+    &:disabled {
+        background-color: var(--color-mi-ecru);
+        color: var(--color-mi-fil);
+        cursor: not-allowed;
+    }
+}
+
+/* Carte de la maison : fond blanc, bord fin, aucune ombre */
+@utility mi-card {
+    background-color: var(--color-mi-blanc);
+    border: 1px solid var(--color-mi-ligne);
 }
