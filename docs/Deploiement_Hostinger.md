@@ -20,6 +20,8 @@ Le `.htaccess` de `public/` force le https, interdit les fichiers sensibles, met
 
 ## 2. Préparer l'hébergement (hPanel)
 
+> **À faire en premier, sinon rien ne démarre.** Filament 4 exige **PHP 8.3**. Sur un compte Hostinger neuf, PHP est souvent en 8.2 : l'application s'arrête alors avant même d'écrire dans ses journaux, et le site renvoie une page blanche ou une erreur 500 sans explication.
+
 1. **PHP** : hPanel → Avancé → Configuration PHP → version **8.3**. Onglet Extensions : cocher `intl`, `gd`, `exif`, `fileinfo`, `mbstring`, `zip`, `pdo_mysql`, `curl`, `sodium`. Onglet Options : `memory_limit` 256M, `upload_max_filesize` et `post_max_size` 32M, `max_execution_time` 120.
 2. **Base de données** : hPanel → Bases de données → MySQL : créer la base et l'utilisateur (tout accès). Noter nom, utilisateur, mot de passe. L'hôte est `localhost`.
 3. **SSH** : hPanel → Avancé → Accès SSH : activer, noter l'IP, le port (généralement `65002`) et l'utilisateur (`u123456789`). Ajouter une clé publique (celle de votre poste, et celle de GitHub Actions, voir §5).
@@ -52,7 +54,37 @@ Si le lien symbolique est refusé (rare), placer l'application dans `public_html
 
 ## 4. Premier déploiement
 
-### Option A — automatique par GitHub Actions (recommandée)
+### Option A — archive prête à extraire (la plus simple, aucune configuration préalable)
+
+Sur votre poste, une seule commande fabrique l'archive complète : dépendances de production, assets compilés, assets Filament, redirection vers `public/`, modèle d'environnement.
+
+```bash
+bash deploy/hostinger/build-package.sh
+```
+
+Elle produit `deploy-hostinger.zip` (environ 22 Mo). Ensuite, dans hPanel :
+
+1. Gestionnaire de fichiers → `public_html` → **vider le dossier** (y compris `default.php`).
+2. Téléverser `deploy-hostinger.zip`, puis clic droit → **Extraire**.
+3. Renommer `.env.example` en `.env`, l'ouvrir et renseigner `APP_URL`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
+4. En SSH, dans `public_html` :
+
+```bash
+php artisan key:generate --force
+php artisan migrate --force
+php artisan storage:link
+php artisan db:seed --class=AdminSeeder --force
+php artisan db:seed --class=SizeChartsSeeder --force
+php artisan db:seed --class=ShippingZonesSeeder --force
+php artisan optimize
+php artisan mi:deploy-check
+```
+
+La dernière commande passe en revue PHP, les extensions, le `.env`, la base, les droits d'écriture, les assets et le contenu. Elle affiche en français ce qui bloque et comment le corriger. Tant qu'elle signale un point bloquant, le site ne fonctionnera pas correctement.
+
+L'archive contient un `.htaccess` à sa racine qui renvoie tout vers `public/` et interdit l'accès à `.env`, `vendor/` et au reste de l'application. Si vous préférez la structure propre, réglez plutôt le dossier racine du site sur `public_html/public` (voir §9) et supprimez ce `.htaccess`.
+
+### Option B — automatique par GitHub Actions (recommandée)
 
 Le workflow `.github/workflows/deploy.yml` construit les assets, envoie les fichiers par `rsync` et lance `deploy/hostinger/release.sh` après chaque CI verte sur `main` (ou à la main : onglet Actions → « Déploiement Hostinger » → Run workflow).
 
@@ -86,7 +118,7 @@ php artisan db:seed --class=ShippingZonesSeeder --force
 php artisan db:seed --class=DemoCatalogSeeder --force     # facultatif : dix références de démonstration
 ```
 
-### Option B — à la main depuis votre poste
+### Option C — rsync à la main depuis votre poste
 
 Hostinger n'a pas Node : les assets se construisent en local.
 
@@ -109,6 +141,13 @@ hPanel → Avancé → Tâches cron → Personnalisé, **toutes les minutes** (v
 Cette ligne suffit : le planificateur lance le worker de file d'attente (messages WhatsApp, e-mails), le ménage des jobs échoués et, plus tard, les sauvegardes.
 
 ## 6. Vérifications après mise en ligne
+
+```bash
+php artisan mi:deploy-check          # tout le contrôle en une commande
+php artisan mi:deploy-check --strict # les avertissements deviennent bloquants
+```
+
+Puis, à l'œil :
 
 - `https://www.DOMAINE/up` répond `200`.
 - La home affiche les polices de la maison et l'image hero (assets servis depuis `/build`).

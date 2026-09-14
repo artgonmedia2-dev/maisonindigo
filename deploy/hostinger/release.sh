@@ -65,4 +65,10 @@ $PHP_BIN artisan queue:restart --no-interaction
 echo "→ Fin de maintenance"
 $PHP_BIN artisan up --no-interaction
 
+echo "→ Contrôle final"
+$PHP_BIN artisan mi:deploy-check || {
+    echo "✗ Des points bloquants subsistent, corrigez-les avant d'annoncer l'ouverture." >&2
+    exit 1
+}
+
 echo "✓ Déploiement terminé : $(date '+%d/%m/%Y %H:%M')"

@@ -53,8 +53,7 @@ jobs:
       - name: Dépendances Node et build Vite (client uniquement, sans SSR)
         run: |
           npm ci
-          npx vue-tsc
-          npx vite build
+          npm run build:client
 
       - name: Clé SSH
         uses: webfactory/ssh-agent@v0.9.0

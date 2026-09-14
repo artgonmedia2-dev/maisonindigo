@@ -42,7 +42,7 @@ npm run build         # vue-tsc + vite (client et SSR)
 
 ## Déploiement
 
-- **Hostinger Hébergement Premium** (mutualisé) : guide complet dans [docs/Deploiement_Hostinger.md](docs/Deploiement_Hostinger.md). Modèle d'environnement `.env.production.example`, script `deploy/hostinger/release.sh`, cron `deploy/hostinger/crontab.txt`, workflow `.github/workflows/deploy.yml` (build des assets puis rsync après CI verte).
+- **Hostinger Hébergement Premium** (mutualisé) : `bash deploy/hostinger/build-package.sh` fabrique `deploy-hostinger.zip`, à extraire dans `public_html`. Puis `php artisan mi:deploy-check` sur le serveur vérifie PHP, le `.env`, la base, les droits et les assets. Guide complet dans [docs/Deploiement_Hostinger.md](docs/Deploiement_Hostinger.md). Modèle d'environnement `.env.production.example`, script `deploy/hostinger/release.sh`, cron `deploy/hostinger/crontab.txt`, workflow `.github/workflows/deploy.yml` (build des assets puis rsync après CI verte).
 - **VPS + Coolify** (cible du roadmap) : même code, `.env` avec Redis, Horizon et SSR activés.
 
 ## Note Windows
