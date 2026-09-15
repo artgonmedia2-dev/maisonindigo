@@ -4,6 +4,41 @@
 use Illuminate\Foundation\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 
+/*
+ * Garde-fou avant le chargement de Composer : sous PHP 8.2, le contrôle de
+ * plateforme s'arrête sur un message anglais sans indiquer la marche à suivre.
+ *
+ * Sur un hébergement mutualisé (Hostinger), la version PHP du terminal est
+ * indépendante de celle réglée pour le site : le site peut tourner en 8.3
+ * alors que « php » en SSH reste en 8.2.
+ */
+if (PHP_VERSION_ID < 80300) {
+    $binaries = array_values(array_filter(
+        ['/opt/alt/php83/usr/bin/php', '/usr/local/bin/php83', '/usr/bin/php8.3', '/opt/cpanel/ea-php83/root/usr/bin/php'],
+        'is_executable',
+    ));
+
+    $message = PHP_EOL
+        .'  Maison Indigo demande PHP 8.3. Ce terminal utilise '.PHP_VERSION.'.'.PHP_EOL.PHP_EOL
+        .'  La version PHP du site (hPanel) et celle du terminal sont deux réglages'.PHP_EOL
+        .'  distincts : régler le site en 8.3 ne change pas la ligne de commande.'.PHP_EOL.PHP_EOL;
+
+    if ($binaries !== []) {
+        $message .= '  PHP 8.3 est installé ici :'.PHP_EOL.PHP_EOL
+            .'      '.$binaries[0].' artisan '.implode(' ', array_slice($argv, 1)).PHP_EOL.PHP_EOL
+            .'  Pour que « php » désigne la 8.3 dans toutes vos sessions :'.PHP_EOL.PHP_EOL
+            .'      echo \'export PATH='.dirname($binaries[0]).':$PATH\' >> ~/.bashrc'.PHP_EOL
+            .'      source ~/.bashrc'.PHP_EOL.PHP_EOL;
+    } else {
+        $message .= '  Aucun binaire PHP 8.3 trouvé. Cherchez-le avec :'.PHP_EOL.PHP_EOL
+            .'      ls /opt/alt/php83/usr/bin/php /usr/local/bin/php8*'.PHP_EOL.PHP_EOL;
+    }
+
+    fwrite(STDERR, $message);
+
+    exit(1);
+}
+
 define('LARAVEL_START', microtime(true));
 
 // Register the Composer autoloader...

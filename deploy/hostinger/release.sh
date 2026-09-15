@@ -11,7 +11,26 @@
 set -euo pipefail
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PHP_BIN="${PHP_BIN:-php}"
+# PHP 8.3 est indispensable. Sur un mutualise, « php » en SSH peut rester en 8.2
+# meme quand le site est regle en 8.3 : on cherche alors le bon binaire.
+find_php83() {
+    local candidate
+    for candidate in "${PHP_BIN:-}" php /opt/alt/php83/usr/bin/php /usr/local/bin/php83 /usr/bin/php8.3 /opt/cpanel/ea-php83/root/usr/bin/php; do
+        [[ -z "$candidate" ]] && continue
+        command -v "$candidate" >/dev/null 2>&1 || continue
+        if [[ "$("$candidate" -r 'echo PHP_VERSION_ID >= 80300 ? 1 : 0;' 2>/dev/null)" == "1" ]]; then
+            echo "$candidate"
+            return 0
+        fi
+    done
+    return 1
+}
+
+if ! PHP_BIN="$(find_php83)"; then
+    echo "✗ Aucun PHP 8.3 trouve. hPanel → Avance → Configuration PHP, puis cherchez le binaire :" >&2
+    echo "    ls /opt/alt/php83/usr/bin/php /usr/local/bin/php8*" >&2
+    exit 1
+fi
 
 cd "$APP_DIR"
 

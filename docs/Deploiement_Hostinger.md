@@ -21,12 +21,38 @@ Le `.htaccess` de `public/` force le https, interdit les fichiers sensibles, met
 ## 2. Préparer l'hébergement (hPanel)
 
 > **À faire en premier, sinon rien ne démarre.** Filament 4 exige **PHP 8.3**. Sur un compte Hostinger neuf, PHP est souvent en 8.2 : l'application s'arrête alors avant même d'écrire dans ses journaux, et le site renvoie une page blanche ou une erreur 500 sans explication.
+>
+> **Deux réglages distincts.** La version choisie dans hPanel s'applique **au site**. Le **terminal SSH** garde sa propre version, souvent 8.2. Régler le site en 8.3 ne suffit donc pas pour `php artisan`. Voir §2 bis.
 
 1. **PHP** : hPanel → Avancé → Configuration PHP → version **8.3**. Onglet Extensions : cocher `intl`, `gd`, `exif`, `fileinfo`, `mbstring`, `zip`, `pdo_mysql`, `curl`, `sodium`. Onglet Options : `memory_limit` 256M, `upload_max_filesize` et `post_max_size` 32M, `max_execution_time` 120.
 2. **Base de données** : hPanel → Bases de données → MySQL : créer la base et l'utilisateur (tout accès). Noter nom, utilisateur, mot de passe. L'hôte est `localhost`.
 3. **SSH** : hPanel → Avancé → Accès SSH : activer, noter l'IP, le port (généralement `65002`) et l'utilisateur (`u123456789`). Ajouter une clé publique (celle de votre poste, et celle de GitHub Actions, voir §5).
 4. **Domaine et certificat** : rattacher le domaine, activer le certificat SSL Hostinger et « Forcer HTTPS ».
 5. **E-mail** : créer `bonjour@votre-domaine` dans hPanel → E-mails pour l'envoi SMTP (`smtp.hostinger.com`, port 465, SSL).
+
+## 2 bis. PHP 8.3 dans le terminal SSH
+
+Après avoir réglé le site en 8.3, vérifiez le terminal :
+
+```bash
+php -v
+```
+
+S'il affiche 8.2, `php artisan` refusera de démarrer avec un message vous indiquant le binaire à utiliser. Rendez la 8.3 permanente pour votre compte :
+
+```bash
+echo 'export PATH=/opt/alt/php83/usr/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
+php -v        # doit afficher 8.3
+```
+
+Si ce chemin n'existe pas, cherchez le vôtre :
+
+```bash
+ls /opt/alt/php83/usr/bin/php /usr/local/bin/php8* /usr/bin/php8.3 2>/dev/null
+```
+
+Le même chemin complet doit figurer dans la tâche cron (§5) : `/usr/bin/php` y est souvent en 8.2 et la tâche échouerait sans rien signaler. Le script `deploy/hostinger/release.sh` détecte le bon binaire tout seul.
 
 ## 3. Arborescence sur le serveur
 
@@ -135,7 +161,7 @@ ssh -p 65002 u123456789@IP "cd domains/DOMAINE/maison-indigo && bash deploy/host
 hPanel → Avancé → Tâches cron → Personnalisé, **toutes les minutes** (voir `deploy/hostinger/crontab.txt`) :
 
 ```
-* * * * * cd /home/u123456789/domains/DOMAINE/maison-indigo && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /home/u123456789/domains/DOMAINE/maison-indigo && /opt/alt/php83/usr/bin/php artisan schedule:run >> /dev/null 2>&1
 ```
 
 Cette ligne suffit : le planificateur lance le worker de file d'attente (messages WhatsApp, e-mails), le ménage des jobs échoués et, plus tard, les sauvegardes.
