@@ -74,9 +74,12 @@ $PHP_BIN artisan storage:link --force --no-interaction
 echo "→ Assets Filament"
 $PHP_BIN artisan filament:assets --no-interaction
 
-echo "→ Caches (config, routes, vues, événements)"
+echo "→ Caches (config, routes, événements, composants Filament)"
 $PHP_BIN artisan optimize:clear --no-interaction
-$PHP_BIN artisan optimize --no-interaction
+# Les vues sont exclues : la page de connexion du back-office surcharge un
+# composant Filament, que view:cache ne sait pas résoudre hors du panneau.
+# Blade les compile de toute façon à la première visite, puis les garde.
+$PHP_BIN artisan optimize --except=views --no-interaction
 
 echo "→ Redémarrage des workers"
 $PHP_BIN artisan queue:restart --no-interaction

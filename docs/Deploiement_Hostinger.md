@@ -102,7 +102,7 @@ php artisan storage:link
 php artisan db:seed --class=AdminSeeder --force
 php artisan db:seed --class=SizeChartsSeeder --force
 php artisan db:seed --class=ShippingZonesSeeder --force
-php artisan optimize
+php artisan optimize --except=views
 php artisan mi:deploy-check
 ```
 
@@ -182,6 +182,22 @@ Puis, à l'œil :
 - `php artisan schedule:list` montre `queue:work database …` toutes les minutes.
 - Un envoi d'image produit dans Filament crée les conversions dans `storage/app/public`.
 
+## 6 bis. Pourquoi `--except=views`
+
+`php artisan optimize` tout court échoue avec :
+
+```
+Unable to locate a class or view for component [filament-panels::form].
+```
+
+La page de connexion du back-office surcharge un composant de Filament dans `resources/views/vendor/`. `view:cache` compile ce fichier hors du contexte d'un panneau et ne sait pas résoudre les composants Filament qu'il utilise. C'est attendu, et sans conséquence : Blade compile ces vues à la première visite puis les conserve. Utilisez donc toujours :
+
+```bash
+php artisan optimize --except=views
+```
+
+Cette commande met bien en cache la configuration, les routes, les événements, les composants Filament et les icônes.
+
 ## 7. Exploitation
 
 | Besoin | Commande (SSH, dans `maison-indigo/`) |
@@ -189,7 +205,7 @@ Puis, à l'œil :
 | Redéployer | relancer le workflow, ou `bash deploy/hostinger/release.sh` |
 | Journaux | `tail -n 100 storage/logs/laravel-$(date +%F).log` |
 | Jobs échoués | `php artisan queue:failed`, `php artisan queue:retry all` |
-| Vider les caches | `php artisan optimize:clear && php artisan optimize` |
+| Vider les caches | `php artisan optimize:clear && php artisan optimize --except=views` |
 | Maintenance | `php artisan down --render="errors::503"` puis `php artisan up` |
 | Sauvegarde base | hPanel → Fichiers → Sauvegardes (quotidiennes, incluses dans l'offre), ou `mysqldump` |
 

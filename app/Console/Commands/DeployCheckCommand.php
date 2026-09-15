@@ -144,9 +144,15 @@ class DeployCheckCommand extends Command
 
         try {
             $ran = DB::table('migrations')->pluck('migration')->all();
-            $files = collect(File::files(database_path('migrations')))
+
+            // Les migrations de réglages (spatie/laravel-settings) sont inscrites
+            // dans la même table : on les compte avec les autres.
+            $files = collect([database_path('migrations'), database_path('settings')])
+                ->filter(fn (string $directory): bool => File::isDirectory($directory))
+                ->flatMap(fn (string $directory): array => File::files($directory))
                 ->map(fn ($file): string => $file->getFilenameWithoutExtension())
                 ->all();
+
             $pending = count(array_diff($files, $ran));
         } catch (Throwable) {
             $pending = -1;
@@ -162,7 +168,7 @@ class DeployCheckCommand extends Command
 
         try {
             $settings = app(ShopSettings::class);
-            $this->assert('Réglages de la boutique', filled($settings->contact_email), 'Réglages absents : lancez php artisan migrate --force.');
+            $this->assert('Réglages de la boutique', filled($settings->contact_email), 'La table settings est vide : lancez php artisan migrate --force (les réglages vivent dans database/settings).');
         } catch (Throwable $exception) {
             $this->assert('Réglages de la boutique', false, 'Réglages illisibles : '.$exception->getMessage());
         }
