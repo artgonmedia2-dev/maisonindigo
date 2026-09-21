@@ -31,6 +31,10 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} (.+)/$
 RewriteRule ^ %1 [L,R=301]
 
+# Une réécriture interne a déjà eu lieu : on ne retouche à rien
+RewriteCond %{ENV:REDIRECT_STATUS} ^.+$
+RewriteRule ^ - [L]
+
 # Tout ce qui n'est ni un fichier ni un dossier part au contrôleur frontal
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f

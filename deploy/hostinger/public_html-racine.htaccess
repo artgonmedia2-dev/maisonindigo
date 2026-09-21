@@ -1,16 +1,22 @@
 # ------------------------------------------------------------------
-# Repli quand TOUTE l'application a été déposée à la racine de public_html
+# Maison Indigo — public_html/.htaccess
+#
+# À utiliser quand TOUTE l'application est à la racine de public_html
 # (app/, vendor/, public/, .env… directement dedans).
 #
-# À copier en public_html/.htaccess, après avoir supprimé default.php.
+# Trois principes, appris à nos dépens :
 #
-# Les règles ne sont pas enveloppées dans <IfModule mod_rewrite.c> : sur
-# certaines configurations LiteSpeed le nom du module n'est pas déclaré, le
-# bloc est ignoré en silence, et seule la page d'accueil répond.
+# 1. Les règles ne sont pas enveloppées dans <IfModule mod_rewrite.c> :
+#    certaines configurations LiteSpeed ne déclarent pas le nom du module,
+#    le bloc est ignoré en silence et seule la page d'accueil répond.
 #
-# Rien ne renvoie vers public/$1 : un fichier réel y est servi directement,
-# tout le reste part au contrôleur frontal. Ne pas dépendre de public/.htaccess,
-# qui n'est pas toujours relu après une réécriture interne.
+# 2. Rien n'est réécrit vers public/$1 pour une page : public/.htaccess
+#    n'est pas relu après une réécriture interne, et la page tombe sur le
+#    404 de l'hébergeur. Tout ce qui n'est pas un fichier réel part
+#    directement au contrôleur frontal.
+#
+# 3. Une requête déjà réécrite n'est pas retraitée, sinon la dernière
+#    règle boucle sur elle-même et produit une erreur 500.
 # ------------------------------------------------------------------
 
 Options -Indexes +FollowSymLinks
@@ -19,7 +25,11 @@ DirectoryIndex public/index.php
 
 RewriteEngine On
 
-# Un fichier ou un dossier qui existe réellement dans public/ est servi tel quel
+# 3. Une réécriture interne a déjà eu lieu : on ne retouche à rien
+RewriteCond %{ENV:REDIRECT_STATUS} ^.+$
+RewriteRule ^ - [L]
+
+# 2. Un fichier ou un dossier qui existe vraiment dans public/ est servi tel quel
 RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
 RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
 RewriteRule ^(.*)$ public/$1 [L]
