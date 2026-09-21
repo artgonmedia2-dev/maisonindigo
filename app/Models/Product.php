@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Imagick;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -159,6 +160,18 @@ class Product extends Model implements HasMedia
         return $this->status === ProductStatus::Active;
     }
 
+    /**
+     * Le serveur sait-il écrire de l'AVIF ?
+     */
+    public static function supportsAvif(): bool
+    {
+        if (config('media-library.image_driver') === 'imagick') {
+            return class_exists(Imagick::class) && Imagick::queryFormats('AVIF') !== [];
+        }
+
+        return function_exists('imageavif');
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(self::MEDIA_GALLERY)
@@ -174,11 +187,15 @@ class Product extends Model implements HasMedia
             ->format('webp')
             ->width(800);
 
-        $this->addMediaConversion('card-avif')
-            ->performOnCollections(self::MEDIA_GALLERY)
-            ->withResponsiveImages()
-            ->format('avif')
-            ->width(800);
+        // L'AVIF n'est pas produit partout : une conversion impossible échouerait
+        // à chaque envoi, et le <source> correspondant casserait l'affichage.
+        if (self::supportsAvif()) {
+            $this->addMediaConversion('card-avif')
+                ->performOnCollections(self::MEDIA_GALLERY)
+                ->withResponsiveImages()
+                ->format('avif')
+                ->width(800);
+        }
 
         $this->addMediaConversion('zoom')
             ->performOnCollections(self::MEDIA_GALLERY)

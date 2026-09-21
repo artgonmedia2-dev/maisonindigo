@@ -6,8 +6,12 @@ use App\Models\Product;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
- * Images d'un produit pour le front : conversions WebP/AVIF et srcset.
- * Sans média (démo), retourne null : le front affiche le gabarit d'attente.
+ * Images d'un produit pour le front : conversions WebP et AVIF, avec srcset.
+ *
+ * Chaque variante n'est annoncée que si elle a réellement été générée. Un
+ * navigateur qui choisit un <source> absent affiche une image cassée sans
+ * revenir au <img> de repli : mieux vaut ne rien proposer que du vide.
+ * Sans média, retourne null et le front affiche le gabarit d'attente.
  */
 final class ProductImageResource
 {
@@ -41,10 +45,14 @@ final class ProductImageResource
         /** @var string $view */
         $view = $media->getCustomProperty('view', Product::VIEWS[0]);
 
+        $hasCard = $media->hasGeneratedConversion('card');
+        $hasAvif = $media->hasGeneratedConversion('card-avif');
+
         return [
-            'src' => $media->getUrl('card'),
-            'srcset' => $media->getSrcset('card'),
-            'avif_srcset' => $media->getSrcset('card-avif'),
+            // Sans conversion générée, l'original reste affichable.
+            'src' => $hasCard ? $media->getUrl('card') : $media->getUrl(),
+            'srcset' => $hasCard ? $media->getSrcset('card') : '',
+            'avif_srcset' => $hasAvif ? $media->getSrcset('card-avif') : '',
             'alt' => "{$product->title}, {$product->gender->getLabel()}, vue {$view}",
             'view' => $view,
         ];

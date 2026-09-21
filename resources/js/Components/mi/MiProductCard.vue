@@ -27,10 +27,10 @@ const { t } = useI18n();
         <Link :href="product.url" class="block">
             <div class="relative overflow-hidden bg-mi-ecru">
                 <picture v-if="product.image">
-                    <source type="image/avif" :srcset="product.image.avif_srcset" sizes="(min-width: 768px) 33vw, 50vw" />
+                    <source v-if="product.image.avif_srcset" type="image/avif" :srcset="product.image.avif_srcset" sizes="(min-width: 768px) 33vw, 50vw" />
                     <img
                         :src="product.image.src"
-                        :srcset="product.image.srcset"
+                        :srcset="product.image.srcset || undefined"
                         sizes="(min-width: 768px) 33vw, 50vw"
                         :alt="product.image.alt"
                         :loading="eager ? 'eager' : 'lazy'"

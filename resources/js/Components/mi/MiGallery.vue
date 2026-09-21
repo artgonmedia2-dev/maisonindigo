@@ -34,10 +34,15 @@ const select = (index: number): void => {
     <div v-else class="flex flex-col gap-3 md:flex-row-reverse md:gap-4">
         <figure class="relative min-w-0 flex-1 bg-mi-ecru">
             <picture>
-                <source type="image/avif" :srcset="images[current]?.avif_srcset" sizes="(min-width: 768px) 55vw, 100vw" />
+                <source
+                    v-if="images[current]?.avif_srcset"
+                    type="image/avif"
+                    :srcset="images[current]?.avif_srcset"
+                    sizes="(min-width: 768px) 55vw, 100vw"
+                />
                 <img
                     :src="images[current]?.src"
-                    :srcset="images[current]?.srcset"
+                    :srcset="images[current]?.srcset || undefined"
                     sizes="(min-width: 768px) 55vw, 100vw"
                     :alt="images[current]?.alt"
                     class="aspect-[4/5] w-full object-cover"

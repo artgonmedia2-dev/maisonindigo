@@ -40,7 +40,7 @@ watch(
             <img
                 v-if="line.image"
                 :src="line.image.src"
-                :srcset="line.image.srcset"
+                :srcset="line.image.srcset || undefined"
                 sizes="96px"
                 :alt="line.image.alt"
                 class="aspect-[4/5] w-full object-cover"

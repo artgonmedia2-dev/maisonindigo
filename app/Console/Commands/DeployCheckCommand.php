@@ -268,6 +268,13 @@ class DeployCheckCommand extends Command
         );
 
         $this->warnIf(
+            'Format AVIF disponible',
+            Product::supportsAvif(),
+            'Ce serveur ne sait pas écrire d’AVIF : la boutique servira du WebP, un peu plus lourd. '
+                .'Activez l’extension imagick, ou une version de gd compilée avec AVIF, pour gagner en poids d’image.',
+        );
+
+        $this->warnIf(
             'Caches de production',
             File::exists(base_path('bootstrap/cache/config.php')),
             'Lancez php artisan optimize pour gagner en vitesse.',
