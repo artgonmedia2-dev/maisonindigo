@@ -221,6 +221,29 @@ php artisan mi:logs --full       # avec la trace complète
 
 Ne repassez jamais `APP_DEBUG=true` sur un site ouvert au public : la page d'erreur affiche alors vos identifiants de base de données.
 
+## 6 quinquies. Les photos produit ne s'affichent pas
+
+Deux causes, dans cet ordre.
+
+**Le lien `public/storage` manque.** Les archives ZIP extraites par le gestionnaire de fichiers ne conservent pas les liens symboliques.
+
+```bash
+ls -la public/storage
+rm -rf public/storage && php artisan storage:link
+```
+
+**Les vignettes attendent un worker.** Media Library met les conversions en file d'attente par défaut. Sur mutualisé, sans worker permanent, elles ne sont jamais générées : l'adresse `/storage/<id>/conversions/…` renvoie alors 404, et la fiche produit affiche une image cassée.
+
+```bash
+grep QUEUE_CONVERSIONS .env          # doit valoir false
+php artisan config:clear
+php artisan queue:work --stop-when-empty    # traite ce qui attend déjà
+php artisan media-library:regenerate        # régénère l'existant
+php artisan optimize --except=views
+```
+
+`php artisan mi:deploy-check` signale désormais les deux cas.
+
 ## 7. Exploitation
 
 | Besoin | Commande (SSH, dans `maison-indigo/`) |

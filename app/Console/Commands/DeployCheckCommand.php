@@ -255,6 +255,18 @@ class DeployCheckCommand extends Command
             'public/fonts absent : la boutique retombera sur les polices du système.',
         );
 
+        // Sur mutualisé, une conversion mise en file d'attente n'est générée
+        // que par le cron : sans lui, aucune photo produit n'apparaît jamais.
+        $queued = config('media-library.queue_conversions_by_default') === true;
+
+        $this->warnIf(
+            'Conversions d’images immédiates',
+            ! $queued || config('queue.default') === 'sync',
+            'QUEUE_CONVERSIONS_BY_DEFAULT=true : les vignettes attendent un worker. '
+                .'Passez-le à false dans .env, puis php artisan config:clear, '
+                .'et régénérez l’existant avec php artisan media-library:regenerate.',
+        );
+
         $this->warnIf(
             'Caches de production',
             File::exists(base_path('bootstrap/cache/config.php')),

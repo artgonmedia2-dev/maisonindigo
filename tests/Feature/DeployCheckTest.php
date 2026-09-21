@@ -63,3 +63,17 @@ it('ne laisse aucun fichier de contrôle derrière lui', function () {
     expect($after)->toBe($before)
         ->and(File::glob(storage_path('app/public/controle-*.txt')))->toBe([]);
 });
+
+it('signale des vignettes laissées en file d’attente', function () {
+    config()->set('media-library.queue_conversions_by_default', true);
+    config()->set('queue.default', 'database');
+
+    $this->artisan('mi:deploy-check')
+        ->expectsOutputToContain('Conversions d’images immédiates')
+        ->expectsOutputToContain('QUEUE_CONVERSIONS_BY_DEFAULT');
+
+    config()->set('media-library.queue_conversions_by_default', false);
+
+    $this->artisan('mi:deploy-check')
+        ->doesntExpectOutputToContain('QUEUE_CONVERSIONS_BY_DEFAULT');
+});
