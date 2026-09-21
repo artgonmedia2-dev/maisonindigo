@@ -1,34 +1,33 @@
 # ------------------------------------------------------------------
-# Repli rapide quand TOUTE l'application a été envoyée à la racine de
-# public_html (app/, vendor/, public/, .env… directement dedans).
+# Repli quand TOUTE l'application a été déposée à la racine de public_html
+# (app/, vendor/, public/, .env… directement dedans).
 #
 # À copier en public_html/.htaccess, après avoir supprimé default.php.
-# Tout est renvoyé vers public/ et le reste de l'application devient
-# inaccessible depuis le web.
 #
-# Préférer, dès que possible, la structure propre décrite dans
-# docs/Deploiement_Hostinger.md (application à côté de public_html).
+# Les règles ne sont pas enveloppées dans <IfModule mod_rewrite.c> : sur
+# certaines configurations LiteSpeed le nom du module n'est pas déclaré, le
+# bloc est ignoré en silence, et seule la page d'accueil répond.
+#
+# Rien ne renvoie vers public/$1 : un fichier réel y est servi directement,
+# tout le reste part au contrôleur frontal. Ne pas dépendre de public/.htaccess,
+# qui n'est pas toujours relu après une réécriture interne.
 # ------------------------------------------------------------------
 
-# La page d'index est celle de Laravel, jamais default.php
+Options -Indexes +FollowSymLinks
+
 DirectoryIndex public/index.php
 
-<IfModule mod_rewrite.c>
-    RewriteEngine On
+RewriteEngine On
 
-    # Racine du site → public/index.php
-    RewriteRule ^$ public/index.php [L]
+# Un fichier ou un dossier qui existe réellement dans public/ est servi tel quel
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+RewriteRule ^(.*)$ public/$1 [L]
 
-    # Tout ce qui ne vise pas déjà public/ y est réécrit en interne
-    RewriteCond %{REQUEST_URI} !^/public/
-    RewriteRule ^(.+)$ public/$1 [L]
-</IfModule>
+# Tout le reste : contrôleur frontal de Laravel
+RewriteRule ^ public/index.php [L]
 
-# Rien d'autre que public/ n'est accessible, même en URL directe
-<IfModule mod_alias.c>
-    RedirectMatch 404 ^/(app|bootstrap|config|database|deploy|docs|lang|node_modules|resources|routes|storage|tests|vendor|\.git|\.github)(/|$)
-</IfModule>
-
+# Le reste de l'application n'est pas accessible depuis le web
 <FilesMatch "^(\.env|\.env\..*|\.git.*|\.editorconfig|artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|phpstan\.neon|pint\.json|tsconfig\.json|vite\.config\.ts|README\.md|default\.php)$">
     Require all denied
 </FilesMatch>

@@ -198,12 +198,35 @@ php artisan optimize --except=views
 
 Cette commande met bien en cache la configuration, les routes, les événements, les composants Filament et les icônes.
 
+## 6 ter. Toutes les pages sauf l'accueil renvoient la page 404 de Hostinger
+
+Symptôme : `/` répond, mais `/femme`, `/admin` et `/up` tombent sur « This Page Does Not Exist ». Les images et les fichiers de `build/` se chargent normalement.
+
+Cause : la réécriture d'URL vers `index.php` ne s'applique pas. Sur certaines configurations LiteSpeed, `<IfModule mod_rewrite.c>` est ignoré en silence : les règles à l'intérieur ne s'exécutent jamais, et seule la page d'accueil répond, servie par `DirectoryIndex`.
+
+Correction : les `.htaccess` du projet ne placent plus les règles de réécriture dans ce bloc. Renvoyez `public/.htaccess` et, si l'application est à la racine, `public_html/.htaccess`. Vérifiez ensuite :
+
+```bash
+curl -sI https://votre-domaine/up | head -1     # doit répondre 200
+```
+
+## 6 quater. Lire la cause d'une erreur 500
+
+En production, `APP_DEBUG=false` masque le détail, ce qui est voulu. La cause est dans le journal :
+
+```bash
+php artisan mi:logs              # les cinq dernières erreurs
+php artisan mi:logs --full       # avec la trace complète
+```
+
+Ne repassez jamais `APP_DEBUG=true` sur un site ouvert au public : la page d'erreur affiche alors vos identifiants de base de données.
+
 ## 7. Exploitation
 
 | Besoin | Commande (SSH, dans `maison-indigo/`) |
 |--------|----------------------------------------|
 | Redéployer | relancer le workflow, ou `bash deploy/hostinger/release.sh` |
-| Journaux | `tail -n 100 storage/logs/laravel-$(date +%F).log` |
+| Journaux | `php artisan mi:logs` |
 | Jobs échoués | `php artisan queue:failed`, `php artisan queue:retry all` |
 | Vider les caches | `php artisan optimize:clear && php artisan optimize --except=views` |
 | Maintenance | `php artisan down --render="errors::503"` puis `php artisan up` |
