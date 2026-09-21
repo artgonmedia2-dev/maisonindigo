@@ -9,6 +9,7 @@ use App\Settings\ShopSettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
 
 /**
@@ -274,11 +275,71 @@ class DeployCheckCommand extends Command
                 .'Activez l’extension imagick, ou une version de gd compilée avec AVIF, pour gagner en poids d’image.',
         );
 
+        $this->checkMediaFiles();
+
         $this->warnIf(
             'Caches de production',
             File::exists(base_path('bootstrap/cache/config.php')),
             'Lancez php artisan optimize pour gagner en vitesse.',
         );
+    }
+
+    /**
+     * La base peut annoncer une conversion qui n’existe plus sur le disque :
+     * file d’attente interrompue, transfert incomplet, dossier storage recréé.
+     * La boutique retombe alors sur l’original, plus lourd mais visible.
+     */
+    private function checkMediaFiles(): void
+    {
+        try {
+            $media = Media::query()->get();
+        } catch (Throwable $exception) {
+            $this->assert('Lecture des médias', false, $exception->getMessage());
+
+            return;
+        }
+
+        $originaux = 0;
+        $conversions = 0;
+
+        foreach ($media as $item) {
+            if (! $this->fichierPresent($item, '')) {
+                $originaux++;
+
+                continue;
+            }
+
+            foreach (array_keys(array_filter($item->generated_conversions ?? [])) as $conversion) {
+                if (! $this->fichierPresent($item, (string) $conversion)) {
+                    $conversions++;
+                }
+            }
+        }
+
+        $this->assert(
+            'Fichiers images présents',
+            $originaux === 0,
+            $originaux.' image(s) d’origine introuvable(s) sur le disque : '
+                .'le dossier storage/app/public n’a pas été transféré en entier. '
+                .'Renvoyez-le, puis relancez php artisan media-library:regenerate.',
+        );
+
+        $this->warnIf(
+            'Vignettes présentes',
+            $conversions === 0,
+            $conversions.' vignette(s) annoncée(s) par la base mais absente(s) du disque. '
+                .'Lancez php artisan media-library:regenerate --force pour les recréer.',
+        );
+    }
+
+    private function fichierPresent(Media $media, string $conversion): bool
+    {
+        try {
+            return is_file($media->getPath($conversion));
+        } catch (Throwable) {
+            // Disque distant : on ne peut pas vérifier, on ne signale rien.
+            return true;
+        }
     }
 
     private function checkContent(): void

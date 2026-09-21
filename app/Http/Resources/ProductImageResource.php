@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Product;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Throwable;
 
 /**
  * Images d'un produit pour le front : conversions WebP et AVIF, avec srcset.
@@ -45,8 +46,8 @@ final class ProductImageResource
         /** @var string $view */
         $view = $media->getCustomProperty('view', Product::VIEWS[0]);
 
-        $hasCard = $media->hasGeneratedConversion('card');
-        $hasAvif = $media->hasGeneratedConversion('card-avif');
+        $hasCard = self::hasConversion($media, 'card');
+        $hasAvif = self::hasConversion($media, 'card-avif');
 
         return [
             // Sans conversion générée, l'original reste affichable.
@@ -56,5 +57,25 @@ final class ProductImageResource
             'alt' => "{$product->title}, {$product->gender->getLabel()}, vue {$view}",
             'view' => $view,
         ];
+    }
+
+    /**
+     * Une conversion n'est utilisable que si la base la declare generee ET que
+     * le fichier existe vraiment. Une file d'attente interrompue, un transfert
+     * incomplet ou un dossier storage recree laissent la colonne a true alors
+     * que l'image a disparu : le front afficherait alors une image cassee.
+     */
+    private static function hasConversion(Media $media, string $conversion): bool
+    {
+        if (! $media->hasGeneratedConversion($conversion)) {
+            return false;
+        }
+
+        try {
+            return is_file($media->getPath($conversion));
+        } catch (Throwable) {
+            // Disque distant : impossible de verifier, on fait confiance a la base.
+            return true;
+        }
     }
 }

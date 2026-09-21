@@ -33,6 +33,11 @@ RewriteRule ^ - [L]
 # l'index de dossier, que LiteSpeed refuse après une réécriture interne.
 RewriteRule ^$ public/index.php [L]
 
+# Les médias : servis directement depuis storage/app/public, sans dépendre du
+# lien symbolique public/storage, que le serveur web ne traverse pas toujours.
+RewriteCond %{DOCUMENT_ROOT}/storage/app/public/$1 -f
+RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
+
 # 2. Un fichier ou un dossier qui existe vraiment dans public/ est servi tel quel
 RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
 RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
