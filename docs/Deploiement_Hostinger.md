@@ -223,7 +223,22 @@ Ne repassez jamais `APP_DEBUG=true` sur un site ouvert au public : la page d'err
 
 ## 6 quinquies. Les photos produit ne s'affichent pas
 
-Trois causes, dans cet ordre.
+Quatre causes, dans cet ordre.
+
+**Les photos sont écrites hors du web.** Sans disque imposé, Filament suit
+`FILESYSTEM_DISK`. Avec `FILESYSTEM_DISK=local`, les images partent dans
+`storage/app/private`, que le serveur ne sert pas : `/storage/…` renvoie 404
+alors que le fichier existe. C'est la cause la plus trompeuse, car tout paraît
+correct — enregistrement en base, fichier sur le disque, droits en ordre.
+
+```bash
+find storage/app -type f ! -name '.gitignore' | head   # tout doit être sous app/public
+php artisan mi:media-disk --force                      # rapatrie l'existant
+php artisan media-library:regenerate --force
+```
+
+Ajoutez `FILAMENT_FILESYSTEM_DISK=public` à votre `.env` pour que cela ne
+recommence pas.
 
 **Le lien `public/storage` manque.** Les archives ZIP extraites par le gestionnaire de fichiers ne conservent pas les liens symboliques.
 

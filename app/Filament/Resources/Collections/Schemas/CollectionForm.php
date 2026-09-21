@@ -89,6 +89,8 @@ class CollectionForm
                         SpatieMediaLibraryFileUpload::make('cover')
                             ->label(__('admin.collections.fields.cover'))
                             ->collection(Collection::MEDIA_COVER)
+                            // Sans cela, Filament suit FILESYSTEM_DISK et écrit hors du web.
+                            ->disk(config('media-library.disk_name'))
                             ->image()
                             ->imageEditor()
                             ->maxSize(8192),

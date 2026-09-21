@@ -197,6 +197,8 @@ class ProductForm
                     SpatieMediaLibraryFileUpload::make('gallery')
                         ->label(__('admin.products.fields.gallery'))
                         ->collection(Product::MEDIA_GALLERY)
+                        // Sans cela, Filament suit FILESYSTEM_DISK et écrit hors du web.
+                        ->disk(config('media-library.disk_name'))
                         ->multiple()
                         ->reorderable()
                         ->appendFiles()

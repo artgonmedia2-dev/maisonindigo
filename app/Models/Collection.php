@@ -69,6 +69,7 @@ class Collection extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(self::MEDIA_COVER)
+            ->useDisk(config('media-library.disk_name'))
             ->singleFile()
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif']);
     }

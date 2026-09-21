@@ -299,6 +299,26 @@ class DeployCheckCommand extends Command
             return;
         }
 
+        /** @var string $disqueMedias */
+        $disqueMedias = config('media-library.disk_name');
+
+        $this->assert(
+            'Disque des médias servi par le web',
+            config("filesystems.disks.{$disqueMedias}.root") === storage_path('app/public'),
+            "Le disque « {$disqueMedias} » n’est pas storage/app/public : les photos seront écrites "
+                .'hors de la zone publique et /storage/… renverra 404. Corrigez MEDIA_DISK dans .env.',
+        );
+
+        $egarees = $media->reject(fn (Media $item): bool => $item->disk === $disqueMedias)->count();
+
+        $this->assert(
+            'Images rangées sur le bon disque',
+            $egarees === 0,
+            $egarees.' image(s) stockée(s) hors du disque des médias, souvent parce que Filament a suivi '
+                .'FILESYSTEM_DISK. Lancez php artisan mi:media-disk --force, '
+                .'puis php artisan media-library:regenerate --force.',
+        );
+
         $originaux = 0;
         $conversions = 0;
 
