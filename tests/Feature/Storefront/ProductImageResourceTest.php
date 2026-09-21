@@ -105,6 +105,17 @@ it('retombe sur l’original quand la base annonce une conversion absente du dis
         ->and($image['avif_srcset'])->toBe('');
 });
 
+it('ignore un média dont le fichier d’origine a disparu', function () {
+    $product = Product::factory()->create();
+    $media = attachMedia($product, ['card' => true]);
+
+    Storage::disk('public')->delete($media->getPathRelativeToRoot());
+
+    // Le gabarit d’attente vaut mieux qu’une image cassée.
+    expect(ProductImageResource::first($product->fresh()))->toBeNull()
+        ->and(ProductImageResource::all($product->fresh()))->toBe([]);
+});
+
 it('ne renvoie rien sans média', function () {
     expect(ProductImageResource::first(Product::factory()->create()))->toBeNull();
 });

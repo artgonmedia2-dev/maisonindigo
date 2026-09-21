@@ -321,7 +321,9 @@ class DeployCheckCommand extends Command
             $originaux === 0,
             $originaux.' image(s) d’origine introuvable(s) sur le disque : '
                 .'le dossier storage/app/public n’a pas été transféré en entier. '
-                .'Renvoyez-le, puis relancez php artisan media-library:regenerate.',
+                .'Renvoyez-le, puis php artisan media-library:regenerate. '
+                .'Si les photos sont perdues, php artisan mi:media-prune nettoie la base '
+                .'avant de les reverser depuis le back-office.',
         );
 
         $this->warnIf(

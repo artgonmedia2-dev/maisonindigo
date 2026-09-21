@@ -223,7 +223,7 @@ Ne repassez jamais `APP_DEBUG=true` sur un site ouvert au public : la page d'err
 
 ## 6 quinquies. Les photos produit ne s'affichent pas
 
-Deux causes, dans cet ordre.
+Trois causes, dans cet ordre.
 
 **Le lien `public/storage` manque.** Les archives ZIP extraites par le gestionnaire de fichiers ne conservent pas les liens symboliques.
 
@@ -242,7 +242,31 @@ php artisan media-library:regenerate        # régénère l'existant
 php artisan optimize --except=views
 ```
 
-`php artisan mi:deploy-check` signale désormais les deux cas.
+**Les fichiers ne sont plus sur le serveur.** C'est le cas le plus sévère : la base
+garde les enregistrements, le disque est vide, et toutes les adresses `/storage/…`
+renvoient 404, y compris les originaux.
+
+```bash
+ls -la storage/app/public/     # ne contient que .gitignore : les photos ont disparu
+php artisan mi:media-prune     # remet la base en accord avec le disque
+```
+
+Il ne reste plus qu'à reverser les photos depuis le back-office. Pour éviter que cela
+se reproduise, voir l'encadré ci-dessous.
+
+`php artisan mi:deploy-check` signale désormais les trois cas : originaux manquants
+(bloquant), vignettes fantômes et conversions en file d'attente (avertissements).
+
+> **Les photos ne sont pas dans le dépôt.** `storage/app/public/` vit uniquement sur
+> le serveur : ni Git, ni l'archive ZIP, ni `rsync` ne le reconstituent. Avant toute
+> remise en ligne qui réécrit `public_html`, sauvegardez-le, et restaurez-le après :
+>
+> ```bash
+> tar czf ~/medias-$(date +%F).tar.gz -C ~/public_html storage/app/public
+> # … remise en ligne …
+> tar xzf ~/medias-AAAA-MM-JJ.tar.gz -C ~/public_html
+> php artisan storage:link
+> ```
 
 ## 7. Exploitation
 

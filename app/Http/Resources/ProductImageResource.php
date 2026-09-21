@@ -33,16 +33,24 @@ final class ProductImageResource
     public static function all(Product $product): array
     {
         return $product->getMedia(Product::MEDIA_GALLERY)
-            ->map(fn (Media $media): array => self::fromMedia($media, $product))
+            ->map(fn (Media $media): ?array => self::fromMedia($media, $product))
+            ->filter()
             ->values()
             ->all();
     }
 
     /**
-     * @return array{src: string, srcset: string, avif_srcset: string, alt: string, view: string}
+     * @return array{src: string, srcset: string, avif_srcset: string, alt: string, view: string}|null
      */
-    private static function fromMedia(Media $media, Product $product): array
+    private static function fromMedia(Media $media, Product $product): ?array
     {
+        // Sans fichier d’origine, il n’y a rien à montrer : mieux vaut le gabarit
+        // d’attente qu’une image cassée. Cela arrive quand la base a survécu à une
+        // remise en ligne qui a emporté le dossier storage.
+        if (! self::fichierPresent($media, '')) {
+            return null;
+        }
+
         /** @var string $view */
         $view = $media->getCustomProperty('view', Product::VIEWS[0]);
 
@@ -60,21 +68,26 @@ final class ProductImageResource
     }
 
     /**
-     * Une conversion n'est utilisable que si la base la declare generee ET que
-     * le fichier existe vraiment. Une file d'attente interrompue, un transfert
-     * incomplet ou un dossier storage recree laissent la colonne a true alors
-     * que l'image a disparu : le front afficherait alors une image cassee.
+     * Une conversion n’est utilisable que si la base la déclare générée ET que
+     * le fichier existe vraiment. Une file d’attente interrompue, un transfert
+     * incomplet ou un dossier storage recréé laissent la colonne à true alors
+     * que l’image a disparu : le front afficherait alors une image cassée.
      */
     private static function hasConversion(Media $media, string $conversion): bool
     {
-        if (! $media->hasGeneratedConversion($conversion)) {
-            return false;
-        }
+        return $media->hasGeneratedConversion($conversion)
+            && self::fichierPresent($media, $conversion);
+    }
 
+    /**
+     * @param  string  $conversion  Vide pour le fichier d’origine.
+     */
+    private static function fichierPresent(Media $media, string $conversion): bool
+    {
         try {
             return is_file($media->getPath($conversion));
         } catch (Throwable) {
-            // Disque distant : impossible de verifier, on fait confiance a la base.
+            // Disque distant : impossible de vérifier, on fait confiance à la base.
             return true;
         }
     }
