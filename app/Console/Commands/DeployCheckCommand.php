@@ -182,16 +182,54 @@ class DeployCheckCommand extends Command
             $this->assert("Écriture dans {$path}", is_writable(base_path($path)), 'Lancez chmod -R 775 storage bootstrap/cache.');
         }
 
-        $this->warnIf(
-            'Lien public/storage',
-            File::exists(public_path('storage')),
-            'Lancez php artisan storage:link : sans lui, les photos produit ne s’affichent pas.',
-        );
+        $this->checkStorageLink();
 
         $this->warnIf(
             'Fichier .env hors du web',
             ! File::exists(public_path('.env')),
             'Un .env est accessible dans public/ : supprimez-le immédiatement.',
+        );
+    }
+
+    /**
+     * Le lien public/storage est la cause la plus fréquente d'images absentes :
+     * on vérifie qu'il existe, qu'il pointe au bon endroit et qu'un fichier
+     * déposé dans storage/app/public est bien lisible à travers lui.
+     */
+    private function checkStorageLink(): void
+    {
+        $link = public_path('storage');
+        $target = storage_path('app/public');
+
+        if (! File::exists($link)) {
+            $this->assert('Lien public/storage', false, 'Lancez php artisan storage:link : sans lui, aucune photo produit ne s’affiche.');
+
+            return;
+        }
+
+        if (! is_dir($link)) {
+            $this->assert('Lien public/storage', false, 'public/storage existe mais n’est pas un dossier. Supprimez-le puis relancez php artisan storage:link.');
+
+            return;
+        }
+
+        $probe = 'controle-'.bin2hex(random_bytes(4)).'.txt';
+
+        try {
+            File::ensureDirectoryExists($target);
+            File::put($target.DIRECTORY_SEPARATOR.$probe, 'ok');
+            $readable = File::exists($link.DIRECTORY_SEPARATOR.$probe);
+        } catch (Throwable) {
+            $readable = false;
+        } finally {
+            File::delete($target.DIRECTORY_SEPARATOR.$probe);
+        }
+
+        $this->assert(
+            'Lien public/storage',
+            $readable,
+            'public/storage ne donne pas accès à storage/app/public. Supprimez-le puis relancez php artisan storage:link, '
+                .'et vérifiez que le .htaccess autorise +FollowSymLinks.',
         );
     }
 

@@ -47,3 +47,19 @@ it('rend les avertissements bloquants avec --strict', function () {
 
     $this->artisan('mi:deploy-check --strict')->assertFailed();
 });
+
+it('ne laisse aucun fichier de contrôle derrière lui', function () {
+    $before = File::exists(storage_path('app/public'))
+        ? count(File::files(storage_path('app/public')))
+        : 0;
+
+    $this->artisan('mi:deploy-check');
+
+    $after = File::exists(storage_path('app/public'))
+        ? count(File::files(storage_path('app/public')))
+        : 0;
+
+    // Le contrôle du lien écrit un fichier témoin : il doit être effacé.
+    expect($after)->toBe($before)
+        ->and(File::glob(storage_path('app/public/controle-*.txt')))->toBe([]);
+});
