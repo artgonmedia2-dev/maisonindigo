@@ -44,3 +44,7 @@ Homestead.yaml
 # Archives de déploiement et captures de débogage
 /deploy-hostinger.zip
 /response.html
+
+# Dossiers de travail sans rapport avec la boutique
+/app.zip
+/awesome-free-llm-apis/
