@@ -29,6 +29,10 @@ RewriteEngine On
 RewriteCond %{ENV:REDIRECT_STATUS} ^.+$
 RewriteRule ^ - [L]
 
+# La racine du site : directement le contrôleur frontal, sans passer par
+# l'index de dossier, que LiteSpeed refuse après une réécriture interne.
+RewriteRule ^$ public/index.php [L]
+
 # 2. Un fichier ou un dossier qui existe vraiment dans public/ est servi tel quel
 RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
 RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
