@@ -36,15 +36,10 @@ function checkoutPayload(array $overrides = []): array
     return [
         'name' => 'Salma Idrissi',
         'phone' => '06 12 34 56 78',
-        'email' => 'salma@exemple.ma',
-        'line1' => '12 rue des Orangers',
-        'line2' => 'Appartement 4',
         'city' => 'Casablanca',
-        'region' => '',
+        'line1' => '12 rue des Orangers',
         'payment_method' => 'cod',
         'discount_code' => '',
-        'notes' => 'Interphone Idrissi',
-        'accept_terms' => true,
         ...$overrides,
     ];
 }
@@ -65,6 +60,12 @@ it('affiche la page de commande avec zones, villes et modes de paiement', functi
             ->has('payment_methods', 2)
             ->where('payment_methods.0.value', 'cod')
             ->where('cart.count', 1)
+            // Le formulaire ne demande que le nom, le mobile, la ville et l'adresse.
+            ->has('prefill', 4)
+            ->has('prefill.name')
+            ->has('prefill.phone')
+            ->has('prefill.city')
+            ->has('prefill.line1')
         );
 });
 
@@ -88,7 +89,9 @@ it('enregistre une commande payée à la livraison', function () {
         ->and($order->shipping_address['name'])->toBe('Salma Idrissi')
         ->and($order->shipping_address['phone'])->toBe('0612345678')
         ->and($order->shipping_address['zone'])->toBe('Casablanca')
-        ->and($order->customer_notes)->toBe('Interphone Idrissi')
+        ->and($order->shipping_address['city'])->toBe('Casablanca')
+        ->and($order->shipping_address['line1'])->toBe('12 rue des Orangers')
+        ->and($order->shipping_address)->not->toHaveKeys(['email', 'line2', 'region'])
         ->and($order->items)->toHaveCount(1)
         ->and($order->items[0]->sku)->toBe($variant->sku)
         ->and($order->items[0]->unit_price)->toBe(49900)
@@ -165,8 +168,8 @@ it('applique un code saisi à la caisse', function () {
 it('valide le formulaire', function () {
     cartWith();
 
-    $this->post(route('checkout.store'), checkoutPayload(['phone' => '12345', 'name' => '', 'accept_terms' => false, 'payment_method' => 'card']))
-        ->assertSessionHasErrors(['phone', 'name', 'accept_terms', 'payment_method']);
+    $this->post(route('checkout.store'), checkoutPayload(['phone' => '12345', 'name' => '', 'city' => '', 'line1' => '', 'payment_method' => 'card']))
+        ->assertSessionHasErrors(['phone', 'name', 'city', 'line1', 'payment_method']);
 
     expect(Order::query()->count())->toBe(0);
 });

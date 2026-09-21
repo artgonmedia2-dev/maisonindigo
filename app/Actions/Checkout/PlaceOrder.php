@@ -93,7 +93,6 @@ class PlaceOrder
                 'currency' => 'MAD',
                 'shipping_address' => $data->toSnapshot($quote->zoneName),
                 'discount_code' => $discount->code,
-                'customer_notes' => $data->notes,
             ]);
 
             $order->items()->createMany($lines);

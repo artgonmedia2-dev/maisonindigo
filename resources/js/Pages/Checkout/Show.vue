@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import MiButton from '@/Components/mi/MiButton.vue';
-import MiCheckbox from '@/Components/mi/MiCheckbox.vue';
+import MiIcon from '@/Components/mi/MiIcon.vue';
 import MiInput from '@/Components/mi/MiInput.vue';
 import MiNotice from '@/Components/mi/MiNotice.vue';
 import MiOrderSummary from '@/Components/mi/MiOrderSummary.vue';
 import MiRadioCard from '@/Components/mi/MiRadioCard.vue';
-import MiTextarea from '@/Components/mi/MiTextarea.vue';
 import { useCart } from '@/composables/useCart';
 import { useI18n } from '@/composables/useI18n';
 import { useRoute } from '@/composables/useRoute';
 import StorefrontLayout from '@/Layouts/StorefrontLayout.vue';
 import type { CheckoutPageProps, ShippingZoneOption } from '@/types/Checkout';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { computed, useId } from 'vue';
+import { computed, ref, useId } from 'vue';
 
 const props = defineProps<CheckoutPageProps>();
 
@@ -20,21 +19,18 @@ const { t, tc } = useI18n();
 const route = useRoute();
 const { cart } = useCart();
 
+/* Quatre champs, et rien d'autre : nom, mobile, ville, adresse. */
 const form = useForm({
     name: props.prefill.name,
     phone: props.prefill.phone,
-    email: props.prefill.email,
-    line1: props.prefill.line1,
-    line2: props.prefill.line2,
     city: props.prefill.city,
-    region: props.prefill.region,
+    line1: props.prefill.line1,
     payment_method: 'cod',
     discount_code: cart.value.discount.code ?? '',
-    notes: '',
-    accept_terms: false,
 });
 
 const citiesListId = useId();
+const showCode = ref(cart.value.discount.code !== null);
 
 /* Estimation de livraison côté client, recalculée par le serveur à la validation. */
 const normalize = (value: string): string =>
@@ -85,19 +81,38 @@ const submit = (): void => {
 
             <form class="mt-10 grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-12" novalidate @submit.prevent="submit">
                 <div class="flex flex-col gap-10 md:col-span-7">
-                    <!-- Livraison -->
+                    <!-- Livraison : quatre champs -->
                     <section class="mi-card p-7 md:p-9">
                         <h2 class="text-h3"><span class="text-mi-stone">01</span> {{ t('checkout.stepAddress') }}</h2>
+                        <p class="mt-2 text-small text-mi-fil">{{ t('checkout.addressHint') }}</p>
+
                         <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <MiInput v-model="form.name" name="name" :label="t('checkout.name')" :error="form.errors.name" autocomplete="name" required class="sm:col-span-2" />
-                            <MiInput v-model="form.phone" type="tel" name="phone" :label="t('checkout.phone')" :hint="t('checkout.phoneHint')" :error="form.errors.phone" autocomplete="tel" placeholder="06 12 34 56 78" required />
-                            <MiInput v-model="form.email" type="email" name="email" :label="t('checkout.email')" :hint="t('checkout.emailHint')" :error="form.errors.email" autocomplete="email" />
-                            <MiInput v-model="form.line1" name="line1" :label="t('checkout.line1')" :error="form.errors.line1" autocomplete="address-line1" required class="sm:col-span-2" />
-                            <MiInput v-model="form.line2" name="line2" :label="t('checkout.line2')" :error="form.errors.line2" autocomplete="address-line2" class="sm:col-span-2" />
+                            <MiInput
+                                v-model="form.name"
+                                name="name"
+                                :label="t('checkout.name')"
+                                :error="form.errors.name"
+                                autocomplete="name"
+                                required
+                                autofocus
+                            />
+
+                            <MiInput
+                                v-model="form.phone"
+                                type="tel"
+                                name="phone"
+                                :label="t('checkout.phone')"
+                                :hint="t('checkout.phoneHint')"
+                                :error="form.errors.phone"
+                                autocomplete="tel"
+                                placeholder="06 12 34 56 78"
+                                required
+                            />
+
                             <div class="flex flex-col gap-2">
-                                <div class="flex items-baseline justify-between gap-4">
-                                    <label :for="`${citiesListId}-ville`" class="text-small font-medium text-mi-charbon">{{ t('checkout.city') }}</label>
-                                </div>
+                                <label :for="`${citiesListId}-ville`" class="text-small font-medium text-mi-charbon">
+                                    {{ t('checkout.city') }}
+                                </label>
                                 <input
                                     :id="`${citiesListId}-ville`"
                                     v-model="form.city"
@@ -115,7 +130,16 @@ const submit = (): void => {
                                 <p class="text-small text-mi-fil">{{ t('checkout.cityHint') }}</p>
                                 <p v-if="form.errors.city" class="text-small text-mi-erreur" role="alert">{{ form.errors.city }}</p>
                             </div>
-                            <MiInput v-model="form.region" name="region" :label="t('checkout.region')" :error="form.errors.region" autocomplete="address-level1" />
+
+                            <MiInput
+                                v-model="form.line1"
+                                name="line1"
+                                :label="t('checkout.line1')"
+                                :hint="t('checkout.line1Hint')"
+                                :error="form.errors.line1"
+                                autocomplete="street-address"
+                                required
+                            />
                         </div>
                     </section>
 
@@ -134,15 +158,6 @@ const submit = (): void => {
                             />
                         </div>
                         <p v-if="form.errors.payment_method" class="mt-2 text-small text-mi-erreur" role="alert">{{ form.errors.payment_method }}</p>
-
-                        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-end">
-                            <MiInput v-model="form.discount_code" name="discount_code" :label="t('checkout.discountCode')" :error="form.errors.discount_code ?? cart.discount.code_error ?? undefined" class="flex-1" />
-                            <MiButton variant="outline" @click="applyCode">{{ t('checkout.discountApply') }}</MiButton>
-                        </div>
-
-                        <div class="mt-8">
-                            <MiTextarea v-model="form.notes" name="notes" :label="t('checkout.notes')" :hint="t('checkout.notesHint')" :error="form.errors.notes" :maxlength="500" />
-                        </div>
                     </section>
                 </div>
 
@@ -168,9 +183,27 @@ const submit = (): void => {
                             />
                         </div>
 
-                        <div class="mt-7">
-                            <MiCheckbox v-model="form.accept_terms" name="accept_terms" :label="t('checkout.terms')" />
-                            <p v-if="form.errors.accept_terms" class="mt-2 text-small text-mi-erreur" role="alert">{{ form.errors.accept_terms }}</p>
+                        <!-- Code de remise : discret, replié par défaut -->
+                        <div class="mt-6">
+                            <button
+                                v-if="!showCode"
+                                type="button"
+                                class="mi-link inline-flex items-center gap-2 text-small font-medium text-mi-stone"
+                                @click="showCode = true"
+                            >
+                                <MiIcon name="ticket" :size="16" /> {{ t('checkout.haveCode') }}
+                            </button>
+
+                            <div v-else class="flex flex-col gap-3 sm:flex-row sm:items-end">
+                                <MiInput
+                                    v-model="form.discount_code"
+                                    name="discount_code"
+                                    :label="t('checkout.discountCode')"
+                                    :error="form.errors.discount_code ?? cart.discount.code_error ?? undefined"
+                                    class="flex-1"
+                                />
+                                <MiButton variant="outline" size="sm" @click="applyCode">{{ t('checkout.discountApply') }}</MiButton>
+                            </div>
                         </div>
 
                         <MiNotice v-if="Object.keys(form.errors).length > 0" kind="error" class="mt-5">
@@ -180,7 +213,12 @@ const submit = (): void => {
                         <MiButton type="submit" variant="primary" block class="mt-6" :loading="form.processing" arrow>
                             {{ form.processing ? t('checkout.submitting') : t('checkout.submit') }}
                         </MiButton>
-                        <p class="mt-4 text-center text-small text-mi-fil">{{ t('checkout.secure') }}</p>
+
+                        <p class="mt-4 text-center text-small leading-relaxed text-mi-fil">
+                            {{ t('checkout.termsNotice') }}
+                            <Link href="/cgv" class="mi-link">{{ t('footer.terms') }}</Link>
+                        </p>
+                        <p class="mt-3 text-center text-small text-mi-fil">{{ t('checkout.secure') }}</p>
                     </div>
                 </aside>
             </form>

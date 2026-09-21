@@ -86,8 +86,7 @@ const steps = computed<ReadonlyArray<{ icon: MiIconName; title: string; text: st
                         <address class="mt-3 text-[15px] not-italic leading-relaxed text-mi-charbon">
                             <span class="font-medium">{{ order.address.name }}</span><br />
                             {{ order.address.line1 }}<br />
-                            <template v-if="order.address.line2">{{ order.address.line2 }}<br /></template>
-                            {{ order.address.city }}<span v-if="order.address.region"> · {{ order.address.region }}</span><br />
+                            {{ order.address.city }}<br />
                             {{ order.address.phone }}
                         </address>
                     </div>

@@ -44,16 +44,12 @@ class OrderInfolist
                     ->schema([
                         TextEntry::make('address_name')->label(__('admin.orders.fields.name'))->state(fn (Order $record): string => (string) data_get($record->shipping_address, 'name')),
                         TextEntry::make('address_phone')->label(__('admin.orders.fields.phone'))->state(fn (Order $record): string => (string) data_get($record->shipping_address, 'phone'))->copyable(),
-                        TextEntry::make('address_email')->label(__('admin.orders.fields.email'))->state(fn (Order $record): ?string => data_get($record->shipping_address, 'email'))->placeholder('—'),
-                        TextEntry::make('address_lines')->label(__('admin.orders.fields.address'))->columnSpan(2)->state(fn (Order $record): string => implode(', ', array_filter([
-                            data_get($record->shipping_address, 'line1'),
-                            data_get($record->shipping_address, 'line2'),
-                        ]))),
+                        TextEntry::make('address_lines')->label(__('admin.orders.fields.address'))->columnSpan(2)->state(fn (Order $record): string => (string) data_get($record->shipping_address, 'line1')),
                         TextEntry::make('address_city')->label(__('admin.orders.fields.city'))->state(fn (Order $record): string => trim(implode(' · ', array_filter([
                             data_get($record->shipping_address, 'city'),
                             data_get($record->shipping_address, 'zone'),
                         ])))),
-                        TextEntry::make('customer_notes')->label(__('admin.orders.fields.customer_notes'))->columnSpan(3)->placeholder('—'),
+                        TextEntry::make('notes')->label(__('admin.orders.fields.notes'))->columnSpan(3)->placeholder('—'),
                     ]),
 
                 Section::make(__('admin.orders.sections.items'))

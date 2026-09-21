@@ -23,7 +23,8 @@ export type MiIconName =
     | 'eye-off'
     | 'logout'
     | 'alert'
-    | 'info';
+    | 'info'
+    | 'ticket';
 
 withDefaults(
     defineProps<{
@@ -126,6 +127,10 @@ withDefaults(
         <template v-else-if="name === 'info'">
             <circle cx="12" cy="12" r="8.5" />
             <path d="M12 11v5.5M12 7.5v.5" />
+        </template>
+        <template v-else-if="name === 'ticket'">
+            <path d="M3 8.5V6.5h18v2a2.5 2.5 0 0 0 0 7v2H3v-2a2.5 2.5 0 0 0 0-7Z" />
+            <path d="M13.5 6.5v1.5M13.5 11v2M13.5 16v1.5" stroke-dasharray="2 2" />
         </template>
     </svg>
 </template>

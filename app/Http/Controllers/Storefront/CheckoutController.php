@@ -77,11 +77,8 @@ class CheckoutController extends Controller
             'prefill' => [
                 'name' => $address->name ?? $customer->name ?? '',
                 'phone' => $address->phone ?? $customer->phone ?? '',
-                'email' => $customer->email ?? '',
-                'line1' => $address->line1 ?? '',
-                'line2' => $address->line2 ?? '',
                 'city' => $address->city ?? '',
-                'region' => $address->region ?? '',
+                'line1' => $address->line1 ?? '',
             ],
         ]);
     }

@@ -52,3 +52,12 @@ it('affiche la page de maintenance dans le ton de la maison', function () {
         ->toContain('Maison Indigo · Maroc')
         ->toContain('cormorant-garamond-latin.woff2');
 });
+
+it('limite les formulaires publics de compte', function () {
+    foreach (range(1, 6) as $attempt) {
+        $response = $this->post('/forgot-password', ['email' => 'inconnu@exemple.ma']);
+    }
+
+    // La sixième tentative en une minute est refusée.
+    expect($response->getStatusCode())->toBe(429);
+});

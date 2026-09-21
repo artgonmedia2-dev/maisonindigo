@@ -17,14 +17,12 @@ export interface PaymentMethodOption {
     description: string;
 }
 
+/** Les quatre seuls champs du formulaire de commande. */
 export interface CheckoutPrefill {
     name: string;
     phone: string;
-    email: string;
-    line1: string;
-    line2: string;
     city: string;
-    region: string;
+    line1: string;
 }
 
 export interface CheckoutPageProps {
@@ -38,11 +36,8 @@ export interface CheckoutPageProps {
 export interface OrderAddress {
     name: string;
     phone: string;
-    email: string | null;
-    line1: string;
-    line2: string | null;
     city: string;
-    region: string | null;
+    line1: string;
     zone: string;
 }
 

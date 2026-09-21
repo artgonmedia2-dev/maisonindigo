@@ -346,7 +346,7 @@ return [
             'email' => 'E-mail',
             'address' => 'Adresse',
             'city' => 'Ville · zone',
-            'customer_notes' => 'Remarques du client',
+            'notes' => 'Notes internes',
             'item' => 'Article',
             'size' => 'Taille / longueur',
             'qty' => 'Qté',

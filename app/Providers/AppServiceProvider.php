@@ -55,5 +55,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('cart', fn (Request $request) => Limit::perMinute(60)->by($request->ip() ?? 'inconnu'));
         RateLimiter::for('stock-alert', fn (Request $request) => Limit::perMinute(5)->by($request->ip() ?? 'inconnu'));
         RateLimiter::for('size-quiz', fn (Request $request) => Limit::perMinute(20)->by($request->ip() ?? 'inconnu'));
+
+        // Inscription et mot de passe oublié : formulaires publics qui créent
+        // des comptes ou envoient des e-mails. Cinq tentatives par minute suffisent.
+        RateLimiter::for('account', fn (Request $request) => Limit::perMinute(5)->by($request->ip() ?? 'inconnu'));
     }
 }

@@ -18,8 +18,21 @@ class ProductFactory extends Factory
 {
     public function definition(): array
     {
+        // Le trio genre x coupe x lavage est unique en base : on écarte les
+        // combinaisons déjà présentes (catalogue de démonstration, autres fabriques).
+        $taken = Product::query()
+            ->get(['gender', 'cut', 'wash'])
+            ->map(fn (Product $product): string => "{$product->gender->value}|{$product->cut->value}|{$product->wash->value}")
+            ->all();
+
+        $available = array_values(array_diff(self::combinations(), $taken));
+
+        if ($available === []) {
+            $available = self::combinations();
+        }
+
         /** @var string $combination */
-        $combination = fake()->unique()->randomElement(self::combinations());
+        $combination = fake()->unique()->randomElement($available);
         [$genderValue, $cutValue, $washValue] = explode('|', $combination);
 
         $gender = Gender::from($genderValue);
