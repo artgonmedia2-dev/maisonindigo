@@ -37,8 +37,8 @@ const { t } = useI18n();
 <template>
     <div>
         <ul class="divide-y divide-mi-ligne border-y border-mi-ligne">
-            <li v-for="line in lines" :key="line.id" class="flex items-start justify-between gap-4 py-3.5 text-[15px]">
-                <div class="min-w-0">
+            <li v-for="line in lines" :key="line.id" class="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 py-3.5 text-[15px]">
+                <div class="min-w-[7.5rem] flex-1">
                     <p class="font-medium text-mi-charbon">{{ line.title }}</p>
                     <p class="text-small text-mi-fil">{{ line.size }} / {{ line.length }} · × {{ line.qty }}</p>
                 </div>

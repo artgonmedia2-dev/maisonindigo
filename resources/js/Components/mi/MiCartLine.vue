@@ -51,8 +51,8 @@ watch(
         </Link>
 
         <div class="flex min-w-0 flex-1 flex-col gap-2">
-            <div class="flex items-start justify-between gap-4">
-                <div class="min-w-0">
+            <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+                <div class="min-w-[7.5rem] flex-1">
                     <Link :href="route('product.show', line.slug)" class="mi-link font-display text-[1.125rem] font-semibold leading-tight text-mi-indigo">
                         {{ line.title }}
                     </Link>

@@ -50,3 +50,11 @@ RewriteRule ^ public/index.php [L]
 <FilesMatch "^(\.env|\.env\..*|\.git.*|\.editorconfig|artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|phpstan\.neon|pint\.json|tsconfig\.json|vite\.config\.ts|README\.md|default\.php)$">
     Require all denied
 </FilesMatch>
+
+# Les médias servis depuis storage/ ne passent pas par public/.htaccess :
+# sans ces types, LiteSpeed renvoie les AVIF et WebP en text/plain.
+# Sans <IfModule> : LiteSpeed ignore ces blocs en silence.
+AddType image/avif .avif
+AddType image/webp .webp
+AddType image/jpeg .jpg .jpeg
+AddType image/png .png

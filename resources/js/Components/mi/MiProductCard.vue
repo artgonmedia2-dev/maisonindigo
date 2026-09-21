@@ -52,8 +52,10 @@ const { t } = useI18n();
                 </span>
             </div>
 
-            <div class="mt-4 flex items-start justify-between gap-4">
-                <div class="min-w-0">
+            <!-- flex-wrap plus une largeur plancher : sur deux colonnes mobiles, le prix
+                 passe sous le titre au lieu de l'écraser lettre par lettre. -->
+            <div class="mt-4 flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+                <div class="min-w-[7.5rem] flex-1">
                     <h3 class="font-display text-[1.25rem] font-semibold leading-tight text-mi-indigo">
                         <span class="mi-link">{{ product.title }}</span>
                     </h3>
