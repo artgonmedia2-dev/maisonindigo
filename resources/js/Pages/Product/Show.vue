@@ -7,10 +7,12 @@ import MiNotice from '@/Components/mi/MiNotice.vue';
 import MiPatch from '@/Components/mi/MiPatch.vue';
 import MiBreadcrumb from '@/Components/mi/MiBreadcrumb.vue';
 import MiPrice from '@/Components/mi/MiPrice.vue';
+import MiWashSwitcher from '@/Components/mi/MiWashSwitcher.vue';
 import MiProductCard from '@/Components/mi/MiProductCard.vue';
 import MiSizeSelector from '@/Components/mi/MiSizeSelector.vue';
 import { useCart } from '@/composables/useCart';
 import { useI18n } from '@/composables/useI18n';
+import { useMoney } from '@/composables/useMoney';
 import { useRoute } from '@/composables/useRoute';
 import type { TranslationKey } from '@/i18n';
 import StorefrontLayout from '@/Layouts/StorefrontLayout.vue';
@@ -21,17 +23,54 @@ import { computed, ref } from 'vue';
 const props = defineProps<ProductPageProps>();
 
 const { t } = useI18n();
+const { format } = useMoney();
 const route = useRoute();
 const page = usePage();
-const { add, busy } = useCart();
+const { add, addMany, busy } = useCart();
+
+const defaultLength = props.product.lengths.includes(32) ? 32 : (props.product.lengths[0] ?? null);
 
 const size = ref<number | null>(null);
-const length = ref<number | null>(props.product.lengths.includes(32) ? 32 : (props.product.lengths[0] ?? null));
+const length = ref<number | null>(defaultLength);
 
-const selectedVariant = computed(() =>
-    props.product.variants.find((v) => v.size === size.value && v.length === length.value),
-);
-const canAdd = computed(() => selectedVariant.value !== undefined && selectedVariant.value.in_stock && !busy.value);
+/**
+ * L'offre choisie : un jean, ou le lot. Le lot porte sur le même modèle,
+ * deux tailles au choix ; pour un autre lavage, le sélecteur de coloris
+ * est juste au-dessus.
+ */
+const offer = ref<'single' | 'pack'>('single');
+const size2 = ref<number | null>(null);
+const length2 = ref<number | null>(defaultLength);
+
+const variantFor = (s: number | null, l: number | null) =>
+    props.product.variants.find((v) => v.size === s && v.length === l);
+
+const selectedVariant = computed(() => variantFor(size.value, length.value));
+const secondVariant = computed(() => variantFor(size2.value, length2.value));
+
+const isPack = computed(() => offer.value === 'pack' && props.pack !== null);
+
+const canAdd = computed(() => {
+    const premier = selectedVariant.value;
+
+    if (premier === undefined || !premier.in_stock || busy.value) {
+        return false;
+    }
+
+    if (!isPack.value) {
+        return true;
+    }
+
+    const second = secondVariant.value;
+
+    // Même taille deux fois : il faut deux unités en stock.
+    if (second !== undefined && second.id === premier.id) {
+        return premier.stock >= 2;
+    }
+
+    return second !== undefined && second.in_stock;
+});
+
 const isOutOfStock = computed(() => selectedVariant.value !== undefined && !selectedVariant.value.in_stock);
 
 const addError = computed(() => {
@@ -40,9 +79,32 @@ const addError = computed(() => {
 });
 
 const addToCart = (): void => {
-    if (selectedVariant.value !== undefined && selectedVariant.value.in_stock) {
-        add(selectedVariant.value.id, 1);
+    const premier = selectedVariant.value;
+
+    if (premier === undefined || !premier.in_stock) {
+        return;
     }
+
+    if (!isPack.value) {
+        add(premier.id, 1);
+
+        return;
+    }
+
+    const second = secondVariant.value;
+
+    if (second === undefined) {
+        return;
+    }
+
+    addMany(
+        second.id === premier.id
+            ? [{ variant_id: premier.id, qty: 2 }]
+            : [
+                  { variant_id: premier.id, qty: 1 },
+                  { variant_id: second.id, qty: 1 },
+              ],
+    );
 };
 
 /* « Me prévenir » */
@@ -103,6 +165,8 @@ const modelHeight = computed(() => (props.product.model_height_cm === null ? nul
 
                     <hr class="mi-stitch border-0" />
 
+                    <MiWashSwitcher :siblings="props.siblings" />
+
                     <MiSizeSelector v-model:size="size" v-model:length="length" :sizes="product.sizes" :lengths="product.lengths" :variants="product.variants">
                         <template #size-aside>
                             <Link :href="route('size-quiz')" class="mi-link inline-flex items-center gap-1.5 text-small font-medium text-mi-stone">
@@ -110,6 +174,56 @@ const modelHeight = computed(() => (props.product.model_height_cm === null ? nul
                             </Link>
                         </template>
                     </MiSizeSelector>
+
+                    <!-- L'offre : un jean, ou le lot. Le prix annoncé est celui
+                         que le panier facturera, calculé par le même moteur. -->
+                    <div v-if="props.pack">
+                        <p class="mi-caps text-[11px] text-mi-stone">{{ t('product.offer') }}</p>
+
+                        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <button
+                                type="button"
+                                class="border-[1.5px] p-4 text-start transition-colors duration-150"
+                                :class="offer === 'single' ? 'border-mi-indigo' : 'border-mi-ligne hover:border-mi-stone'"
+                                :aria-pressed="offer === 'single'"
+                                @click="offer = 'single'"
+                            >
+                                <span class="block font-display text-[1.125rem] font-semibold text-mi-indigo">{{ t('product.offerSingle') }}</span>
+                                <MiPrice :amount="product.price" size="sm" class="mt-1" />
+                            </button>
+
+                            <button
+                                type="button"
+                                class="border-[1.5px] p-4 text-start transition-colors duration-150"
+                                :class="offer === 'pack' ? 'border-mi-indigo' : 'border-mi-ligne hover:border-mi-stone'"
+                                :aria-pressed="offer === 'pack'"
+                                @click="offer = 'pack'"
+                            >
+                                <span class="block font-display text-[1.125rem] font-semibold text-mi-indigo">
+                                    {{ t('product.offerPack', { count: props.pack.quantity }) }}
+                                </span>
+                                <MiPrice :amount="props.pack.total" size="sm" class="mt-1" />
+                                <span class="mt-1 block text-small text-mi-fil">
+                                    {{ t('product.offerUnit', { price: format(props.pack.unit) }) }}
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- La seconde taille, révélée seulement quand le lot est choisi. -->
+                    <div v-if="isPack" class="border-s-2 border-mi-ocre ps-5">
+                        <p class="text-[15px] font-medium text-mi-charbon">{{ t('product.packSecond') }}</p>
+                        <p class="mt-1 text-small text-mi-fil">{{ t('product.packSecondHint') }}</p>
+
+                        <MiSizeSelector
+                            v-model:size="size2"
+                            v-model:length="length2"
+                            :sizes="product.sizes"
+                            :lengths="product.lengths"
+                            :variants="product.variants"
+                            class="mt-4"
+                        />
+                    </div>
 
                     <MiNotice v-if="addError" kind="error">{{ addError }}</MiNotice>
 
@@ -124,7 +238,9 @@ const modelHeight = computed(() => (props.product.model_height_cm === null ? nul
                     </div>
 
                     <MiButton v-else variant="primary" block :disabled="!canAdd" :loading="busy" @click="addToCart">
-                        {{ busy ? t('product.adding') : t('product.addToCart') }}
+                        <template v-if="busy">{{ t('product.adding') }}</template>
+                        <template v-else-if="isPack && props.pack">{{ t('product.addPack', { count: props.pack.quantity }) }}</template>
+                        <template v-else>{{ t('product.addToCart') }}</template>
                     </MiButton>
 
                     <ul class="flex flex-col gap-2.5 text-small text-mi-charbon">

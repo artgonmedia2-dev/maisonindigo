@@ -25,6 +25,27 @@ export function useCart() {
         drawerOpen.value = false;
     };
 
+    /**
+     * Ajoute une ou plusieurs lignes d'un coup.
+     *
+     * Le lot part en une seule requête : le serveur l'ajoute en transaction,
+     * donc un panier ne se retrouve jamais avec la moitié d'un duo.
+     */
+    const addMany = (lines: Array<{ variant_id: number; qty: number }>): void => {
+        busy.value = true;
+        router.post(
+            route('cart.store'),
+            { items: lines },
+            {
+                preserveScroll: true,
+                onSuccess: () => openDrawer(),
+                onFinish: () => {
+                    busy.value = false;
+                },
+            },
+        );
+    };
+
     const add = (variantId: number, qty = 1): void => {
         busy.value = true;
         router.post(
@@ -72,6 +93,7 @@ export function useCart() {
         openDrawer,
         closeDrawer,
         add,
+        addMany,
         update,
         remove,
     };

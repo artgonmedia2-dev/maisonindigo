@@ -14,6 +14,7 @@ use App\Models\CartItem;
 use App\Models\ProductVariant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -37,17 +38,28 @@ class CartController extends Controller
 
     public function store(AddToCartRequest $request, AddToCart $addToCart): RedirectResponse
     {
-        /** @var ProductVariant $variant */
-        $variant = ProductVariant::query()->with('product')->findOrFail($request->integer('variant_id'));
+        $lines = $request->lines();
         $cart = $this->resolveCart->handle($request, create: true);
 
+        $dernier = null;
+
         try {
-            $addToCart->handle($cart, $variant, $request->integer('qty', 1));
+            // Un lot part en une transaction : si la seconde taille manque, la
+            // première ne reste pas seule dans le panier.
+            DB::transaction(function () use ($lines, $cart, $addToCart, &$dernier): void {
+                foreach ($lines as $line) {
+                    /** @var ProductVariant $variant */
+                    $variant = ProductVariant::query()->with('product')->findOrFail($line['variant_id']);
+
+                    $addToCart->handle($cart, $variant, $line['qty']);
+                    $dernier = $variant->id;
+                }
+            });
         } catch (OutOfStockException $exception) {
             return back()->withErrors(['variant_id' => $exception->getMessage()]);
         }
 
-        return back()->with('cart_added', $variant->id);
+        return back()->with('cart_added', $dernier);
     }
 
     public function update(UpdateCartItemRequest $request, CartItem $item, UpdateCartItem $updateCartItem): RedirectResponse

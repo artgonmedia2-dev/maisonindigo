@@ -46,6 +46,59 @@ class DiscountEngine
         );
     }
 
+    /**
+     * L'offre « lot » telle qu'elle s'appliquera au panier, pour un prix
+     * unitaire donné.
+     *
+     * La fiche produit l'affiche au lieu de recalculer un barrème à part :
+     * le prix annoncé est celui que le panier facturera, toujours.
+     *
+     * @return array{quantity: int, subtotal: int, total: int, unit: int, label: string}|null
+     */
+    public function packOffer(int $unitPrice): ?array
+    {
+        if ($unitPrice <= 0) {
+            return null;
+        }
+
+        $best = null;
+
+        $bundles = Discount::query()
+            ->active()
+            ->whereNull('code')
+            ->where('type', DiscountType::Bundle)
+            ->get();
+
+        foreach ($bundles as $discount) {
+            /** @var array<string, mixed> $rules */
+            $rules = $discount->rules ?? [];
+            $quantity = max(2, (int) ($rules['min_qty'] ?? 2));
+            $subtotal = $unitPrice * $quantity;
+
+            $result = $this->apply($discount, $subtotal, $quantity);
+
+            if ($result === null) {
+                continue;
+            }
+
+            $total = $subtotal - $result->total;
+
+            if ($best === null || $total < $best['total']) {
+                $best = [
+                    'quantity' => $quantity,
+                    'subtotal' => $subtotal,
+                    'total' => $total,
+                    // Le prix à l'unité, arrondi vers le bas : on n'annonce
+                    // jamais moins cher que ce qui sera facturé.
+                    'unit' => intdiv($total, $quantity),
+                    'label' => $discount->name,
+                ];
+            }
+        }
+
+        return $best;
+    }
+
     private function bestAutomatic(int $subtotal, int $quantity): ?DiscountResult
     {
         $best = null;

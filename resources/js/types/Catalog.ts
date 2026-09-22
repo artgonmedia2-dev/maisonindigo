@@ -109,6 +109,24 @@ export interface CollectionPageProps {
     };
 }
 
+/** Un autre lavage de la même coupe. */
+export interface ProductSibling {
+    slug: string;
+    url: string;
+    label: string;
+    image: string | null;
+    current: boolean;
+}
+
+/** L'offre en lot, telle que le panier l'appliquera. Montants en centimes. */
+export interface PackOffer {
+    quantity: number;
+    subtotal: number;
+    total: number;
+    unit: number;
+    label: string;
+}
+
 export interface ProductPageProps {
     product: ProductDetail;
     related: ProductCard[];
@@ -116,4 +134,6 @@ export interface ProductPageProps {
     breadcrumb: BreadcrumbItem[];
     /** Le hub de la coupe : chaque fiche y renvoie. */
     hub: OutboundLink | null;
+    siblings: ProductSibling[];
+    pack: PackOffer | null;
 }

@@ -6,7 +6,9 @@ use App\Enums\Gender;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductCardResource;
 use App\Http\Resources\ProductDetailResource;
+use App\Http\Resources\ProductImageResource;
 use App\Models\Product;
+use App\Services\DiscountEngine;
 use App\Services\SeoService;
 use App\Support\CatalogTerms;
 use Illuminate\Http\RedirectResponse;
@@ -63,7 +65,45 @@ class ProductController extends Controller
             'breadcrumb' => $breadcrumb,
             // Le hub de la coupe : chaque fiche y renvoie, aucune page orpheline.
             'hub' => $this->hubLink($product),
+            // « Coloris — même coupe » : les frères du produit, même genre et
+            // même coupe, un par lavage.
+            'siblings' => $this->siblings($product),
+            'pack' => app(DiscountEngine::class)->packOffer($product->price),
         ]);
+    }
+
+    /**
+     * Les autres lavages de la même coupe, le produit courant compris.
+     *
+     * C'est le sélecteur de coloris : le client change de lavage sans perdre
+     * sa coupe, et chaque lavage garde son adresse propre.
+     *
+     * @return list<array{slug: string, url: string, label: string, image: string|null, current: bool}>
+     */
+    private function siblings(Product $product): array
+    {
+        $freres = Product::query()
+            ->active()
+            ->where('gender', $product->gender)
+            ->where('cut', $product->cut)
+            ->with('media')
+            ->orderBy('id')
+            ->get();
+
+        if ($freres->count() < 2) {
+            return [];
+        }
+
+        return $freres
+            ->map(fn (Product $frere): array => [
+                'slug' => $frere->slug,
+                'url' => $frere->path(),
+                'label' => $frere->washLabel(),
+                'image' => ProductImageResource::first($frere)['src'] ?? null,
+                'current' => $frere->is($product),
+            ])
+            ->values()
+            ->all();
     }
 
     /**
