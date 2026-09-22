@@ -203,3 +203,32 @@ Chaque article pointe vers le hub avec l'ancre exacte « jean baggy homme » une
 - Contenu enrichi et FAQ du hub éditables dans Filament (blocs), pas en dur
 - `llms.txt`, `sitemap.xml` (collections, produits, articles), `robots.txt`
 - Journal = `articles` table + `ArticleResource` Filament (auteur, date, mise à jour, blocs, FAQ)
+
+
+---
+
+## 11. État de l'implémentation — septembre 2026
+
+| Élément | État | Où |
+|---------|------|-----|
+| Coupe baggy au catalogue | Fait | table `cuts`, code SKU `BAG`, homme et femme |
+| Hub `/{genre}/jean-{coupe}` | Fait | `CutHubController@show`, page `Collection/Hub.vue` |
+| Sous-collections lavage | Fait | `CutHubController@wash`, 4 segments, 404 ailleurs |
+| Fiches produit `/{genre}/{slug}` | Fait | `ProductController@show`, 301 depuis `/produit/{slug}` |
+| Journal | Fait | `JournalController`, `Journal/Index|Show|Author.vue` |
+| Facettes `noindex, follow` | Fait | `BrowsesCatalog::isFaceted`, canonical vers l'adresse propre |
+| Contenu enrichi éditable | Fait | `CollectionForm`, `WashPagesRelationManager` |
+| Journal éditable | Fait | `ArticleResource`, `AuthorResource` |
+| Schemas JSON-LD | Fait | `SeoService`, rendus dans `resources/views/partials/seo.blade.php` |
+| `llms.txt`, `sitemap.xml`, `robots.txt` | Fait | `LlmsController`, `SitemapController`, `RobotsController` |
+| Page La maison enrichie | Fait | entité + tableau de chiffres |
+| Corps des six articles | À rédiger | back-office, le plan H2 et le « En bref » sont livrés |
+| Photos produit et visuels d'articles | À charger | back-office |
+
+**Écart assumé par rapport à la section 2** : le segment `/bleu` sert le lavage
+`stone` du catalogue, qui est le bleu moyen de la maison. L'adresse reste celle
+que les gens cherchent, sans inventer un lavage en double.
+
+**Rendu des schemas** : ils sont produits dans le gabarit Blade et non dans Vue.
+Le SSR Inertia est désactivé sur l'hébergement mutualisé ; un robot ou un moteur
+génératif qui ne lit pas le JavaScript doit trouver le JSON-LD dans le HTML brut.
