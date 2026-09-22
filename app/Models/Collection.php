@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\CollectionType;
 use App\Enums\Gender;
 use App\Enums\HomeSlot;
+use App\Support\CatalogCache;
 use Database\Factories\CollectionFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -59,6 +60,13 @@ class Collection extends Model implements HasMedia
             'position' => 'integer',
             'is_visible' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // Le plan du site et les listes en cache suivent le contenu.
+        static::saved(fn () => CatalogCache::bump());
+        static::deleted(fn () => CatalogCache::bump());
     }
 
     /**

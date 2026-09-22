@@ -5,6 +5,7 @@ import MiIcon, { type MiIconName } from '@/Components/mi/MiIcon.vue';
 import MiInput from '@/Components/mi/MiInput.vue';
 import MiNotice from '@/Components/mi/MiNotice.vue';
 import MiPatch from '@/Components/mi/MiPatch.vue';
+import MiBreadcrumb from '@/Components/mi/MiBreadcrumb.vue';
 import MiPrice from '@/Components/mi/MiPrice.vue';
 import MiProductCard from '@/Components/mi/MiProductCard.vue';
 import MiSizeSelector from '@/Components/mi/MiSizeSelector.vue';
@@ -60,8 +61,6 @@ const submitAlert = (): void => {
     });
 };
 
-const collectionRoute = computed(() => (props.product.gender === 'femme' ? 'collections.women' : 'collections.men'));
-const collectionLabel = computed<TranslationKey>(() => (props.product.gender === 'femme' ? 'nav.women' : 'nav.men'));
 
 const reassurance: ReadonlyArray<{ icon: MiIconName; key: TranslationKey }> = [
     { icon: 'exchange', key: 'product.exchange' },
@@ -80,15 +79,7 @@ const modelHeight = computed(() => (props.product.model_height_cm === null ? nul
     </Head>
 
     <StorefrontLayout>
-        <nav class="mi-container pt-6 text-small text-mi-fil" :aria-label="t('a11y.breadcrumb')">
-            <ol class="flex flex-wrap items-center gap-2">
-                <li><Link :href="route('home')" class="mi-link">{{ t('product.breadcrumbHome') }}</Link></li>
-                <li aria-hidden="true">·</li>
-                <li><Link :href="route(collectionRoute)" class="mi-link">{{ t(collectionLabel) }}</Link></li>
-                <li aria-hidden="true">·</li>
-                <li class="text-mi-charbon" aria-current="page">{{ product.title }}</li>
-            </ol>
-        </nav>
+        <MiBreadcrumb :items="props.breadcrumb" />
 
         <section class="mi-container grid grid-cols-1 gap-10 py-8 md:grid-cols-12 md:gap-12 md:py-12">
             <div class="md:col-span-7">
@@ -103,6 +94,7 @@ const modelHeight = computed(() => (props.product.model_height_cm === null ? nul
                             <p class="mi-caps text-mi-stone">{{ product.gender_label }}</p>
                         </div>
                         <h1 class="mt-3 text-h1">{{ product.title }}</h1>
+                        <p class="mt-2 text-[15px] text-mi-fil">{{ product.subtitle }}</p>
                         <p class="mt-2 text-[15px] text-mi-fil">{{ product.subtitle }}</p>
                         <div class="mt-4">
                             <MiPrice :amount="product.price" :compare-at="product.compare_at_price" display size="lg" />
@@ -150,6 +142,9 @@ const modelHeight = computed(() => (props.product.model_height_cm === null ? nul
                             </summary>
                             <div class="mt-4 flex flex-col gap-3 text-[15px] leading-relaxed text-mi-charbon/85">
                                 <p v-if="product.description">{{ product.description }}</p>
+                                <p v-if="props.hub" class="mt-4">
+                                    <Link :href="props.hub.url" class="mi-link text-mi-stone">{{ props.hub.label }}</Link>
+                                </p>
                                 <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 text-small">
                                     <template v-if="product.fabric_origin"><dt class="text-mi-fil">{{ t('product.fabric') }}</dt><dd>{{ product.fabric_origin }}</dd></template>
                                     <template v-if="weightLabel"><dt class="text-mi-fil">{{ t('product.weight') }}</dt><dd>{{ weightLabel }}</dd></template>

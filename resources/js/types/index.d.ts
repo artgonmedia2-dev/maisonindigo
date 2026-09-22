@@ -15,6 +15,8 @@ export type User = AuthUser;
 export interface MaisonProps {
     name: string;
     tagline: string;
+    /** « Maison Indigo, marque marocaine de jeans premium basée à Nador » */
+    entity: string;
     contact: {
         email: string;
         whatsapp: string;

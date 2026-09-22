@@ -258,6 +258,7 @@ const flashError = computed(() => (page.props.flash.error !== dismissed.value ? 
                 <div class="md:col-span-4">
                     <MiLogo tone="ecru" :width="168" />
                     <p class="mt-6 font-display text-[1.625rem] italic leading-tight text-mi-ecru">{{ maison.tagline }}</p>
+                    <p class="mt-4 max-w-sm text-small leading-relaxed text-mi-ciel">{{ maison.entity }}.</p>
                     <p class="mt-4 text-small text-mi-ciel">{{ t('brand.origin') }}</p>
                 </div>
 

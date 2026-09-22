@@ -7,14 +7,19 @@ use App\Http\Controllers\Storefront\CollectionController;
 use App\Http\Controllers\Storefront\CutHubController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\JournalController;
+use App\Http\Controllers\Storefront\LlmsController;
 use App\Http\Controllers\Storefront\ProductController;
+use App\Http\Controllers\Storefront\RobotsController;
 use App\Http\Controllers\Storefront\SitemapController;
 use App\Http\Controllers\Storefront\SizeQuizController;
 use App\Http\Controllers\Storefront\StockAlertController;
+use App\Services\SeoService;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('/llms.txt', LlmsController::class)->name('llms');
+Route::get('/robots.txt', RobotsController::class)->name('robots');
 Route::get('/', HomeController::class)->name('home');
 
 // Collections
@@ -55,8 +60,22 @@ Route::get('/guide-des-tailles', function () {
     return Inertia::render('Static/GuideDesTailles');
 })->name('size-guide');
 
-Route::get('/la-maison', function () {
-    return Inertia::render('Static/LaMaison');
+Route::get('/la-maison', function (SeoService $seo) {
+    $base = rtrim((string) config('app.url'), '/');
+
+    return Inertia::render('Static/LaMaison', [
+        // La page que les moteurs génératifs lisent pour décrire la marque.
+        'seo' => $seo->forPage(
+            __('storefront.about.meta_title'),
+            __('seo.entity').'. '.__('storefront.about.meta_description'),
+            '/la-maison',
+            [
+                ['name' => __('seo.breadcrumb.home'), 'url' => $base.'/'],
+                ['name' => __('storefront.about.title'), 'url' => $base.'/la-maison'],
+            ],
+        ),
+        'entity' => __('seo.entity'),
+    ]);
 })->name('about');
 
 Route::get('/entretien', function () {

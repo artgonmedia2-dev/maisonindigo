@@ -81,6 +81,13 @@ return [
         'cod_confirmation' => "Bonjour :name, ici Maison Indigo.\n\nVotre commande :number :\n:lines\n\nTotal à régler au livreur : :total, livraison à :city.\n\nRépondez 1 pour confirmer, ou 2 si vous souhaitez modifier quelque chose.",
     ],
 
+    'about' => [
+        'title' => 'La maison',
+        'meta_title' => 'La maison — Maison Indigo, jeans premium à Nador',
+        'meta_description' => 'Denim de 12 à 14 oz, dix-sept tailles, trois longueurs, assemblage au Maroc. Paiement à la livraison et échange offert.',
+        'facts' => 'La maison en chiffres',
+    ],
+
     'alerts' => [
         'order_title' => 'Nouvelle commande :number',
         'order_open' => 'Ouvrir la commande',

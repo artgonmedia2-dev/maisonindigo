@@ -213,6 +213,16 @@ class SeoService
         ];
     }
 
+    /**
+     * Le sous-titre de la fiche : « Jean baggy homme · denim japonais 13 oz ·
+     * tailles 28–42 ». Trois faits vérifiables en une ligne, c'est ce que les
+     * moteurs génératifs reprennent d'une page produit.
+     */
+    public function productSubtitle(Product $product): string
+    {
+        return __('seo.product.subtitle', $this->productReplacements($product));
+    }
+
     /** L'adresse publique d'un produit : /{genre}/{slug}. */
     public function productPath(Product $product): string
     {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\CatalogCache;
 use Database\Factories\ArticleFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -64,6 +65,13 @@ class Article extends Model implements HasMedia
             'published_at' => 'datetime',
             'position' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // Le plan du site et les listes en cache suivent le contenu.
+        static::saved(fn () => CatalogCache::bump());
+        static::deleted(fn () => CatalogCache::bump());
     }
 
     /**

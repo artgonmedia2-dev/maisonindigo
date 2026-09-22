@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\CatalogCache;
 use Database\Factories\CollectionWashFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -81,6 +82,13 @@ class CollectionWash extends Model
             'is_visible' => 'boolean',
             'position' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // Le plan du site et les listes en cache suivent le contenu.
+        static::saved(fn () => CatalogCache::bump());
+        static::deleted(fn () => CatalogCache::bump());
     }
 
     /**

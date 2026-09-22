@@ -49,6 +49,10 @@ class HandleInertiaRequests extends Middleware
             'maison' => [
                 'name' => config('maison.name'),
                 'tagline' => config('maison.tagline'),
+                // L'entité de marque, une seule source : lang/fr/seo.php. Elle
+                // est reprise au mot près dans le schema Organization, le pied
+                // de page, la page La maison et llms.txt.
+                'entity' => __('seo.entity'),
                 'contact' => [
                     'email' => $this->settings->contact_email,
                     'whatsapp' => $this->settings->contact_whatsapp,

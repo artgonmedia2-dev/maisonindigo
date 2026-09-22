@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\CatalogCache;
 use Database\Factories\AuthorFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,6 +30,13 @@ class Author extends Model implements HasMedia
     public const MEDIA_PORTRAIT = 'portrait';
 
     protected $fillable = ['slug', 'name', 'role', 'bio', 'email'];
+
+    protected static function booted(): void
+    {
+        // Le plan du site et les listes en cache suivent le contenu.
+        static::saved(fn () => CatalogCache::bump());
+        static::deleted(fn () => CatalogCache::bump());
+    }
 
     /**
      * @return HasMany<Article, $this>

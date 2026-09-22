@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\SizeChartRow;
+use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -51,6 +52,7 @@ class ProductDetailResource extends JsonResource
                 'in_stock' => $variant->isInStock(),
                 'low_stock' => $variant->isLowStock(),
             ])->values()->all(),
+            'subtitle' => app(SeoService::class)->productSubtitle($product),
             'size_chart' => $product->relationLoaded('sizeChart') && $product->sizeChart !== null
                 ? $product->sizeChart->rows->map(fn (SizeChartRow $row): array => [
                     'size' => $row->size,

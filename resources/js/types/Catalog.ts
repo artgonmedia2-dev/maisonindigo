@@ -1,3 +1,4 @@
+import type { BreadcrumbItem, OutboundLink } from './Seo';
 import type { MetaProps } from './index';
 
 export type PatchKind = 'new' | 'limited' | 'atelier';
@@ -62,6 +63,8 @@ export interface ProductDetail extends ProductCard {
     sizes: number[];
     lengths: number[];
     variants: ProductVariant[];
+    /** « Jean baggy homme · denim japonais 13 oz · tailles 28–42 » */
+    subtitle: string;
     size_chart: SizeChartRow[];
     images: ProductImage[];
     meta: MetaProps;
@@ -110,4 +113,7 @@ export interface ProductPageProps {
     product: ProductDetail;
     related: ProductCard[];
     meta: MetaProps;
+    breadcrumb: BreadcrumbItem[];
+    /** Le hub de la coupe : chaque fiche y renvoie. */
+    hub: OutboundLink | null;
 }
