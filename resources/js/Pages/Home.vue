@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import MiButton from '@/Components/mi/MiButton.vue';
-import MiDenimTile from '@/Components/mi/MiDenimTile.vue';
+import MiCollectionSplit from '@/Components/mi/MiCollectionSplit.vue';
 import MiIcon from '@/Components/mi/MiIcon.vue';
 import MiPatch from '@/Components/mi/MiPatch.vue';
 import MiProductCard from '@/Components/mi/MiProductCard.vue';
@@ -91,8 +91,15 @@ const heroSizes = '(min-width: 1024px) 34vw, (min-width: 768px) 42vw, 100vw';
             <hr class="mi-stitch border-0" />
         </div>
 
+        <!-- Le premier choix du visiteur : femme ou homme, avant les modèles. -->
+        <MiCollectionSplit v-if="props.collections.first" :collections="props.collections" />
+
         <!-- Nouveautés -->
-        <section v-if="props.newProducts.length > 0" class="mi-container py-16 md:py-24">
+        <section
+            v-if="props.newProducts.length > 0"
+            class="mi-container py-16 md:py-24"
+            :class="props.collections.first ? 'border-t border-mi-ligne' : ''"
+        >
             <div class="flex flex-wrap items-end justify-between gap-6">
                 <div class="max-w-2xl">
                     <p class="mi-caps text-mi-stone">{{ t('home.newKicker') }}</p>
@@ -105,51 +112,11 @@ const heroSizes = '(min-width: 1024px) 34vw, (min-width: 768px) 42vw, 100vw';
             </div>
         </section>
 
-        <!-- Femme / Homme -->
-        <section class="mi-container py-16 md:py-24" :class="props.newProducts.length > 0 ? 'border-t border-mi-ligne' : ''">
-            <div class="max-w-2xl">
-                <p class="mi-caps text-mi-stone">{{ t('home.collectionsKicker') }}</p>
-                <h2 class="mt-4 text-h2 md:text-[2.5rem] md:leading-[1.1]">{{ t('home.collectionsTitle') }}</h2>
-            </div>
-
-            <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-10">
-                <article class="group">
-                    <Link :href="route('collections.women')" class="block">
-                        <MiDenimTile variant="collection" :label="t('home.womenTitle')">
-                            <MiPatch kind="new" />
-                        </MiDenimTile>
-                        <div class="mt-5 flex items-start justify-between gap-6">
-                            <div>
-                                <h3 class="text-h2">{{ t('home.womenTitle') }}</h3>
-                                <p class="mt-2 text-[15px] text-mi-fil">{{ t('home.womenText') }}</p>
-                            </div>
-                            <span class="mt-2 inline-flex shrink-0 items-center gap-2 text-[15px] font-semibold text-mi-stone">
-                                {{ t('home.discover') }}
-                                <MiIcon name="arrow" :size="18" class="transition-transform duration-150 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
-                            </span>
-                        </div>
-                    </Link>
-                </article>
-
-                <article class="group">
-                    <Link :href="route('collections.men')" class="block">
-                        <MiDenimTile variant="collection-deep" :label="t('home.menTitle')">
-                            <MiPatch kind="atelier" />
-                        </MiDenimTile>
-                        <div class="mt-5 flex items-start justify-between gap-6">
-                            <div>
-                                <h3 class="text-h2">{{ t('home.menTitle') }}</h3>
-                                <p class="mt-2 text-[15px] text-mi-fil">{{ t('home.menText') }}</p>
-                            </div>
-                            <span class="mt-2 inline-flex shrink-0 items-center gap-2 text-[15px] font-semibold text-mi-stone">
-                                {{ t('home.discover') }}
-                                <MiIcon name="arrow" :size="18" class="transition-transform duration-150 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
-                            </span>
-                        </div>
-                    </Link>
-                </article>
-            </div>
-        </section>
+        <MiCollectionSplit
+            v-if="!props.collections.first"
+            :collections="props.collections"
+            :divider="props.newProducts.length > 0"
+        />
 
         <!-- Les arguments de la maison -->
         <section class="border-y border-mi-ligne bg-mi-blanc">

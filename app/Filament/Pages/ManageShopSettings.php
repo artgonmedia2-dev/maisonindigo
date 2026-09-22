@@ -103,6 +103,48 @@ class ManageShopSettings extends SettingsPage
                             ->maxLength(60),
                     ]),
 
+                Section::make(__('admin.settings.sections.home'))
+                    ->description(__('admin.settings.sections.home_hint'))
+                    ->columns(2)
+                    ->schema([
+                        Toggle::make('home_collections_first')
+                            ->label(__('admin.settings.fields.home_collections_first'))
+                            ->helperText(__('admin.settings.fields.home_collections_first_hint'))
+                            ->columnSpanFull(),
+
+                        TextInput::make('home_collections_kicker')
+                            ->label(__('admin.settings.fields.home_collections_kicker'))
+                            ->required()
+                            ->maxLength(40),
+
+                        TextInput::make('home_collections_title')
+                            ->label(__('admin.settings.fields.home_collections_title'))
+                            ->required()
+                            ->maxLength(80),
+
+                        TextInput::make('home_women_title')
+                            ->label(__('admin.settings.fields.home_women_title'))
+                            ->required()
+                            ->maxLength(40),
+
+                        TextInput::make('home_men_title')
+                            ->label(__('admin.settings.fields.home_men_title'))
+                            ->required()
+                            ->maxLength(40),
+
+                        Textarea::make('home_women_text')
+                            ->label(__('admin.settings.fields.home_women_text'))
+                            ->required()
+                            ->rows(2)
+                            ->maxLength(120),
+
+                        Textarea::make('home_men_text')
+                            ->label(__('admin.settings.fields.home_men_text'))
+                            ->required()
+                            ->rows(2)
+                            ->maxLength(120),
+                    ]),
+
                 Section::make(__('admin.settings.sections.announcement'))
                     ->columns(1)
                     ->schema([

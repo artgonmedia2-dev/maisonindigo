@@ -27,6 +27,21 @@ class ShopSettings extends Settings
 
     public ?string $bank_iban;
 
+    /** La section « Deux collections » passe avant les nouveautés. */
+    public bool $home_collections_first;
+
+    public string $home_collections_kicker;
+
+    public string $home_collections_title;
+
+    public string $home_women_title;
+
+    public string $home_women_text;
+
+    public string $home_men_title;
+
+    public string $home_men_text;
+
     public bool $announcement_enabled;
 
     public ?string $announcement_text;
