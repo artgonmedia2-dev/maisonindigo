@@ -190,6 +190,18 @@ class Product extends Model implements HasMedia
         return false;
     }
 
+    /**
+     * L'adresse publique de la fiche : /{genre}/{slug}.
+     *
+     * Le genre est porté par l'adresse depuis le cluster SEO, il n'est plus
+     * répété dans le slug. Point de passage unique : personne ne recompose
+     * cette chaîne ailleurs.
+     */
+    public function path(): string
+    {
+        return "/{$this->gender->value}/{$this->slug}";
+    }
+
     /** Libellé de la coupe, pour l'affichage. */
     public function cutLabel(): string
     {

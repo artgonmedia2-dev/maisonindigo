@@ -21,7 +21,7 @@ class EditProduct extends EditRecord
             Action::make('voir')
                 ->label(__('admin.common.view_on_shop'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
-                ->url(fn (Product $record): string => route('product.show', $record))
+                ->url(fn (Product $record): string => url($record->path()))
                 ->openUrlInNewTab()
                 ->visible(fn (Product $record): bool => $record->isActive()),
             DeleteAction::make(),

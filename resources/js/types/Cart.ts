@@ -6,6 +6,7 @@ export interface CartLine {
     variant_id: number;
     product_id: number;
     slug: string;
+    url: string;
     title: string;
     gender: string;
     size: number;

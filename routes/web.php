@@ -4,7 +4,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CheckoutController;
 use App\Http\Controllers\Storefront\CollectionController;
+use App\Http\Controllers\Storefront\CutHubController;
 use App\Http\Controllers\Storefront\HomeController;
+use App\Http\Controllers\Storefront\JournalController;
 use App\Http\Controllers\Storefront\ProductController;
 use App\Http\Controllers\Storefront\SitemapController;
 use App\Http\Controllers\Storefront\SizeQuizController;
@@ -21,8 +23,13 @@ Route::get('/homme', [CollectionController::class, 'show'])->defaults('handle', 
 Route::get('/nouveautes', [CollectionController::class, 'show'])->defaults('handle', 'new')->name('collections.new');
 Route::get('/atelier', [CollectionController::class, 'show'])->defaults('handle', 'atelier')->name('collections.atelier');
 
-// Fiche produit
-Route::get('/produit/{product:slug}', [ProductController::class, 'show'])->name('product.show');
+// Journal
+Route::get('/journal', [JournalController::class, 'index'])->name('journal.index');
+Route::get('/journal/auteur/{slug}', [JournalController::class, 'author'])->name('journal.author');
+Route::get('/journal/{slug}', [JournalController::class, 'show'])->name('journal.show');
+
+// L'ancienne adresse produit renvoie vers la nouvelle, en 301.
+Route::get('/produit/{slug}', [ProductController::class, 'legacy'])->name('product.legacy');
 Route::post('/me-prevenir', [StockAlertController::class, 'store'])->middleware('throttle:stock-alert')->name('stock-alerts.store');
 
 // Panier
@@ -85,6 +92,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+/*
+ * Adresses du cluster SEO. Elles se terminent par un motif à deux segments,
+ * donc elles sont déclarées en dernier : le hub doit passer avant la fiche
+ * produit, sinon /homme/jean-baggy serait lu comme un slug de produit.
+ */
+Route::whereIn('genre', ['homme', 'femme'])->group(function (): void {
+    Route::get('/{genre}/jean-{coupe}', [CutHubController::class, 'show'])->name('hub.show');
+    Route::get('/{genre}/jean-{coupe}/{lavage}', [CutHubController::class, 'wash'])->name('hub.wash');
+    Route::get('/{genre}/{slug}', [ProductController::class, 'show'])->name('product.show');
 });
 
 require __DIR__.'/auth.php';

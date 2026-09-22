@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Enums\CollectionType;
+use App\Enums\Gender;
 use App\Enums\HomeSlot;
 use Database\Factories\CollectionFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -33,6 +35,11 @@ class Collection extends Model implements HasMedia
         'is_visible',
         'home_slot',
         'home_badge',
+        'hub_gender',
+        'hub_cut',
+        'intro',
+        'content_blocks',
+        'faq',
         'meta_title',
         'meta_description',
     ];
@@ -45,10 +52,23 @@ class Collection extends Model implements HasMedia
         return [
             'type' => CollectionType::class,
             'home_slot' => HomeSlot::class,
+            'hub_gender' => Gender::class,
+            'content_blocks' => 'array',
+            'faq' => 'array',
             'rules' => 'array',
             'position' => 'integer',
             'is_visible' => 'boolean',
         ];
+    }
+
+    /**
+     * Les sous-collections par lavage servies sous ce hub.
+     *
+     * @return HasMany<CollectionWash, $this>
+     */
+    public function washPages(): HasMany
+    {
+        return $this->hasMany(CollectionWash::class)->orderBy('position');
     }
 
     /**

@@ -36,7 +36,7 @@ watch(
 
 <template>
     <div class="flex gap-4" :class="compact ? 'py-4' : 'py-6'">
-        <Link :href="route('product.show', line.slug)" class="block shrink-0 overflow-hidden bg-mi-ecru" :class="compact ? 'w-16' : 'w-24'">
+        <Link :href="line.url" class="block shrink-0 overflow-hidden bg-mi-ecru" :class="compact ? 'w-16' : 'w-24'">
             <img
                 v-if="line.image"
                 :src="line.image.src"
@@ -53,7 +53,7 @@ watch(
         <div class="flex min-w-0 flex-1 flex-col gap-2">
             <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
                 <div class="min-w-[7.5rem] flex-1">
-                    <Link :href="route('product.show', line.slug)" class="mi-link font-display text-[1.125rem] font-semibold leading-tight text-mi-indigo">
+                    <Link :href="line.url" class="mi-link font-display text-[1.125rem] font-semibold leading-tight text-mi-indigo">
                         {{ line.title }}
                     </Link>
                     <p class="mt-0.5 text-small text-mi-fil">{{ line.gender }} · {{ line.size }} / {{ line.length }}</p>

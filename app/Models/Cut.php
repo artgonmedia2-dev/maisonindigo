@@ -93,6 +93,16 @@ class Cut extends Model
         $query->orderBy('position')->orderBy('name');
     }
 
+    /**
+     * Le segment d'adresse de la coupe : « wide_leg » s'écrit « wide-leg »
+     * dans /homme/jean-wide-leg. Les identifiants gardent leur souligné, qui
+     * voyage dans les SKU.
+     */
+    public function urlSegment(): string
+    {
+        return str_replace('_', '-', $this->slug);
+    }
+
     public function isAvailableFor(Gender $gender): bool
     {
         return in_array($gender->value, $this->genders, true);

@@ -16,9 +16,9 @@ function variantInStock(int $stock = 5, int $price = 49900): ProductVariant
 it('ajoute une variante au panier et la partage avec toutes les pages', function () {
     $variant = variantInStock();
 
-    $this->from(route('product.show', $variant->product))
+    $this->from($variant->product->path())
         ->post(route('cart.store'), ['variant_id' => $variant->id, 'qty' => 1])
-        ->assertRedirect(route('product.show', $variant->product))
+        ->assertRedirect($variant->product->path())
         ->assertSessionHas('cart_added', $variant->id);
 
     $this->get(route('cart.index'))

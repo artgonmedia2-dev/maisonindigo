@@ -90,6 +90,8 @@ class SummarizeCart
             'variant_id' => $variant->id,
             'product_id' => $product->id,
             'slug' => $product->slug,
+            // L'adresse complète : le genre en fait partie depuis le cluster SEO.
+            'url' => $product->path(),
             'title' => $product->title,
             'gender' => $product->gender->getLabel(),
             'size' => $variant->size,

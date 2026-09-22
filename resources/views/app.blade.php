@@ -5,28 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#1B2A4A">
         <meta name="geo.region" content="MA">
-        <meta name="geo.placename" content="Casablanca">
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+        <meta name="geo.placename" content="{{ __('seo.city') }}">
         <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ url('/sitemap.xml') }}">
 
-        <title inertia>{{ config('app.name', 'Maison Indigo') }}</title>
+        <title inertia>{{ $page['props']['seo']['title'] ?? config('app.name', 'Maison Indigo') }}</title>
 
-        @verbatim
-        <script type="application/ld+json">
-        {
-          "@context": "https://schema.org",
-          "@type": "ClothingStore",
-          "name": "Maison Indigo",
-          "description": "Maison marocaine de denim d'exception. Jeans artisanaux de haute qualité.",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Casablanca",
-            "addressCountry": "MA"
-          },
-          "priceRange": "$$"
-        }
-        </script>
-        @endverbatim
+        @include('partials.seo')
+
 
         <link rel="preload" href="/fonts/cormorant-garamond-latin.woff2" as="font" type="font/woff2" crossorigin>
         <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>

@@ -17,7 +17,7 @@ it('affiche une fiche produit avec ses variantes et son tableau de mesures', fun
     ]);
     Product::factory()->withVariants()->create(['gender' => Gender::Homme, 'cut' => 'slim', 'wash' => 'noir']);
 
-    $this->get(route('product.show', $product))
+    $this->get($product->path())
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Product/Show')
@@ -40,7 +40,7 @@ it('signale une taille en rupture sans la masquer', function () {
     ProductVariant::factory()->for($product)->create(['size' => 28, 'length' => 32, 'stock' => 0]);
     ProductVariant::factory()->for($product)->create(['size' => 30, 'length' => 32, 'stock' => 2]);
 
-    $this->get(route('product.show', $product))
+    $this->get($product->path())
         ->assertInertia(fn (Assert $page) => $page
             ->where('product.variants.0.in_stock', false)
             ->where('product.variants.1.in_stock', true)
@@ -52,16 +52,16 @@ it('signale une taille en rupture sans la masquer', function () {
 it('renvoie 404 pour un brouillon', function () {
     $product = Product::factory()->draft()->create();
 
-    $this->get(route('product.show', $product))->assertNotFound();
+    $this->get($product->path())->assertNotFound();
 });
 
 it('enregistre une alerte de retour en stock', function () {
     $product = Product::factory()->create();
     $variant = ProductVariant::factory()->for($product)->outOfStock()->create();
 
-    $this->from(route('product.show', $product))
+    $this->from($product->path())
         ->post(route('stock-alerts.store'), ['variant_id' => $variant->id, 'email' => 'salma@exemple.ma'])
-        ->assertRedirect(route('product.show', $product))
+        ->assertRedirect($product->path())
         ->assertSessionHas('success');
 
     expect(StockAlert::query()->where('product_variant_id', $variant->id)->where('email', 'salma@exemple.ma')->count())->toBe(1);

@@ -44,6 +44,14 @@ final class CatalogTerms
         return $slug === null ? null : $this->cuts()->get($slug);
     }
 
+    /**
+     * Retrouve une coupe depuis le segment d'adresse : « wide-leg » → wide_leg.
+     */
+    public function cutByUrlSegment(?string $segment): ?Cut
+    {
+        return $segment === null ? null : $this->cut(str_replace('-', '_', $segment));
+    }
+
     public function wash(?string $slug): ?Wash
     {
         return $slug === null ? null : $this->washes()->get($slug);

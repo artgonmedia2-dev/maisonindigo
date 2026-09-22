@@ -44,7 +44,7 @@ class ProductCardResource extends JsonResource
             'patch' => self::patch($product),
             'in_stock' => $inStock,
             'image' => ProductImageResource::first($product),
-            'url' => route('product.show', $product),
+            'url' => $product->path(),
         ];
     }
 
