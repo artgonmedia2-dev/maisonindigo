@@ -58,6 +58,7 @@ class Order extends Model
             'confirmed_at' => 'datetime',
             'shipped_at' => 'datetime',
             'delivered_at' => 'datetime',
+            'alerted_at' => 'datetime',
         ];
     }
 

@@ -81,6 +81,12 @@ return [
         'cod_confirmation' => "Bonjour :name, ici Maison Indigo.\n\nVotre commande :number :\n:lines\n\nTotal à régler au livreur : :total, livraison à :city.\n\nRépondez 1 pour confirmer, ou 2 si vous souhaitez modifier quelque chose.",
     ],
 
+    'alerts' => [
+        'order_title' => 'Nouvelle commande :number',
+        'order_open' => 'Ouvrir la commande',
+        'order_test' => 'Message d’essai de Maison Indigo. Les alertes de commande arriveront ici.',
+    ],
+
     'size_quiz' => [
         'title' => 'Trouver ma taille',
         'description' => 'Quatre questions, une recommandation précise : votre coupe, votre taille et votre longueur Maison Indigo.',

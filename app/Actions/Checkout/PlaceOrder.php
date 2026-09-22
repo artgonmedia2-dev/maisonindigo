@@ -6,6 +6,7 @@ use App\Actions\Orders\GenerateOrderNumber;
 use App\Data\CheckoutData;
 use App\Enums\OrderStatus;
 use App\Exceptions\OutOfStockException;
+use App\Jobs\SendOrderAlert;
 use App\Jobs\SendWhatsAppMessage;
 use App\Models\Cart;
 use App\Models\CartItem;
@@ -120,6 +121,10 @@ class PlaceOrder
         if ($order->isCod()) {
             SendWhatsAppMessage::dispatch($order)->afterCommit();
         }
+
+        // Après la réponse, pas dans la file : la maison est prévenue tout de
+        // suite, sans attendre le cron et sans ralentir le client.
+        SendOrderAlert::dispatchAfterResponse($order);
 
         return $order->load('items');
     }

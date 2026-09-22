@@ -16,11 +16,14 @@ use Illuminate\Support\Facades\Schedule;
 |
 */
 
-Schedule::command('queue:work database --queue=whatsapp,default --stop-when-empty --max-time=55 --tries=3 --sleep=1')
+Schedule::command('queue:work database --queue=alerts,whatsapp,default --stop-when-empty --max-time=55 --tries=3 --sleep=1')
     ->everyMinute()
     ->when(fn (): bool => config('queue.default') === 'database')
     ->withoutOverlapping(2)
     ->runInBackground();
+
+// Filet de sécurité : une commande dont l'alerte s'est perdue est resignalée.
+Schedule::command('mi:alerts-retry')->everyMinute()->withoutOverlapping(2);
 
 // Jobs échoués et lots de plus de trente jours : ménage hebdomadaire.
 Schedule::command('queue:prune-failed --hours=720')->weekly()->sundays()->at('04:00');

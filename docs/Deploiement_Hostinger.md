@@ -283,6 +283,49 @@ se reproduise, voir l'encadré ci-dessous.
 > php artisan storage:link
 > ```
 
+## 6 sexies. L'alerte instantanée des nouvelles commandes
+
+Chaque commande déclenche un message Telegram sur votre téléphone. L'envoi part
+**après la réponse HTTP** du tunnel de commande : le client n'attend pas l'appel
+réseau, et l'alerte ne dépend pas du passage du cron.
+
+**Mise en service, une fois pour toutes.**
+
+1. Sur Telegram, écrivez à **@BotFather**, envoyez `/newbot`, choisissez un nom.
+   Il répond avec un jeton de la forme `8123456789:AAH…`.
+2. Reportez-le dans `.env` :
+
+   ```
+   TELEGRAM_BOT_TOKEN=8123456789:AAH...
+   ```
+
+3. Ouvrez une conversation avec votre robot et envoyez-lui n'importe quel message
+   — Telegram ne révèle l'identifiant qu'après un premier échange. Puis :
+
+   ```bash
+   php artisan mi:telegram --chat
+   ```
+
+   Reportez l'identifiant affiché dans `TELEGRAM_CHAT_ID`, puis :
+
+   ```bash
+   php artisan config:clear
+   php artisan mi:telegram --test
+   ```
+
+Pour prévenir plusieurs personnes, créez un groupe Telegram, ajoutez-y le robot,
+écrivez-y un message et relancez `mi:telegram --chat` : l'identifiant du groupe
+apparaît, il commence par un tiret.
+
+**Le filet de sécurité.** Un processus PHP interrompu ou une panne de Telegram
+feraient disparaître l'alerte sans trace. La commande `mi:alerts-retry`, lancée
+chaque minute par le planificateur, resignale toute commande de plus de deux
+minutes dont l'alerte n'est jamais partie. La date d'envoi est inscrite dans la
+colonne `alerted_at`, ce qui évite les doublons.
+
+Sans jeton configuré, rien n'est envoyé et la boutique continue d'encaisser
+normalement : l'alerte ne bloque jamais une commande.
+
 ## 7. Exploitation
 
 | Besoin | Commande (SSH, dans `maison-indigo/`) |

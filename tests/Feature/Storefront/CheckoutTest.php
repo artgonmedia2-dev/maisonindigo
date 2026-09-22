@@ -2,6 +2,7 @@
 
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
+use App\Jobs\SendOrderAlert;
 use App\Jobs\SendWhatsAppMessage;
 use App\Models\CartItem;
 use App\Models\Customer;
@@ -10,6 +11,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Database\Seeders\ShippingZonesSeeder;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -121,7 +123,7 @@ it('n’envoie pas de WhatsApp pour un virement', function () {
     $this->post(route('checkout.store'), checkoutPayload(['payment_method' => 'transfer']));
 
     expect(Order::query()->firstOrFail()->payment_method)->toBe(PaymentMethod::Transfer);
-    Queue::assertNothingPushed();
+    Queue::assertNotPushed(SendWhatsAppMessage::class);
 });
 
 it('offre la livraison à partir de 600 dh et applique la remise automatique', function () {
@@ -214,3 +216,12 @@ it('numérote les commandes en séquence', function () {
     expect(Order::query()->orderBy('id')->pluck('number')->all())
         ->toBe(['MI-'.date('Y').'-000001', 'MI-'.date('Y').'-000002']);
 });
+
+it('prévient la maison pour toute commande, quel que soit le paiement', function (string $method) {
+    cartWith();
+
+    $this->post(route('checkout.store'), checkoutPayload(['payment_method' => $method]))->assertRedirect();
+
+    // L'alerte part après la réponse HTTP, donc sans attendre le passage du cron.
+    Queue::assertPushed(SendOrderAlert::class);
+})->with(['cod', 'transfer']);

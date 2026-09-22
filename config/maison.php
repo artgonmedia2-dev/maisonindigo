@@ -48,6 +48,11 @@ return [
         'app_secret' => env('WHATSAPP_APP_SECRET'),
     ],
 
+    'telegram' => [
+        'token' => env('TELEGRAM_BOT_TOKEN'),
+        'chat_id' => env('TELEGRAM_CHAT_ID'),
+    ],
+
     'mailerlite' => [
         'token' => env('MAILERLITE_TOKEN'),
     ],
