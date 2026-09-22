@@ -45,7 +45,7 @@ Homestead.yaml
 /deploy-hostinger.zip
 /response.html
 
-# Dossiers de travail sans rapport avec la boutique
-/app.zip
+# Archives de transfert et dossiers de travail hors projet
 /awesome-free-llm-apis/
-/public/build.zip
+/*.zip
+/public/*.zip
