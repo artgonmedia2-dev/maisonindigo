@@ -108,6 +108,24 @@ class DemoCatalogSeeder extends Seeder
 
         return [
             [
+                'gender' => Gender::Homme, 'cut' => 'baggy', 'wash' => 'brut',
+                'price' => 549, 'origin' => $japonais, 'weight' => 13.0, 'composition' => '100 % coton',
+                'description' => 'Taille mi-haute, cuisse ample, ouverture de jambe de 24 cm. Denim japonais 13 oz teint à l’indigo naturel, sans élasthanne : il se fait à vous et garde sa forme. Le modèle fait 1,80 m et porte du 32/32.',
+                'new' => true, 'featured' => true, 'atelier' => false,
+            ],
+            [
+                'gender' => Gender::Homme, 'cut' => 'baggy', 'wash' => 'noir',
+                'price' => 549, 'origin' => $turc, 'weight' => 13.0, 'composition' => '100 % coton',
+                'description' => 'Le même tombé ample, en noir profond teint dans la masse. La couleur tient au lavage à 30 degrés, à l’envers. Ouverture de jambe de 24 cm. Le modèle fait 1,80 m et porte du 32/32.',
+                'new' => true, 'featured' => false, 'atelier' => false,
+            ],
+            [
+                'gender' => Gender::Homme, 'cut' => 'baggy', 'wash' => 'stone',
+                'price' => 499, 'origin' => $turc, 'weight' => 12.5, 'composition' => '100 % coton',
+                'description' => 'Bleu moyen lavé à la pierre, portable dès le premier jour. Cuisse ample, ouverture de jambe de 24 cm, taille mi-haute. Le modèle fait 1,80 m et porte du 32/32.',
+                'new' => true, 'featured' => false, 'atelier' => false,
+            ],
+            [
                 'gender' => Gender::Homme, 'cut' => 'straight', 'wash' => 'brut',
                 'price' => 499, 'origin' => $japonais, 'weight' => 13.0, 'composition' => '98 % coton, 2 % élasthanne',
                 'description' => 'Taille mi-haute, jambe droite du genou à la cheville. Denim japonais 13 oz, teint à l’indigo naturel, qui se patine avec vous. Le modèle fait 1,80 m et porte du 32/32.',

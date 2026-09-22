@@ -82,7 +82,7 @@ Détail complet dans le roadmap §3. Points non négociables :
 - **Produit** = 1 coupe × 1 lavage × 1 genre. Le titre est pré-rempli avec `{Coupe} {Lavage}` (« Straight Indigo Brut ») et reste modifiable dans le back-office ; il cesse de suivre la composition dès qu'il est réécrit. Genre en champ, jamais dans le titre. Jamais « Maison Indigo » dans le titre produit.
 - **Coupes et lavages** vivent en base (`cuts`, `washes`), gérables depuis le back-office : nom, identifiant court, code SKU de trois lettres, genres concernés, ordre, mise en vente. Les produits stockent l'identifiant court, qui voyage dans les adresses et les SKU : il se verrouille dès qu'un produit l'emploie, et un terme employé ne se supprime pas — il se retire de la vente.
 - **Variante** = taille (26–42) × longueur (30/32/34), SKU `MI-{genre}-{coupe}-{lavage}-{taille}-{longueur}` (ex. `MI-H-STR-BRU-32-32`), stock entier.
-- Enums : `Gender` (homme, femme), `Cut` homme (straight, regular, slim, relaxed, tapered) / femme (wide_leg, straight, mom, slim, bootcut, flare), `Wash` (brut, stone, clair, noir, gris, ecru), `OrderStatus` (new, confirmed, to_callback, prepared, shipped, delivered, cancelled, returned), `PaymentMethod` (cod, transfer).
+- Enums : `Gender` (homme, femme), `OrderStatus` (new, confirmed, to_callback, prepared, shipped, delivered, cancelled, returned), `PaymentMethod` (cod, transfer). Coupes et lavages ne sont plus des enums : voir la ligne précédente. Vocabulaire livré à la migration — coupes homme : baggy, straight, regular, slim, relaxed, tapered ; coupes femme : baggy, wide_leg, straight, mom, slim, bootcut, flare ; lavages : brut, stone, clair, noir, gris, ecru.
 - Numéro de commande `MI-{AAAA}-{NNNNNN}` séquentiel par année, généré dans une transaction.
 - Transitions de statut uniquement via `Actions/Orders/TransitionOrderStatus` qui valide la transition et écrit l'historique.
 - Stock décrémenté à la création de commande, restitué à l'annulation. Pas de réservation panier au MVP.
@@ -114,6 +114,17 @@ Variables d'environnement (`.env.example`, jamais de valeur réelle committée) 
 - **Performance** : Lighthouse mobile ≥ 90. Images via Media Library `srcset` AVIF/WebP, `loading="lazy"` sauf hero (`fetchpriority="high"`). Collections cachées en Redis, invalidées à la sauvegarde produit.
 - **Sécurité** : validation par FormRequest, rate limiting sur checkout / contact / webhooks, signature vérifiée sur le webhook Meta, 2FA sur Filament, aucun secret dans le code ou les fixtures.
 - **Fin de tâche** : résumer ce qui a été fait, ce que Youssef doit configurer (comptes, .env, saisie Filament), et ce qu'il doit vérifier visuellement. Une liste, pas un rapport.
+
+## SEO / GEO
+
+Structure complète dans `docs/MaisonIndigo_SEO_Baggy_Homme.md`. Règles en vigueur :
+- Un hub par coupe et par genre : `/{genre}/jean-{coupe}`. Un seul hub par terme, jamais de page jumelle.
+- Sous-collections par lavage : `/{genre}/jean-{coupe}/{lavage}`, limitées à quatre lavages indexables (noir, bleu, brut, clair). Toute autre valeur renvoie 404.
+- Facettes taille, longueur, prix et tri en paramètres d'URL : `noindex, follow` et canonical vers l'URL propre.
+- Produits sur `/{genre}/{slug}`, Journal sur `/journal/{slug}`, auteurs sur `/journal/auteur/{slug}`.
+- Titles, meta et contenu enrichi éditables dans Filament, jamais en dur.
+- JSON-LD rendu côté serveur dans le gabarit Blade, pas dans Vue : le SSR est désactivé en production.
+- Entité de marque, formulation unique partout : « Maison Indigo, marque marocaine de jeans premium basée à Nador ».
 
 ## Hors périmètre MVP — ne pas implémenter sans demande explicite
 

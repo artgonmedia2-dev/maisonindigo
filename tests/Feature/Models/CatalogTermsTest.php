@@ -8,7 +8,7 @@ use App\Support\CatalogTerms;
 
 it('installe le vocabulaire de la maison', function () {
     expect(Cut::query()->pluck('slug')->all())
-        ->toContain('straight', 'wide_leg', 'bootcut')
+        ->toContain('baggy', 'straight', 'wide_leg', 'bootcut')
         ->and(Wash::query()->pluck('slug')->all())
         ->toContain('brut', 'stone', 'ecru');
 });
@@ -18,9 +18,9 @@ it('répartit les coupes par genre, dans l’ordre choisi', function () {
 
     // L'ordre suit la colonne position, que le back-office peut réécrire.
     expect($termes->activeCuts(Gender::Homme)->pluck('slug')->all())
-        ->toBe(['straight', 'regular', 'slim', 'relaxed', 'tapered'])
+        ->toBe(['baggy', 'straight', 'regular', 'slim', 'relaxed', 'tapered'])
         ->and($termes->activeCuts(Gender::Femme)->pluck('slug')->all())
-        ->toBe(['straight', 'slim', 'wide_leg', 'mom', 'bootcut', 'flare'])
+        ->toBe(['baggy', 'straight', 'slim', 'wide_leg', 'mom', 'bootcut', 'flare'])
         ->and($termes->cut('mom')?->isAvailableFor(Gender::Homme))->toBeFalse()
         ->and($termes->cut('straight')?->isAvailableFor(Gender::Femme))->toBeTrue();
 });

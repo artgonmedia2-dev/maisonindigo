@@ -23,7 +23,7 @@ it('affiche la collection femme avec ses seuls modèles actifs', function () {
             ->where('products.0.patch', 'new')
             ->where('products.0.price', 54900)
             ->where('products.0.in_stock', true)
-            ->has('options.cuts', 6)
+            ->has('options.cuts', 7)
             ->has('options.sizes')
             ->where('pagination.total', 2)
         );
