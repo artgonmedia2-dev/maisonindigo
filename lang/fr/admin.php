@@ -358,6 +358,17 @@ return [
             'home_women_text' => 'Texte femme',
             'home_men_title' => 'Titre homme',
             'home_men_text' => 'Texte homme',
+            'home_women_image' => 'Visuel femme',
+            'home_men_image' => 'Visuel homme',
+            'home_image_hint' => 'Format 4:5. Sans visuel, le gabarit denim de la maison reste affiché.',
+            'home_women_badge' => 'Badge femme',
+            'home_men_badge' => 'Badge homme',
+        ],
+
+        'badges' => [
+            'new' => 'Nouveau',
+            'limited' => 'Édition limitée',
+            'atelier' => 'Atelier',
             'announcement_enabled' => 'Afficher le bandeau',
             'announcement_text' => 'Texte du bandeau',
             'announcement_hint' => 'Une phrase courte, sans point d’exclamation.',

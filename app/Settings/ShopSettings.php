@@ -38,9 +38,19 @@ class ShopSettings extends Settings
 
     public string $home_women_text;
 
+    /** Chemin sur le disque public ; vide, le gabarit denim reste affiché. */
+    public ?string $home_women_image;
+
+    /** new, limited, atelier, ou null pour aucun badge. */
+    public ?string $home_women_badge;
+
     public string $home_men_title;
 
     public string $home_men_text;
+
+    public ?string $home_men_image;
+
+    public ?string $home_men_badge;
 
     public bool $announcement_enabled;
 

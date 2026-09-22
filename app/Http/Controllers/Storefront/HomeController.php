@@ -10,6 +10,7 @@ use App\Settings\ShopSettings;
 use App\Support\CatalogCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -46,7 +47,7 @@ class HomeController extends Controller
      * La section « Deux collections » : textes réglés depuis le back-office et
      * nombre de modèles en ligne, qui rassure avant le clic.
      *
-     * @return array{first: bool, kicker: string, title: string, women: array{title: string, text: string, count: int}, men: array{title: string, text: string, count: int}}
+     * @return array{first: bool, kicker: string, title: string, women: array{title: string, text: string, count: int, image: string|null, badge: string|null}, men: array{title: string, text: string, count: int, image: string|null, badge: string|null}}
      */
     private function collections(ShopSettings $settings): array
     {
@@ -71,12 +72,29 @@ class HomeController extends Controller
                 'title' => $settings->home_women_title,
                 'text' => $settings->home_women_text,
                 'count' => $counts[Gender::Femme->value] ?? 0,
+                'image' => $this->imageUrl($settings->home_women_image),
+                'badge' => $settings->home_women_badge,
             ],
             'men' => [
                 'title' => $settings->home_men_title,
                 'text' => $settings->home_men_text,
                 'count' => $counts[Gender::Homme->value] ?? 0,
+                'image' => $this->imageUrl($settings->home_men_image),
+                'badge' => $settings->home_men_badge,
             ],
         ];
+    }
+
+    /**
+     * Un visuel retiré du disque ne doit pas laisser un cadre vide : sans
+     * fichier, la carte revient au gabarit denim.
+     */
+    private function imageUrl(?string $path): ?string
+    {
+        if (blank($path) || ! Storage::disk('public')->exists($path)) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($path);
     }
 }

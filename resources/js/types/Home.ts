@@ -7,6 +7,9 @@ export interface HomeCollectionCard {
     text: string;
     /** Nombre de modèles en ligne : un repère concret avant le clic. */
     count: number;
+    /** Visuel choisi dans le back-office ; sans lui, le gabarit denim. */
+    image: string | null;
+    badge: 'new' | 'limited' | 'atelier' | null;
 }
 
 export interface HomeCollections {

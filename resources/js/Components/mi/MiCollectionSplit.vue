@@ -47,10 +47,20 @@ const countLabel = (card: HomeCollectionCard): string => {
         <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:mt-10 md:gap-8">
             <article v-for="side in ['women', 'men'] as const" :key="side" class="group">
                 <Link :href="route(side === 'women' ? 'collections.women' : 'collections.men')" class="block">
-                    <div class="relative">
-                        <MiDenimTile :variant="side === 'women' ? 'collection' : 'collection-deep'" :label="collections[side].title">
-                            <MiPatch :kind="side === 'women' ? 'new' : 'atelier'" />
-                        </MiDenimTile>
+                    <div class="relative overflow-hidden bg-mi-ecru">
+                        <img
+                            v-if="collections[side].image"
+                            :src="collections[side].image ?? undefined"
+                            :alt="collections[side].title"
+                            class="aspect-[4/5] w-full object-cover transition-opacity duration-150 group-hover:opacity-95"
+                            loading="lazy"
+                            decoding="async"
+                        />
+                        <MiDenimTile v-else :variant="side === 'women' ? 'collection' : 'collection-deep'" :label="collections[side].title" />
+
+                        <span v-if="collections[side].badge" class="absolute start-3 top-3">
+                            <MiPatch :kind="collections[side].badge!" />
+                        </span>
                     </div>
 
                     <div class="mt-4 flex flex-wrap items-start justify-between gap-x-6 gap-y-2 md:mt-5">
