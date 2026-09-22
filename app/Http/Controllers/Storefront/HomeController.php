@@ -3,16 +3,18 @@
 namespace App\Http\Controllers\Storefront;
 
 use App\Enums\Gender;
+use App\Enums\HomeSlot;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductCardResource;
+use App\Models\Collection;
 use App\Models\Product;
 use App\Settings\ShopSettings;
 use App\Support\CatalogCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class HomeController extends Controller
 {
@@ -64,6 +66,14 @@ class HomeController extends Controller
                 ->all(),
         );
 
+        // Le visuel et le badge viennent de la collection mise en avant :
+        // une seule fiche à tenir à jour, dans Catalogue → Collections.
+        $mises = Collection::query()
+            ->whereNotNull('home_slot')
+            ->with('media')
+            ->get()
+            ->keyBy(fn (Collection $collection): string => $collection->home_slot->value);
+
         return [
             'first' => $settings->home_collections_first,
             'kicker' => $settings->home_collections_kicker,
@@ -72,29 +82,51 @@ class HomeController extends Controller
                 'title' => $settings->home_women_title,
                 'text' => $settings->home_women_text,
                 'count' => $counts[Gender::Femme->value] ?? 0,
-                'image' => $this->imageUrl($settings->home_women_image),
-                'badge' => $settings->home_women_badge,
+                ...$this->visual($mises, HomeSlot::Women),
             ],
             'men' => [
                 'title' => $settings->home_men_title,
                 'text' => $settings->home_men_text,
                 'count' => $counts[Gender::Homme->value] ?? 0,
-                'image' => $this->imageUrl($settings->home_men_image),
-                'badge' => $settings->home_men_badge,
+                ...$this->visual($mises, HomeSlot::Men),
             ],
         ];
     }
 
     /**
-     * Un visuel retiré du disque ne doit pas laisser un cadre vide : sans
-     * fichier, la carte revient au gabarit denim.
+     * Le visuel et le badge de la collection placée sur cet emplacement.
+     * Sans collection, ou sans image téléversée, la carte revient au gabarit
+     * denim : jamais de cadre vide.
+     *
+     * @param  \Illuminate\Support\Collection<string, Collection>  $mises
+     * @return array{image: string|null, badge: string|null}
      */
-    private function imageUrl(?string $path): ?string
+    private function visual(\Illuminate\Support\Collection $mises, HomeSlot $slot): array
     {
-        if (blank($path) || ! Storage::disk('public')->exists($path)) {
-            return null;
+        $collection = $mises->get($slot->value);
+
+        if ($collection === null) {
+            return ['image' => null, 'badge' => null];
         }
 
-        return Storage::disk('public')->url($path);
+        $media = $collection->getFirstMedia(Collection::MEDIA_COVER);
+
+        return [
+            'image' => $media === null ? null : $this->mediaUrl($media),
+            'badge' => $collection->home_badge,
+        ];
+    }
+
+    /**
+     * La conversion allégée quand elle existe vraiment sur le disque, sinon
+     * l'original : une file de conversions interrompue ne casse pas l'accueil.
+     */
+    private function mediaUrl(Media $media): ?string
+    {
+        if ($media->hasGeneratedConversion('cover') && is_file($media->getPath('cover'))) {
+            return $media->getUrl('cover');
+        }
+
+        return is_file($media->getPath()) ? $media->getUrl() : null;
     }
 }

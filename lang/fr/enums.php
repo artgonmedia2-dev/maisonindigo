@@ -5,6 +5,10 @@ return [
         'homme' => 'Homme',
         'femme' => 'Femme',
     ],
+    'home_slot' => [
+        'women' => 'Accueil, carte de gauche',
+        'men' => 'Accueil, carte de droite',
+    ],
     'order_status' => [
         'new' => 'Nouvelle',
         'confirmed' => 'Confirmée',

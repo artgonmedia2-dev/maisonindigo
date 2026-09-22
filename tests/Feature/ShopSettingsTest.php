@@ -3,7 +3,6 @@
 use App\Enums\Gender;
 use App\Models\Product;
 use App\Settings\ShopSettings;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
 
 it('livre des réglages utilisables dès la migration', function () {
@@ -62,25 +61,5 @@ it('renvoie la section après les nouveautés quand la maison le décide', funct
     $this->get('/')->assertInertia(fn (AssertableInertia $page) => $page
         ->where('collections.first', false)
         ->where('collections.women.count', 0)
-    );
-});
-
-it('affiche le visuel et le badge choisis pour chaque collection', function () {
-    Storage::fake('public');
-    Storage::disk('public')->put('accueil/femme.jpg', 'image');
-
-    app(ShopSettings::class)->fill([
-        'home_women_image' => 'accueil/femme.jpg',
-        'home_women_badge' => 'limited',
-        // Fichier absent du disque : la carte doit revenir au gabarit denim.
-        'home_men_image' => 'accueil/disparu.jpg',
-        'home_men_badge' => null,
-    ])->save();
-
-    $this->get('/')->assertInertia(fn (AssertableInertia $page) => $page
-        ->where('collections.women.image', Storage::disk('public')->url('accueil/femme.jpg'))
-        ->where('collections.women.badge', 'limited')
-        ->where('collections.men.image', null)
-        ->where('collections.men.badge', null)
     );
 });

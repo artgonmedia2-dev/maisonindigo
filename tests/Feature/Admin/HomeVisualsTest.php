@@ -1,10 +1,12 @@
 <?php
 
-use App\Filament\Pages\ManageShopSettings;
+use App\Enums\HomeSlot;
+use App\Filament\Resources\Collections\Pages\EditCollection;
 use App\Models\Admin;
-use App\Settings\ShopSettings;
+use App\Models\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -12,29 +14,53 @@ beforeEach(function () {
     Storage::fake('public');
 });
 
-it('dépose le visuel d’une collection sur le disque public', function () {
-    Livewire::test(ManageShopSettings::class)
-        ->fillForm(['home_women_image' => [UploadedFile::fake()->image('femme.jpg', 800, 1000)]])
+it('met une collection en avant sur l’accueil avec son visuel', function () {
+    $collection = Collection::factory()->create();
+
+    Livewire::test(EditCollection::class, ['record' => $collection->getRouteKey()])
+        ->fillForm([
+            'cover' => [UploadedFile::fake()->image('femme.jpg', 800, 1000)],
+            'home_slot' => HomeSlot::Women->value,
+            'home_badge' => 'limited',
+        ])
         ->call('save')
         ->assertHasNoFormErrors();
 
-    $chemin = app(ShopSettings::class)->refresh()->home_women_image;
+    $collection->refresh();
 
-    // Le réglage doit tenir un chemin, pas un tableau : le front le passe à url().
-    expect($chemin)->toBeString()
-        ->and($chemin)->toStartWith('accueil/');
+    expect($collection->home_slot)->toBe(HomeSlot::Women)
+        ->and($collection->home_badge)->toBe('limited')
+        ->and($collection->getFirstMedia(Collection::MEDIA_COVER))->not->toBeNull();
 
-    Storage::disk('public')->assertExists($chemin);
+    $this->get('/')->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('collections.women.badge', 'limited')
+        ->whereNot('collections.women.image', null)
+    );
 });
 
-it('change le badge d’une collection', function () {
-    Livewire::test(ManageShopSettings::class)
-        ->fillForm(['home_women_badge' => 'atelier', 'home_men_badge' => null])
+it('refuse deux collections sur le même emplacement', function () {
+    Collection::factory()->create(['home_slot' => HomeSlot::Women]);
+    $autre = Collection::factory()->create();
+
+    Livewire::test(EditCollection::class, ['record' => $autre->getRouteKey()])
+        ->fillForm(['home_slot' => HomeSlot::Women->value])
         ->call('save')
-        ->assertHasNoFormErrors();
+        ->assertHasFormErrors(['home_slot']);
+});
 
-    $settings = app(ShopSettings::class)->refresh();
+it('revient au gabarit denim sans collection mise en avant', function () {
+    $this->get('/')->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('collections.women.image', null)
+        ->where('collections.women.badge', null)
+        ->where('collections.men.image', null)
+    );
+});
 
-    expect($settings->home_women_badge)->toBe('atelier')
-        ->and($settings->home_men_badge)->toBeNull();
+it('garde le badge quand la collection n’a pas encore de visuel', function () {
+    Collection::factory()->create(['home_slot' => HomeSlot::Men, 'home_badge' => 'atelier']);
+
+    $this->get('/')->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('collections.men.image', null)
+        ->where('collections.men.badge', 'atelier')
+    );
 });

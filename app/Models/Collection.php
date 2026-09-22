@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CollectionType;
+use App\Enums\HomeSlot;
 use Database\Factories\CollectionFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,6 +31,8 @@ class Collection extends Model implements HasMedia
         'rules',
         'position',
         'is_visible',
+        'home_slot',
+        'home_badge',
         'meta_title',
         'meta_description',
     ];
@@ -41,6 +44,7 @@ class Collection extends Model implements HasMedia
     {
         return [
             'type' => CollectionType::class,
+            'home_slot' => HomeSlot::class,
             'rules' => 'array',
             'position' => 'integer',
             'is_visible' => 'boolean',

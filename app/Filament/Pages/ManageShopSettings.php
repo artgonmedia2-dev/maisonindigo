@@ -5,8 +5,6 @@ namespace App\Filament\Pages;
 use App\Filament\Support\MoneyField;
 use App\Settings\ShopSettings;
 use BackedEnum;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -145,40 +143,6 @@ class ManageShopSettings extends SettingsPage
                             ->required()
                             ->rows(2)
                             ->maxLength(120),
-
-                        FileUpload::make('home_women_image')
-                            ->label(__('admin.settings.fields.home_women_image'))
-                            ->helperText(__('admin.settings.fields.home_image_hint'))
-                            // Sans disque imposé, Filament suivrait FILESYSTEM_DISK et
-                            // écrirait hors de la zone servie par le web.
-                            ->disk('public')
-                            ->directory('accueil')
-                            ->visibility('public')
-                            ->image()
-                            ->imageEditor()
-                            ->imageEditorAspectRatios(['4:5'])
-                            ->maxSize(8192),
-
-                        FileUpload::make('home_men_image')
-                            ->label(__('admin.settings.fields.home_men_image'))
-                            ->helperText(__('admin.settings.fields.home_image_hint'))
-                            ->disk('public')
-                            ->directory('accueil')
-                            ->visibility('public')
-                            ->image()
-                            ->imageEditor()
-                            ->imageEditorAspectRatios(['4:5'])
-                            ->maxSize(8192),
-
-                        Select::make('home_women_badge')
-                            ->label(__('admin.settings.fields.home_women_badge'))
-                            ->options(self::badgeOptions())
-                            ->native(false),
-
-                        Select::make('home_men_badge')
-                            ->label(__('admin.settings.fields.home_men_badge'))
-                            ->options(self::badgeOptions())
-                            ->native(false),
                     ]),
 
                 Section::make(__('admin.settings.sections.announcement'))
@@ -194,19 +158,5 @@ class ManageShopSettings extends SettingsPage
                             ->maxLength(180),
                     ]),
             ]);
-    }
-
-    /**
-     * Les trois badges de la charte, plus l'absence de badge.
-     *
-     * @return array<string, string>
-     */
-    private static function badgeOptions(): array
-    {
-        return [
-            'new' => __('admin.settings.badges.new'),
-            'limited' => __('admin.settings.badges.limited'),
-            'atelier' => __('admin.settings.badges.atelier'),
-        ];
     }
 }

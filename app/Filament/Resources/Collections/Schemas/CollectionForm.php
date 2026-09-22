@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Collections\Schemas;
 
 use App\Enums\CollectionType;
+use App\Enums\HomeSlot;
 use App\Models\Collection;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
@@ -84,16 +85,36 @@ class CollectionForm
                     ]),
 
                 Section::make(__('admin.collections.fields.cover'))
+                    ->columns(2)
                     ->columnSpanFull()
                     ->schema([
                         SpatieMediaLibraryFileUpload::make('cover')
                             ->label(__('admin.collections.fields.cover'))
+                            ->helperText(__('admin.collections.fields.cover_hint'))
                             ->collection(Collection::MEDIA_COVER)
                             // Sans cela, Filament suit FILESYSTEM_DISK et écrit hors du web.
                             ->disk(config('media-library.disk_name'))
                             ->image()
                             ->imageEditor()
-                            ->maxSize(8192),
+                            ->imageEditorAspectRatios(['4:5', '16:9'])
+                            ->maxSize(8192)
+                            ->columnSpanFull(),
+
+                        Select::make('home_slot')
+                            ->label(__('admin.collections.fields.home_slot'))
+                            ->helperText(__('admin.collections.fields.home_slot_hint'))
+                            ->options(HomeSlot::class)
+                            ->native(false)
+                            // Un seul emplacement par carte : sinon l'accueil
+                            // afficherait deux fois la même collection.
+                            ->unique(ignoreRecord: true)
+                            ->validationMessages(['unique' => __('admin.collections.home_slot_taken')]),
+
+                        Select::make('home_badge')
+                            ->label(__('admin.collections.fields.home_badge'))
+                            ->helperText(__('admin.collections.fields.home_badge_hint'))
+                            ->options(self::badgeOptions())
+                            ->native(false),
                     ]),
 
                 Section::make(__('admin.common.seo'))
@@ -111,5 +132,19 @@ class CollectionForm
                             ->maxLength(320),
                     ]),
             ]);
+    }
+
+    /**
+     * Les trois badges de la charte ; le champ se vide pour n'en afficher aucun.
+     *
+     * @return array<string, string>
+     */
+    private static function badgeOptions(): array
+    {
+        return [
+            'new' => __('admin.settings.badges.new'),
+            'limited' => __('admin.settings.badges.limited'),
+            'atelier' => __('admin.settings.badges.atelier'),
+        ];
     }
 }
