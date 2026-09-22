@@ -8,7 +8,8 @@ use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
- * Titre et adresse composés depuis coupe, lavage et genre ; les six vues
+ * Adresse composée depuis le titre et le genre, titre composé seulement s'il
+ * est resté vide ; les six vues
  * de la galerie nommées d'après leur ordre (face, dos, profil, tissu, détail, porté).
  */
 trait ComposesProduct
@@ -19,7 +20,12 @@ trait ComposesProduct
      */
     protected function composeTitleAndSlug(array $data): array
     {
-        $title = Product::composeTitle($data['cut'] ?? null, $data['wash'] ?? null);
+        // Le titre saisi fait foi ; on ne compose que s'il est resté vide.
+        $title = (string) ($data['title'] ?? '');
+
+        if ($title === '') {
+            $title = Product::composeTitle($data['cut'] ?? null, $data['wash'] ?? null);
+        }
 
         if ($title !== '') {
             $data['title'] = $title;

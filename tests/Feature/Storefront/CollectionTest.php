@@ -1,16 +1,14 @@
 <?php
 
-use App\Enums\Cut;
 use App\Enums\Gender;
-use App\Enums\Wash;
 use App\Models\Product;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
-    Product::factory()->withVariants()->create(['gender' => Gender::Femme, 'cut' => Cut::WideLeg, 'wash' => Wash::Stone, 'price' => 54900, 'is_new' => true]);
-    Product::factory()->withVariants()->create(['gender' => Gender::Femme, 'cut' => Cut::Slim, 'wash' => Wash::Noir, 'price' => 44900]);
-    Product::factory()->withVariants()->create(['gender' => Gender::Homme, 'cut' => Cut::Straight, 'wash' => Wash::Brut, 'price' => 49900, 'is_atelier' => true]);
-    Product::factory()->draft()->withVariants()->create(['gender' => Gender::Homme, 'cut' => Cut::Slim, 'wash' => Wash::Gris]);
+    Product::factory()->withVariants()->create(['gender' => Gender::Femme, 'cut' => 'wide_leg', 'wash' => 'stone', 'price' => 54900, 'is_new' => true]);
+    Product::factory()->withVariants()->create(['gender' => Gender::Femme, 'cut' => 'slim', 'wash' => 'noir', 'price' => 44900]);
+    Product::factory()->withVariants()->create(['gender' => Gender::Homme, 'cut' => 'straight', 'wash' => 'brut', 'price' => 49900, 'is_atelier' => true]);
+    Product::factory()->draft()->withVariants()->create(['gender' => Gender::Homme, 'cut' => 'slim', 'wash' => 'gris']);
 });
 
 it('affiche la collection femme avec ses seuls modèles actifs', function () {
@@ -79,7 +77,7 @@ it('réserve nouveautés et atelier aux produits marqués', function () {
 it('met la liste en cache et l’invalide à la sauvegarde d’un produit', function () {
     $this->get(route('collections.men'))->assertInertia(fn (Assert $page) => $page->has('products', 1));
 
-    Product::factory()->withVariants()->create(['gender' => Gender::Homme, 'cut' => Cut::Regular, 'wash' => Wash::Stone]);
+    Product::factory()->withVariants()->create(['gender' => Gender::Homme, 'cut' => 'regular', 'wash' => 'stone']);
 
     $this->get(route('collections.men'))->assertInertia(fn (Assert $page) => $page->has('products', 2));
 });

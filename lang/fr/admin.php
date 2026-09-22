@@ -86,7 +86,7 @@ return [
         ],
         'fields' => [
             'title' => 'Titre',
-            'title_hint' => 'Composé automatiquement : « Straight Indigo Brut ».',
+            'title_hint' => 'Pré-rempli avec « Coupe Lavage ». Vous pouvez le réécrire librement.',
             'gender' => 'Collection',
             'cut' => 'Coupe',
             'wash' => 'Lavage',
@@ -161,6 +161,47 @@ return [
         ],
         'empty_heading' => 'Aucune collection.',
         'empty_description' => 'Une collection regroupe des produits choisis à la main ou par règles.',
+    ],
+
+    'cuts' => [
+        'singular' => 'Coupe',
+        'plural' => 'Coupes',
+        'fields' => [
+            'name' => 'Nom',
+            'name_hint' => 'Le nom affiché en boutique, par exemple Bootcut.',
+            'slug' => 'Identifiant',
+            'slug_hint' => 'Utilisé dans les adresses et les filtres. Il se fige dès qu’un produit l’emploie.',
+            'sku_code' => 'Code SKU',
+            'sku_code_hint' => 'Trois lettres, reprises dans la référence : MI-H-STR-BRU-32-34.',
+            'genders' => 'Proposée pour',
+            'position' => 'Ordre',
+            'is_active' => 'Proposée',
+            'products_count' => 'Produits',
+        ],
+        'locked' => 'Identifiant verrouillé : des produits l’utilisent déjà.',
+        'in_use' => 'Cette coupe est employée par :count produit(s) : retirez-la de la vente plutôt que de la supprimer.',
+        'empty_heading' => 'Aucune coupe.',
+        'empty_description' => 'Les coupes composent le titre des produits et leur référence.',
+    ],
+
+    'washes' => [
+        'singular' => 'Lavage',
+        'plural' => 'Lavages',
+        'fields' => [
+            'name' => 'Nom',
+            'name_hint' => 'Le nom affiché en boutique, par exemple Indigo nuit.',
+            'slug' => 'Identifiant',
+            'slug_hint' => 'Utilisé dans les adresses et les filtres. Il se fige dès qu’un produit l’emploie.',
+            'sku_code' => 'Code SKU',
+            'sku_code_hint' => 'Trois lettres, reprises dans la référence : MI-H-STR-BRU-32-34.',
+            'position' => 'Ordre',
+            'is_active' => 'Proposé',
+            'products_count' => 'Produits',
+        ],
+        'locked' => 'Identifiant verrouillé : des produits l’utilisent déjà.',
+        'in_use' => 'Ce lavage est employé par :count produit(s) : retirez-le de la vente plutôt que de le supprimer.',
+        'empty_heading' => 'Aucun lavage.',
+        'empty_description' => 'Les lavages composent le titre des produits et leur référence.',
     ],
 
     'size_charts' => [

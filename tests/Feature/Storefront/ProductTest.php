@@ -1,8 +1,6 @@
 <?php
 
-use App\Enums\Cut;
 use App\Enums\Gender;
-use App\Enums\Wash;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\SizeChart;
@@ -11,13 +9,13 @@ use App\Models\StockAlert;
 use Inertia\Testing\AssertableInertia as Assert;
 
 it('affiche une fiche produit avec ses variantes et son tableau de mesures', function () {
-    $chart = SizeChart::factory()->create(['gender' => Gender::Homme, 'cut' => Cut::Straight]);
+    $chart = SizeChart::factory()->create(['gender' => Gender::Homme, 'cut' => 'straight']);
     SizeChartRow::factory()->for($chart)->create(['size' => 32]);
 
     $product = Product::factory()->withVariants(sizes: [30, 32, 34])->create([
-        'gender' => Gender::Homme, 'cut' => Cut::Straight, 'wash' => Wash::Brut, 'size_chart_id' => $chart->id,
+        'gender' => Gender::Homme, 'cut' => 'straight', 'wash' => 'brut', 'size_chart_id' => $chart->id,
     ]);
-    Product::factory()->withVariants()->create(['gender' => Gender::Homme, 'cut' => Cut::Slim, 'wash' => Wash::Noir]);
+    Product::factory()->withVariants()->create(['gender' => Gender::Homme, 'cut' => 'slim', 'wash' => 'noir']);
 
     $this->get(route('product.show', $product))
         ->assertOk()
@@ -38,7 +36,7 @@ it('affiche une fiche produit avec ses variantes et son tableau de mesures', fun
 });
 
 it('signale une taille en rupture sans la masquer', function () {
-    $product = Product::factory()->create(['gender' => Gender::Femme, 'cut' => Cut::Mom, 'wash' => Wash::Clair]);
+    $product = Product::factory()->create(['gender' => Gender::Femme, 'cut' => 'mom', 'wash' => 'clair']);
     ProductVariant::factory()->for($product)->create(['size' => 28, 'length' => 32, 'stock' => 0]);
     ProductVariant::factory()->for($product)->create(['size' => 30, 'length' => 32, 'stock' => 2]);
 

@@ -1,29 +1,12 @@
 <?php
 
-use App\Enums\Cut;
 use App\Enums\Gender;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
-use App\Enums\Wash;
 
-it('répartit les coupes par genre', function () {
-    expect(Cut::forGender(Gender::Homme))->toBe([Cut::Straight, Cut::Regular, Cut::Slim, Cut::Relaxed, Cut::Tapered])
-        ->and(Cut::forGender(Gender::Femme))->toBe([Cut::WideLeg, Cut::Straight, Cut::Mom, Cut::Slim, Cut::Bootcut, Cut::Flare])
-        ->and(Cut::Mom->isAvailableFor(Gender::Homme))->toBeFalse()
-        ->and(Cut::Straight->isAvailableFor(Gender::Femme))->toBeTrue()
-        ->and(Gender::Femme->cuts())->toHaveCount(6);
-});
-
-it('expose des codes SKU courts et uniques', function () {
-    $cutCodes = array_map(fn (Cut $cut) => $cut->skuCode(), Cut::cases());
-    $washCodes = array_map(fn (Wash $wash) => $wash->skuCode(), Wash::cases());
-
-    expect($cutCodes)->toHaveCount(count(array_unique($cutCodes)))
-        ->and($washCodes)->toHaveCount(count(array_unique($washCodes)))
-        ->and(Gender::Homme->skuCode())->toBe('H')
-        ->and(Gender::Femme->skuCode())->toBe('F')
-        ->and(Cut::Straight->skuCode())->toBe('STR')
-        ->and(Wash::Brut->skuCode())->toBe('BRU');
+it('expose des codes SKU de genre courts', function () {
+    expect(Gender::Homme->skuCode())->toBe('H')
+        ->and(Gender::Femme->skuCode())->toBe('F');
 });
 
 it('décrit le graphe des statuts de commande', function () {
@@ -41,7 +24,7 @@ it('décrit le graphe des statuts de commande', function () {
 });
 
 it('a des libellés français en vouvoiement, sans point d’exclamation', function () {
-    $enums = [...Gender::cases(), ...Cut::cases(), ...Wash::cases(), ...OrderStatus::cases(), ...PaymentMethod::cases()];
+    $enums = [...Gender::cases(), ...OrderStatus::cases(), ...PaymentMethod::cases()];
 
     foreach ($enums as $case) {
         $label = $case->getLabel();

@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Enums\Cut;
 use App\Enums\Gender;
+use App\Models\Cut;
 use App\Models\SizeChart;
 use App\Models\SizeChartRow;
+use App\Support\CatalogTerms;
 use Illuminate\Database\Seeder;
 
 /**
@@ -18,11 +19,12 @@ class SizeChartsSeeder extends Seeder
     public function run(): void
     {
         foreach (Gender::cases() as $gender) {
-            foreach (Cut::forGender($gender) as $cut) {
+            foreach (app(CatalogTerms::class)->activeCuts($gender) as $cut) {
+                /** @var Cut $cut */
                 /** @var SizeChart $chart */
                 $chart = SizeChart::query()->updateOrCreate(
-                    ['gender' => $gender, 'cut' => $cut],
-                    ['title' => "{$gender->getLabel()} · {$cut->getLabel()}"],
+                    ['gender' => $gender, 'cut' => $cut->slug],
+                    ['title' => "{$gender->getLabel()} · {$cut->name}"],
                 );
 
                 $sizes = $gender === Gender::Homme ? range(28, 42) : range(26, 40);
@@ -32,7 +34,7 @@ class SizeChartsSeeder extends Seeder
                     SizeChartRow::query()->updateOrCreate(
                         ['size_chart_id' => $chart->id, 'size' => $size],
                         [
-                            ...$this->measurements($gender, $cut, $size),
+                            ...$this->measurements($gender, $cut->slug, $size),
                             'position' => $position++,
                         ],
                     );
@@ -44,22 +46,24 @@ class SizeChartsSeeder extends Seeder
     /**
      * @return array{waist_cm: float, hips_cm: float, thigh_cm: float, inseam_30: float, inseam_32: float, inseam_34: float}
      */
-    private function measurements(Gender $gender, Cut $cut, int $size): array
+    private function measurements(Gender $gender, string $cut, int $size): array
     {
         // Tour de taille du vêtement : taille US × 2,54 + aisance (2 cm homme, 1 cm femme, taille haute).
         $waist = round($size * 2.54 + ($gender === Gender::Homme ? 2.0 : 1.0), 1);
 
+        // Une coupe ajoutée depuis le back-office prend l'aisance médiane.
         $hipsGap = match ($cut) {
-            Cut::Slim, Cut::Tapered => 21.0,
-            Cut::Straight, Cut::Regular, Cut::Bootcut, Cut::Flare => 23.0,
-            Cut::Relaxed, Cut::WideLeg, Cut::Mom => 25.0,
+            'slim', 'tapered' => 21.0,
+            'relaxed', 'wide_leg' => 25.0,
+            'mom' => 25.0,
+            default => 23.0,
         };
 
         $thighRatio = match ($cut) {
-            Cut::Slim => 0.34,
-            Cut::Tapered, Cut::Straight, Cut::Bootcut, Cut::Flare => 0.36,
-            Cut::Regular, Cut::Mom => 0.38,
-            Cut::Relaxed, Cut::WideLeg => 0.40,
+            'slim' => 0.34,
+            'regular', 'mom' => 0.38,
+            'relaxed', 'wide_leg' => 0.40,
+            default => 0.36,
         };
 
         return [

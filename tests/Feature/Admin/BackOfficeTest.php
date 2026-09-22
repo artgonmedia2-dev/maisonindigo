@@ -29,6 +29,10 @@ it('ouvre chaque écran du back-office', function (string $url) {
     'nouveau produit' => '/admin/products/create',
     'collections' => '/admin/collections',
     'nouvelle collection' => '/admin/collections/create',
+    'coupes' => '/admin/cuts',
+    'nouvelle coupe' => '/admin/cuts/create',
+    'lavages' => '/admin/washes',
+    'nouveau lavage' => '/admin/washes/create',
     'tableaux de mesures' => '/admin/size-charts',
     'alertes de stock' => '/admin/stock-alerts',
     'commandes' => '/admin/orders',
@@ -69,6 +73,38 @@ it('crée un produit et compose son titre', function () {
     expect($product->title)->toBe('Straight Noir')
         ->and($product->slug)->toBe('straight-noir-homme')
         ->and($product->price)->toBe(52900);
+});
+
+it('garde le titre écrit à la main', function () {
+    Livewire\Livewire::test(CreateProduct::class)
+        ->fillForm([
+            'gender' => 'homme',
+            'cut' => 'straight',
+            'wash' => 'gris',
+            'title' => 'Le Straight de la maison',
+            'status' => 'active',
+            'price' => '529.00',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $product = Product::query()->where('cut', 'straight')->where('wash', 'gris')->firstOrFail();
+
+    // L'adresse suit le titre choisi, pas la composition automatique.
+    expect($product->title)->toBe('Le Straight de la maison')
+        ->and($product->slug)->toBe('le-straight-de-la-maison-homme');
+});
+
+it('reprend la composition quand la coupe change', function () {
+    Livewire\Livewire::test(CreateProduct::class)
+        ->fillForm(['gender' => 'homme', 'cut' => 'straight', 'wash' => 'gris'])
+        ->assertFormSet(['title' => 'Straight Gris'])
+        ->fillForm(['cut' => 'slim'])
+        ->assertFormSet(['title' => 'Slim Gris'])
+        // Un titre personnalisé ne bouge plus.
+        ->fillForm(['title' => 'Le Slim de la maison'])
+        ->fillForm(['wash' => 'noir'])
+        ->assertFormSet(['title' => 'Le Slim de la maison']);
 });
 
 it('génère la grille des tailles d’un produit', function () {

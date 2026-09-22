@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use App\Enums\Cut;
 use App\Enums\Gender;
 use App\Enums\ProductStatus;
-use App\Enums\Wash;
+use App\Support\CatalogTerms;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use Imagick;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -65,8 +65,6 @@ class Product extends Model implements HasMedia
     {
         return [
             'gender' => Gender::class,
-            'cut' => Cut::class,
-            'wash' => Wash::class,
             'status' => ProductStatus::class,
             'price' => 'integer',
             'compare_at_price' => 'integer',
@@ -137,22 +135,71 @@ class Product extends Model implements HasMedia
      */
     public function skuPrefix(): string
     {
-        return implode('-', ['MI', $this->gender->skuCode(), $this->cut->skuCode(), $this->wash->skuCode()]);
+        $termes = app(CatalogTerms::class);
+
+        // Une coupe retirée du vocabulaire ne doit pas casser les SKU déjà
+        // émis : on retombe sur les trois premières lettres de l'identifiant.
+        $coupe = $termes->cut($this->cut);
+        $lavage = $termes->wash($this->wash);
+
+        return implode('-', [
+            'MI',
+            $this->gender->skuCode(),
+            $coupe === null ? Str::upper(Str::substr($this->cut, 0, 3)) : $coupe->sku_code,
+            $lavage === null ? Str::upper(Str::substr($this->wash, 0, 3)) : $lavage->sku_code,
+        ]);
     }
 
     /**
      * Titre de la maison : « {Coupe} {Lavage} ». Le genre reste un champ.
      */
-    public static function composeTitle(Cut|string|null $cut, Wash|string|null $wash): string
+    public static function composeTitle(?string $cut, ?string $wash): string
     {
-        $cut = $cut instanceof Cut ? $cut : Cut::tryFrom((string) $cut);
-        $wash = $wash instanceof Wash ? $wash : Wash::tryFrom((string) $wash);
+        $termes = app(CatalogTerms::class);
+        $coupe = $termes->cut($cut);
+        $lavage = $termes->wash($wash);
 
-        if ($cut === null || $wash === null) {
+        if ($coupe === null || $lavage === null) {
             return '';
         }
 
-        return "{$cut->getLabel()} {$wash->getLabel()}";
+        return "{$coupe->name} {$lavage->name}";
+    }
+
+    /**
+     * Vrai si le titre est encore l'assemblage « Coupe Lavage » d'un couple du
+     * vocabulaire. Un titre écrit à la main ne doit jamais être écrasé quand la
+     * coupe ou le lavage change.
+     */
+    public static function isComposedTitle(?string $title): bool
+    {
+        if (blank($title)) {
+            return true;
+        }
+
+        $termes = app(CatalogTerms::class);
+
+        foreach ($termes->cuts() as $coupe) {
+            foreach ($termes->washes() as $lavage) {
+                if ($title === "{$coupe->name} {$lavage->name}") {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /** Libellé de la coupe, pour l'affichage. */
+    public function cutLabel(): string
+    {
+        return app(CatalogTerms::class)->cutLabel($this->cut);
+    }
+
+    /** Libellé du lavage, pour l'affichage. */
+    public function washLabel(): string
+    {
+        return app(CatalogTerms::class)->washLabel($this->wash);
     }
 
     public function isActive(): bool

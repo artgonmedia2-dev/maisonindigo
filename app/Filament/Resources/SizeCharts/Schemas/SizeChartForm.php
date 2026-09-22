@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\SizeCharts\Schemas;
 
-use App\Enums\Cut;
 use App\Enums\Gender;
+use App\Models\Cut;
+use App\Support\CatalogTerms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -27,27 +28,15 @@ class SizeChartForm
                             ->live()
                             ->native(false)
                             ->afterStateUpdated(function (callable $set, Get $get): void {
-                                $gender = Gender::tryFrom((string) $get('gender'));
-                                $available = $gender === null ? Cut::cases() : Cut::forGender($gender);
-
-                                if (! in_array(Cut::tryFrom((string) $get('cut')), $available, true)) {
+                                // La coupe retenue doit rester proposée pour ce genre.
+                                if (! array_key_exists((string) $get('cut'), self::cutOptions($get('gender')))) {
                                     $set('cut', null);
                                 }
                             }),
 
                         Select::make('cut')
                             ->label(__('admin.size_charts.fields.cut'))
-                            ->options(function (Get $get): array {
-                                $gender = $get('gender') instanceof Gender ? $get('gender') : Gender::tryFrom((string) $get('gender'));
-                                $cuts = $gender === null ? Cut::cases() : Cut::forGender($gender);
-                                $options = [];
-
-                                foreach ($cuts as $cut) {
-                                    $options[$cut->value] = $cut->getLabel();
-                                }
-
-                                return $options;
-                            })
+                            ->options(fn (Get $get): array => self::cutOptions($get('gender')))
                             ->required()
                             ->native(false),
 
@@ -57,5 +46,22 @@ class SizeChartForm
                             ->maxLength(190),
                     ]),
             ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function cutOptions(mixed $gender): array
+    {
+        $gender = $gender instanceof Gender ? $gender : Gender::tryFrom((string) $gender);
+
+        $options = [];
+
+        foreach (app(CatalogTerms::class)->activeCuts($gender) as $cut) {
+            /** @var Cut $cut */
+            $options[$cut->slug] = $cut->name;
+        }
+
+        return $options;
     }
 }

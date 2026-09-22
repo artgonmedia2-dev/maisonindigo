@@ -48,3 +48,4 @@ Homestead.yaml
 # Dossiers de travail sans rapport avec la boutique
 /app.zip
 /awesome-free-llm-apis/
+/public/build.zip

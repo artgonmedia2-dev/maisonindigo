@@ -2,13 +2,14 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
-use App\Enums\Cut;
 use App\Enums\Gender;
 use App\Enums\ProductStatus;
-use App\Enums\Wash;
 use App\Filament\Support\MoneyField;
+use App\Models\Cut;
 use App\Models\Product;
 use App\Models\SizeChart;
+use App\Models\Wash;
+use App\Support\CatalogTerms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
@@ -60,6 +61,8 @@ class ProductForm
                             if (! array_key_exists((string) $get('cut'), self::cutOptions($get('gender')))) {
                                 $set('cut', null);
                             }
+
+                            self::refreshTitle($set, $get);
                         }),
 
                     Select::make('cut')
@@ -67,11 +70,12 @@ class ProductForm
                         ->options(fn (Get $get): array => self::cutOptions($get('gender')))
                         ->required()
                         ->live()
-                        ->native(false),
+                        ->native(false)
+                        ->afterStateUpdated(fn (callable $set, Get $get) => self::refreshTitle($set, $get)),
 
                     Select::make('wash')
                         ->label(__('admin.products.fields.wash'))
-                        ->options(Wash::class)
+                        ->options(fn (): array => self::washOptions())
                         ->required()
                         ->live()
                         ->native(false)
@@ -84,14 +88,15 @@ class ProductForm
                                 ->where('gender', $get('gender'))
                                 ->where('cut', $get('cut')),
                         )
-                        ->validationMessages(['unique' => __('admin.products.duplicate')]),
+                        ->validationMessages(['unique' => __('admin.products.duplicate')])
+                        ->afterStateUpdated(fn (callable $set, Get $get) => self::refreshTitle($set, $get)),
 
                     TextInput::make('title')
                         ->label(__('admin.products.fields.title'))
                         ->helperText(__('admin.products.fields.title_hint'))
                         ->columnSpan(2)
-                        ->disabled()
-                        ->dehydrated(false)
+                        ->required()
+                        ->maxLength(120)
                         ->placeholder(fn (Get $get): string => Product::composeTitle($get('cut'), $get('wash'))),
 
                     Select::make('status')
@@ -248,12 +253,38 @@ class ProductForm
     {
         $gender = $gender instanceof Gender ? $gender : Gender::tryFrom((string) $gender);
 
-        $cuts = $gender === null ? Cut::cases() : Cut::forGender($gender);
-
         $options = [];
 
-        foreach ($cuts as $cut) {
-            $options[$cut->value] = $cut->getLabel();
+        foreach (app(CatalogTerms::class)->activeCuts($gender) as $cut) {
+            /** @var Cut $cut */
+            $options[$cut->slug] = $cut->name;
+        }
+
+        return $options;
+    }
+
+    /**
+     * Le titre suit la coupe et le lavage tant que personne ne l'a réécrit.
+     */
+    private static function refreshTitle(callable $set, Get $get): void
+    {
+        if (! Product::isComposedTitle($get('title'))) {
+            return;
+        }
+
+        $set('title', Product::composeTitle($get('cut'), $get('wash')));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function washOptions(): array
+    {
+        $options = [];
+
+        foreach (app(CatalogTerms::class)->activeWashes() as $wash) {
+            /** @var Wash $wash */
+            $options[$wash->slug] = $wash->name;
         }
 
         return $options;

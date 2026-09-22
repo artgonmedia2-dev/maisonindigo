@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
-use App\Enums\Cut;
 use App\Enums\Gender;
 use App\Enums\ProductStatus;
-use App\Enums\Wash;
+use App\Models\Cut;
 use App\Models\Product;
+use App\Models\Wash;
+use App\Support\CatalogTerms;
 use App\Support\Money;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -89,12 +90,16 @@ class ProductsTable
 
                 SelectFilter::make('cut')
                     ->label(__('admin.products.fields.cut'))
-                    ->options(Cut::class)
+                    ->options(fn (): array => app(CatalogTerms::class)->cuts()
+                        ->mapWithKeys(fn (Cut $cut): array => [$cut->slug => $cut->name])
+                        ->all())
                     ->multiple(),
 
                 SelectFilter::make('wash')
                     ->label(__('admin.products.fields.wash'))
-                    ->options(Wash::class)
+                    ->options(fn (): array => app(CatalogTerms::class)->washes()
+                        ->mapWithKeys(fn (Wash $wash): array => [$wash->slug => $wash->name])
+                        ->all())
                     ->multiple(),
 
                 SelectFilter::make('status')

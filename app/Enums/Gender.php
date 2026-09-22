@@ -24,12 +24,4 @@ enum Gender: string implements HasLabel
             self::Femme => 'F',
         };
     }
-
-    /**
-     * @return list<Cut>
-     */
-    public function cuts(): array
-    {
-        return Cut::forGender($this);
-    }
 }

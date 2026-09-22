@@ -1,8 +1,6 @@
 <?php
 
-use App\Enums\Cut;
 use App\Enums\Gender;
-use App\Enums\Wash;
 use App\Models\Product;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -20,9 +18,9 @@ it('affiche le quiz sans résultat', function () {
 });
 
 it('recommande une coupe, une taille et une longueur, puis trois modèles', function () {
-    Product::factory()->withVariants(sizes: [30, 32, 34])->create(['gender' => Gender::Homme, 'cut' => Cut::Straight, 'wash' => Wash::Brut]);
-    Product::factory()->withVariants(sizes: [30, 32, 34])->create(['gender' => Gender::Homme, 'cut' => Cut::Straight, 'wash' => Wash::Noir]);
-    Product::factory()->withVariants(sizes: [30, 32, 34])->create(['gender' => Gender::Homme, 'cut' => Cut::Regular, 'wash' => Wash::Stone]);
+    Product::factory()->withVariants(sizes: [30, 32, 34])->create(['gender' => Gender::Homme, 'cut' => 'straight', 'wash' => 'brut']);
+    Product::factory()->withVariants(sizes: [30, 32, 34])->create(['gender' => Gender::Homme, 'cut' => 'straight', 'wash' => 'noir']);
+    Product::factory()->withVariants(sizes: [30, 32, 34])->create(['gender' => Gender::Homme, 'cut' => 'regular', 'wash' => 'stone']);
 
     $this->post(route('size-quiz.store'), ['gender' => 'homme', 'waist_cm' => 81, 'height_cm' => 175, 'hips' => 'moyennes', 'fit' => 'droit'])
         ->assertRedirect(route('size-quiz'));

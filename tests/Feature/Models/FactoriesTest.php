@@ -1,10 +1,8 @@
 <?php
 
-use App\Enums\Cut;
 use App\Enums\Gender;
 use App\Enums\OrderStatus;
 use App\Enums\ProductStatus;
-use App\Enums\Wash;
 use App\Models\Address;
 use App\Models\Admin;
 use App\Models\Cart;
@@ -62,16 +60,16 @@ it('crée chaque modèle depuis sa factory', function (string $model) {
 it('construit un produit cohérent avec le nommage de la maison', function () {
     $product = Product::factory()->create([
         'gender' => Gender::Homme,
-        'cut' => Cut::Straight,
-        'wash' => Wash::Brut,
+        'cut' => 'straight',
+        'wash' => 'brut',
         'title' => 'Straight Indigo Brut',
         'slug' => 'straight-indigo-brut-homme',
         'price' => 49900,
     ]);
 
     expect($product->gender)->toBe(Gender::Homme)
-        ->and($product->cut)->toBe(Cut::Straight)
-        ->and($product->wash)->toBe(Wash::Brut)
+        ->and($product->cut)->toBe('straight')
+        ->and($product->wash)->toBe('brut')
         ->and($product->status)->toBe(ProductStatus::Active)
         ->and($product->price)->toBeInt()->toBe(49900)
         ->and($product->title)->not->toContain('Maison Indigo')
@@ -81,8 +79,8 @@ it('construit un produit cohérent avec le nommage de la maison', function () {
 it('génère les variantes taille × longueur avec le SKU attendu', function () {
     $product = Product::factory()->withVariants(sizes: [30, 32])->create([
         'gender' => Gender::Femme,
-        'cut' => Cut::WideLeg,
-        'wash' => Wash::Stone,
+        'cut' => 'wide_leg',
+        'wash' => 'stone',
     ]);
 
     $variants = $product->variants()->get();
@@ -94,8 +92,8 @@ it('génère les variantes taille × longueur avec le SKU attendu', function () 
 });
 
 it('refuse deux produits identiques genre × coupe × lavage', function () {
-    Product::factory()->create(['gender' => Gender::Homme, 'cut' => Cut::Slim, 'wash' => Wash::Noir, 'slug' => 'slim-noir-homme']);
-    Product::factory()->create(['gender' => Gender::Homme, 'cut' => Cut::Slim, 'wash' => Wash::Noir, 'slug' => 'slim-noir-homme-2']);
+    Product::factory()->create(['gender' => Gender::Homme, 'cut' => 'slim', 'wash' => 'noir', 'slug' => 'slim-noir-homme']);
+    Product::factory()->create(['gender' => Gender::Homme, 'cut' => 'slim', 'wash' => 'noir', 'slug' => 'slim-noir-homme-2']);
 })->throws(QueryException::class);
 
 it('snapshotte l’adresse et les prix sur la commande', function () {

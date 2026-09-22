@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Cut;
 use App\Enums\Gender;
 use Database\Factories\SizeChartFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,7 +29,6 @@ class SizeChart extends Model
     {
         return [
             'gender' => Gender::class,
-            'cut' => Cut::class,
         ];
     }
 

@@ -2,12 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Enums\Cut;
 use App\Enums\Gender;
 use App\Enums\ProductStatus;
-use App\Enums\Wash;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Support\CatalogTerms;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -22,7 +21,7 @@ class ProductFactory extends Factory
         // combinaisons déjà présentes (catalogue de démonstration, autres fabriques).
         $taken = Product::query()
             ->get(['gender', 'cut', 'wash'])
-            ->map(fn (Product $product): string => "{$product->gender->value}|{$product->cut->value}|{$product->wash->value}")
+            ->map(fn (Product $product): string => "{$product->gender->value}|{$product->cut}|{$product->wash}")
             ->all();
 
         $available = array_values(array_diff(self::combinations(), $taken));
@@ -36,18 +35,15 @@ class ProductFactory extends Factory
         [$genderValue, $cutValue, $washValue] = explode('|', $combination);
 
         $gender = Gender::from($genderValue);
-        $cut = Cut::from($cutValue);
-        $wash = Wash::from($washValue);
-
-        $title = "{$cut->getLabel()} {$wash->getLabel()}";
+        $title = Product::composeTitle($cutValue, $washValue);
         $priceDh = fake()->randomElement([399, 449, 499, 549, 599]);
 
         return [
             'slug' => Str::slug("{$title} {$gender->value}"),
             'title' => $title,
             'gender' => $gender,
-            'cut' => $cut,
-            'wash' => $wash,
+            'cut' => $cutValue,
+            'wash' => $washValue,
             'description' => 'Taille mi-haute, jambe droite du genou à la cheville. Entre deux tailles, choisissez la plus petite.',
             'price' => $priceDh * 100,
             'compare_at_price' => null,
@@ -74,7 +70,7 @@ class ProductFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (Product $product): void {
-            $product->title = "{$product->cut->getLabel()} {$product->wash->getLabel()}";
+            $product->title = Product::composeTitle($product->cut, $product->wash);
             $product->slug = Str::slug("{$product->title} {$product->gender->value}");
         });
     }
@@ -139,10 +135,13 @@ class ProductFactory extends Factory
     {
         $combinations = [];
 
+        $termes = app(CatalogTerms::class);
+        $washes = $termes->activeWashes();
+
         foreach (Gender::cases() as $gender) {
-            foreach (Cut::forGender($gender) as $cut) {
-                foreach (Wash::cases() as $wash) {
-                    $combinations[] = "{$gender->value}|{$cut->value}|{$wash->value}";
+            foreach ($termes->activeCuts($gender) as $cut) {
+                foreach ($washes as $wash) {
+                    $combinations[] = "{$gender->value}|{$cut->slug}|{$wash->slug}";
                 }
             }
         }

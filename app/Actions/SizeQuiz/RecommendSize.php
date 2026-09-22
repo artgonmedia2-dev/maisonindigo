@@ -3,9 +3,10 @@
 namespace App\Actions\SizeQuiz;
 
 use App\Data\SizeRecommendation;
-use App\Enums\Cut;
 use App\Enums\Gender;
+use App\Models\Cut;
 use App\Models\ProductVariant;
+use App\Support\CatalogTerms;
 
 /**
  * Quiz en quatre réponses : genre, tour de taille et hauteur, hanches, tombé souhaité.
@@ -65,23 +66,41 @@ class RecommendSize
     }
 
     /**
-     * @return array{0: Cut, 1: Cut}
+     * La matrice de la maison, exprimée en identifiants courts. Une coupe
+     * retirée du back-office est remplacée par la première encore proposée
+     * pour ce genre : le quiz ne renvoie jamais vers une coupe absente.
+     *
+     * @return array{0: string, 1: string}
      */
     private function cuts(Gender $gender, string $hips, string $fit): array
     {
-        if ($gender === Gender::Homme) {
-            return match ($fit) {
-                'ajuste' => $hips === 'larges' ? [Cut::Tapered, Cut::Slim] : [Cut::Slim, Cut::Tapered],
-                'ample' => [Cut::Relaxed, Cut::Regular],
-                default => $hips === 'larges' ? [Cut::Regular, Cut::Straight] : [Cut::Straight, Cut::Regular],
-            };
+        $souhaitees = $gender === Gender::Homme
+            ? match ($fit) {
+                'ajuste' => $hips === 'larges' ? ['tapered', 'slim'] : ['slim', 'tapered'],
+                'ample' => ['relaxed', 'regular'],
+                default => $hips === 'larges' ? ['regular', 'straight'] : ['straight', 'regular'],
+            }
+        : match ($fit) {
+            'ajuste' => $hips === 'larges' ? ['bootcut', 'slim'] : ['slim', 'straight'],
+            'ample' => $hips === 'etroites' ? ['flare', 'wide_leg'] : ['wide_leg', 'mom'],
+            default => $hips === 'larges' ? ['mom', 'straight'] : ['straight', 'mom'],
+        };
+
+        $proposees = app(CatalogTerms::class)->activeCuts($gender)
+            ->map(fn (Cut $cut): string => $cut->slug)
+            ->all();
+
+        if ($proposees === []) {
+            return [$souhaitees[0], $souhaitees[1]];
         }
 
-        return match ($fit) {
-            'ajuste' => $hips === 'larges' ? [Cut::Bootcut, Cut::Slim] : [Cut::Slim, Cut::Straight],
-            'ample' => $hips === 'etroites' ? [Cut::Flare, Cut::WideLeg] : [Cut::WideLeg, Cut::Mom],
-            default => $hips === 'larges' ? [Cut::Mom, Cut::Straight] : [Cut::Straight, Cut::Mom],
-        };
+        $retenues = array_values(array_intersect($souhaitees, $proposees));
+        $repli = array_values(array_diff($proposees, $retenues));
+
+        return [
+            $retenues[0] ?? $proposees[0],
+            $retenues[1] ?? $repli[0] ?? $retenues[0] ?? $proposees[0],
+        ];
     }
 
     private function advice(string $fit, string $hips): string

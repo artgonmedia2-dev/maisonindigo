@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Storefront;
 
 use App\Actions\SizeQuiz\RecommendSize;
-use App\Enums\Cut;
 use App\Enums\Gender;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SizeQuizRequest;
@@ -33,7 +32,7 @@ class SizeQuizController extends Controller
 
         if ($stored !== null) {
             $products = ProductCardResource::collection(
-                $this->matchingProducts(Gender::from((string) $stored['result']['gender']), Cut::from((string) $stored['result']['cut']), (int) $stored['result']['size'], (int) $stored['result']['length'])
+                $this->matchingProducts(Gender::from((string) $stored['result']['gender']), (string) $stored['result']['cut'], (int) $stored['result']['size'], (int) $stored['result']['length'])
             )->toArray($request);
         }
 
@@ -85,7 +84,7 @@ class SizeQuizController extends Controller
      *
      * @return Collection<int, Product>
      */
-    private function matchingProducts(Gender $gender, Cut $cut, int $size, int $length): Collection
+    private function matchingProducts(Gender $gender, string $cut, int $size, int $length): Collection
     {
         $inSize = fn (Builder $variants) => $variants->where('size', $size)->where('length', $length)->where('stock', '>', 0);
 

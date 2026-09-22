@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Storefront;
 
-use App\Enums\Cut;
 use App\Enums\Gender;
-use App\Enums\Wash;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductCardResource;
+use App\Models\Cut;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\Wash;
 use App\Support\CatalogCache;
+use App\Support\CatalogTerms;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -60,13 +61,17 @@ class CollectionController extends Controller
      */
     private function filters(Request $request): array
     {
+        $termes = app(CatalogTerms::class);
+
+        // Un identifiant inconnu du vocabulaire est ignoré : une adresse
+        // bricolée ne doit pas vider la collection sans explication.
         $cuts = array_values(array_filter(
             (array) $request->query('cut', []),
-            fn ($value): bool => is_string($value) && Cut::tryFrom($value) !== null,
+            fn ($value): bool => is_string($value) && $termes->cut($value) !== null,
         ));
         $washes = array_values(array_filter(
             (array) $request->query('wash', []),
-            fn ($value): bool => is_string($value) && Wash::tryFrom($value) !== null,
+            fn ($value): bool => is_string($value) && $termes->wash($value) !== null,
         ));
         $size = (int) $request->query('size', '0');
         $sort = (string) $request->query('sort', 'new');
@@ -106,9 +111,10 @@ class CollectionController extends Controller
             ->paginate(self::PER_PAGE, ['*'], 'page', $page)
             ->withQueryString();
 
+        $termes = app(CatalogTerms::class);
         $gender = $this->gender($handle);
-        $availableCuts = $gender === null ? Cut::cases() : Cut::forGender($gender);
-        $presentWashes = (clone $base)->distinct()->pluck('wash')->map(fn ($wash): string => $wash instanceof Wash ? $wash->value : (string) $wash);
+        $availableCuts = $termes->activeCuts($gender);
+        $presentWashes = (clone $base)->distinct()->pluck('wash')->map(fn ($wash): string => (string) $wash);
         $presentSizes = ProductVariant::query()
             ->whereIn('product_id', (clone $base)->select('id'))
             ->distinct()
@@ -128,10 +134,12 @@ class CollectionController extends Controller
                 'next_url' => $paginator->nextPageUrl(),
             ],
             'options' => [
-                'cuts' => array_map(fn (Cut $cut): array => ['value' => $cut->value, 'label' => $cut->getLabel()], $availableCuts),
-                'washes' => collect(Wash::cases())
-                    ->filter(fn (Wash $wash): bool => $presentWashes->contains($wash->value))
-                    ->map(fn (Wash $wash): array => ['value' => $wash->value, 'label' => $wash->getLabel()])
+                'cuts' => $availableCuts
+                    ->map(fn (Cut $cut): array => ['value' => $cut->slug, 'label' => $cut->name])
+                    ->all(),
+                'washes' => $termes->activeWashes()
+                    ->filter(fn (Wash $wash): bool => $presentWashes->contains($wash->slug))
+                    ->map(fn (Wash $wash): array => ['value' => $wash->slug, 'label' => $wash->name])
                     ->values()
                     ->all(),
                 'sizes' => $presentSizes->all(),

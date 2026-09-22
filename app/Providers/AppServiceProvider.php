@@ -10,6 +10,7 @@ use App\Observers\ProductObserver;
 use App\Observers\ProductVariantObserver;
 use App\Observers\ShippingZoneObserver;
 use App\Services\ShippingCalculator;
+use App\Support\CatalogTerms;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -22,7 +23,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Le vocabulaire du catalogue : une lecture par requête, partagée.
+        $this->app->singleton(CatalogTerms::class);
     }
 
     public function boot(): void

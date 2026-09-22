@@ -79,7 +79,8 @@ Règles visuelles :
 ## Modèle de données
 
 Détail complet dans le roadmap §3. Points non négociables :
-- **Produit** = 1 coupe × 1 lavage × 1 genre. Titre `{Coupe} {Lavage}` (« Straight Indigo Brut »), genre en champ, jamais dans le titre. Jamais « Maison Indigo » dans le titre produit.
+- **Produit** = 1 coupe × 1 lavage × 1 genre. Le titre est pré-rempli avec `{Coupe} {Lavage}` (« Straight Indigo Brut ») et reste modifiable dans le back-office ; il cesse de suivre la composition dès qu'il est réécrit. Genre en champ, jamais dans le titre. Jamais « Maison Indigo » dans le titre produit.
+- **Coupes et lavages** vivent en base (`cuts`, `washes`), gérables depuis le back-office : nom, identifiant court, code SKU de trois lettres, genres concernés, ordre, mise en vente. Les produits stockent l'identifiant court, qui voyage dans les adresses et les SKU : il se verrouille dès qu'un produit l'emploie, et un terme employé ne se supprime pas — il se retire de la vente.
 - **Variante** = taille (26–42) × longueur (30/32/34), SKU `MI-{genre}-{coupe}-{lavage}-{taille}-{longueur}` (ex. `MI-H-STR-BRU-32-32`), stock entier.
 - Enums : `Gender` (homme, femme), `Cut` homme (straight, regular, slim, relaxed, tapered) / femme (wide_leg, straight, mom, slim, bootcut, flare), `Wash` (brut, stone, clair, noir, gris, ecru), `OrderStatus` (new, confirmed, to_callback, prepared, shipped, delivered, cancelled, returned), `PaymentMethod` (cod, transfer).
 - Numéro de commande `MI-{AAAA}-{NNNNNN}` séquentiel par année, généré dans une transaction.

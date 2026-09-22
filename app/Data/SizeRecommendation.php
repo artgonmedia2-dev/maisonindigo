@@ -2,8 +2,8 @@
 
 namespace App\Data;
 
-use App\Enums\Cut;
 use App\Enums\Gender;
+use App\Support\CatalogTerms;
 
 /**
  * Résultat du quiz « Trouver ma taille ».
@@ -12,11 +12,12 @@ final readonly class SizeRecommendation
 {
     public function __construct(
         public Gender $gender,
-        public Cut $cut,
+        /** Identifiant court de la coupe recommandée. */
+        public string $cut,
         public int $size,
         public int $length,
         /** Coupe de repli si la première ne convient pas. */
-        public Cut $alternativeCut,
+        public string $alternativeCut,
         /** Conseil en une phrase, dans la voix de la maison. */
         public string $advice,
     ) {}
@@ -26,16 +27,18 @@ final readonly class SizeRecommendation
      */
     public function toArray(): array
     {
+        $termes = app(CatalogTerms::class);
+
         return [
             'gender' => $this->gender->value,
             'gender_label' => $this->gender->getLabel(),
-            'cut' => $this->cut->value,
-            'cut_label' => $this->cut->getLabel(),
+            'cut' => $this->cut,
+            'cut_label' => $termes->cutLabel($this->cut),
             'size' => $this->size,
             'length' => $this->length,
             'label' => "{$this->size} / {$this->length}",
-            'alternative_cut' => $this->alternativeCut->value,
-            'alternative_cut_label' => $this->alternativeCut->getLabel(),
+            'alternative_cut' => $this->alternativeCut,
+            'alternative_cut_label' => $termes->cutLabel($this->alternativeCut),
             'advice' => $this->advice,
         ];
     }

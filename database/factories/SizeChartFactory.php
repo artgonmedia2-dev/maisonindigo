@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Enums\Cut;
 use App\Enums\Gender;
+use App\Models\Cut;
 use App\Models\SizeChart;
 use App\Models\SizeChartRow;
+use App\Support\CatalogTerms;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,12 +19,12 @@ class SizeChartFactory extends Factory
         /** @var Gender $gender */
         $gender = fake()->randomElement(Gender::cases());
         /** @var Cut $cut */
-        $cut = fake()->randomElement(Cut::forGender($gender));
+        $cut = fake()->randomElement(app(CatalogTerms::class)->activeCuts($gender)->all());
 
         return [
             'gender' => $gender,
-            'cut' => $cut,
-            'title' => "{$gender->getLabel()} · {$cut->getLabel()}",
+            'cut' => $cut->slug,
+            'title' => "{$gender->getLabel()} · {$cut->name}",
         ];
     }
 
