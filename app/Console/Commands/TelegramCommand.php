@@ -42,6 +42,15 @@ class TelegramCommand extends Command
             return $this->listChats($token);
         }
 
+        if ($chat === '') {
+            $this->components->error(
+                'Renseignez TELEGRAM_CHAT_ID dans .env, puis php artisan config:clear. '
+                .'Lancez php artisan mi:telegram --chat pour retrouver l’identifiant.'
+            );
+
+            return self::FAILURE;
+        }
+
         if ($this->option('test')) {
             if (! $telegram->sendTest()) {
                 $this->components->error('Telegram a refusé le message. Voir php artisan mi:logs.');
