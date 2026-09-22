@@ -3,9 +3,13 @@
 namespace App\Filament\Resources\Collections\Schemas;
 
 use App\Enums\CollectionType;
+use App\Enums\Gender;
 use App\Enums\HomeSlot;
 use App\Models\Collection;
+use App\Models\Cut;
+use App\Support\CatalogTerms;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
@@ -14,6 +18,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Validation\Rules\Unique;
 
 class CollectionForm
 {
@@ -117,6 +122,77 @@ class CollectionForm
                             ->native(false),
                     ]),
 
+                Section::make(__('admin.collections.sections.hub'))
+                    ->description(__('admin.collections.sections.hub_hint'))
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->collapsed()
+                    ->schema([
+                        Select::make('hub_gender')
+                            ->label(__('admin.collections.fields.hub_gender'))
+                            ->options(Gender::class)
+                            ->native(false),
+
+                        Select::make('hub_cut')
+                            ->label(__('admin.collections.fields.hub_cut'))
+                            ->helperText(__('admin.collections.fields.hub_cut_hint'))
+                            ->options(fn (): array => self::cutOptions())
+                            ->native(false)
+                            // Un seul hub par couple genre × coupe, sinon deux
+                            // pages se disputeraient le même mot-clé.
+                            ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule, Get $get): Unique => $rule->where('hub_gender', $get('hub_gender')))
+                            ->validationMessages(['unique' => __('admin.collections.hub_taken')]),
+
+                        Textarea::make('intro')
+                            ->label(__('admin.collections.fields.intro'))
+                            ->helperText(__('admin.collections.fields.intro_hint'))
+                            ->rows(5)
+                            ->maxLength(1200)
+                            ->columnSpanFull(),
+
+                        Repeater::make('content_blocks')
+                            ->label(__('admin.collections.fields.blocks'))
+                            ->helperText(__('admin.collections.fields.blocks_hint'))
+                            ->schema([
+                                TextInput::make('title')
+                                    ->label(__('admin.collections.fields.block_title'))
+                                    ->required()
+                                    ->maxLength(120),
+                                Textarea::make('body')
+                                    ->label(__('admin.collections.fields.block_body'))
+                                    ->required()
+                                    ->rows(4)
+                                    ->maxLength(2000),
+                            ])
+                            ->itemLabel(fn (array $state): ?string => $state['title'] ?? null)
+                            ->collapsible()
+                            ->collapsed()
+                            ->reorderable()
+                            ->defaultItems(0)
+                            ->columnSpanFull(),
+
+                        Repeater::make('faq')
+                            ->label(__('admin.collections.fields.faq'))
+                            ->helperText(__('admin.collections.fields.faq_hint'))
+                            ->schema([
+                                TextInput::make('question')
+                                    ->label(__('admin.collections.fields.question'))
+                                    ->required()
+                                    ->maxLength(200),
+                                Textarea::make('answer')
+                                    ->label(__('admin.collections.fields.answer'))
+                                    ->required()
+                                    ->rows(3)
+                                    ->maxLength(1200),
+                            ])
+                            ->itemLabel(fn (array $state): ?string => $state['question'] ?? null)
+                            ->collapsible()
+                            ->collapsed()
+                            ->reorderable()
+                            ->defaultItems(0)
+                            ->columnSpanFull(),
+                    ]),
+
                 Section::make(__('admin.common.seo'))
                     ->columns(2)
                     ->columnSpanFull()
@@ -132,6 +208,21 @@ class CollectionForm
                             ->maxLength(320),
                     ]),
             ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function cutOptions(): array
+    {
+        $options = [];
+
+        foreach (app(CatalogTerms::class)->cuts() as $cut) {
+            /** @var Cut $cut */
+            $options[$cut->slug] = $cut->name;
+        }
+
+        return $options;
     }
 
     /**

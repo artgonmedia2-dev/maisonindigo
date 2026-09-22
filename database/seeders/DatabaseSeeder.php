@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             SizeChartsSeeder::class,
             ShippingZonesSeeder::class,
             DemoCatalogSeeder::class,
+            SeoClusterSeeder::class,
             // Sprint 5 : PagesSeeder
         ]);
     }
