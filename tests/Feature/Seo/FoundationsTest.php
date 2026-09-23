@@ -42,6 +42,21 @@ it('publie un plan du site complet et valide', function () {
         ->toContain($base.'/journal/auteur/atelier-maison-indigo');
 });
 
+it('ne se déclare pas non indexable', function () {
+    $response = $this->get('/sitemap.xml')->assertOk();
+
+    // Google refuse de lire un plan du site marqué noindex et répond
+    // « Impossible de lire le sitemap » sans dire pourquoi.
+    expect($response->headers->get('X-Robots-Tag'))->toBeNull();
+});
+
+it('ne laisse aucun fichier statique masquer les routes des robots', function (string $fichier) {
+    // Un fichier dans public/ est servi par le serveur web avant d'atteindre
+    // Laravel : la route ne s'exécuterait jamais en production, alors que les
+    // tests, eux, passeraient.
+    expect(file_exists(public_path($fichier)))->toBeFalse("public/{$fichier} masquerait la route du même nom.");
+})->with(['robots.txt', 'sitemap.xml', 'llms.txt']);
+
 it('laisse les facettes hors du plan du site', function () {
     $contenu = $this->get('/sitemap.xml')->getContent();
 

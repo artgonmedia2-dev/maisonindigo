@@ -36,9 +36,12 @@ class SitemapController extends Controller
             fn (): string => $this->build($termes),
         );
 
+        // Surtout pas de X-Robots-Tag noindex ici : Google refuse de lire un
+        // plan du site qui se déclare non indexable, et Search Console répond
+        // « Impossible de lire le sitemap » sans dire pourquoi.
         return response($xml, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
-            'X-Robots-Tag' => 'noindex, follow',
+            'Cache-Control' => 'public, max-age=3600',
         ]);
     }
 

@@ -8,6 +8,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Middleware\TrustProxies as BaseTrustProxies;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        // Les fichiers lus par les robots n'ont pas besoin du groupe « web ».
+        then: function (): void {
+            Route::middleware([])->group(__DIR__.'/../routes/seo.php');
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // Proxys de confiance pilotés par TRUSTED_PROXIES (LiteSpeed, Cloudflare).

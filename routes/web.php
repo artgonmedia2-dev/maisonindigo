@@ -7,19 +7,13 @@ use App\Http\Controllers\Storefront\CollectionController;
 use App\Http\Controllers\Storefront\CutHubController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\JournalController;
-use App\Http\Controllers\Storefront\LlmsController;
 use App\Http\Controllers\Storefront\ProductController;
-use App\Http\Controllers\Storefront\RobotsController;
-use App\Http\Controllers\Storefront\SitemapController;
 use App\Http\Controllers\Storefront\SizeQuizController;
 use App\Http\Controllers\Storefront\StockAlertController;
 use App\Services\SeoService;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
-Route::get('/llms.txt', LlmsController::class)->name('llms');
-Route::get('/robots.txt', RobotsController::class)->name('robots');
 Route::get('/', HomeController::class)->name('home');
 
 // Collections
