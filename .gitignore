@@ -49,3 +49,6 @@ Homestead.yaml
 /awesome-free-llm-apis/
 /*.zip
 /public/*.zip
+
+# Dossier de travail des logos : les fichiers servis sont dans public/images/brands
+/brand logo/

@@ -32,9 +32,16 @@ export interface HomeHero {
     product: ProductCard | null;
 }
 
+/** Le bandeau de logos sous l'ouverture. Vide, la section ne s'affiche pas. */
+export interface HomeBrands {
+    title: string;
+    items: Array<{ name: string; file: string }>;
+}
+
 export interface HomePageProps {
     meta: MetaProps;
     newProducts: ProductCard[];
     hero: HomeHero;
+    brands: HomeBrands;
     collections: HomeCollections;
 }

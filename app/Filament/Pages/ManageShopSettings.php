@@ -10,6 +10,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Pages\SettingsPage;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
@@ -139,6 +140,20 @@ class ManageShopSettings extends SettingsPage
                             // boutique dès le premier clic.
                             ->regex('#^/[A-Za-z0-9\-/_]*$#')
                             ->validationMessages(['regex' => __('admin.settings.fields.home_hero_cta_url_hint')]),
+
+                        Toggle::make('home_brands_enabled')
+                            ->label(__('admin.settings.fields.home_brands_enabled'))
+                            ->helperText(__('admin.settings.fields.home_brands_hint'))
+                            ->live()
+                            ->columnSpanFull(),
+
+                        TextInput::make('home_brands_title')
+                            ->label(__('admin.settings.fields.home_brands_title'))
+                            ->helperText(__('admin.settings.fields.home_brands_title_hint'))
+                            ->required()
+                            ->maxLength(80)
+                            ->visible(fn (Get $get): bool => (bool) $get('home_brands_enabled'))
+                            ->columnSpanFull(),
 
                         Toggle::make('home_collections_first')
                             ->label(__('admin.settings.fields.home_collections_first'))

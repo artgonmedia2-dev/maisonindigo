@@ -12,6 +12,7 @@ use App\Settings\ShopSettings;
 use App\Support\CatalogCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -42,8 +43,45 @@ class HomeController extends Controller
             ],
             'newProducts' => $newProducts,
             'hero' => $this->hero($settings, $request),
+            'brands' => $this->brands($settings),
             'collections' => $this->collections($settings),
         ]);
+    }
+
+    /**
+     * Les logos du bandeau, servis depuis public/images/brands.
+     *
+     * Ce sont des marques tierces : l'intitulé de la section vient des
+     * réglages, pour que la maison dise elle-même ce que ces logos font là.
+     * Un fichier absent est écarté plutôt que de laisser un trou dans la ligne.
+     *
+     * @var list<array{name: string, file: string}>
+     */
+    private const BRANDS = [
+        ['name' => "Levi's", 'file' => 'levis-1.svg'],
+        ['name' => 'Diesel', 'file' => 'diesel-1.svg'],
+        ['name' => 'G-Star RAW', 'file' => 'g-star-raw-denim.svg'],
+        ['name' => 'Lee', 'file' => 'lee-3.svg'],
+        ['name' => 'Tommy Hilfiger', 'file' => 'tommy-hilfiger-3.svg'],
+        ['name' => 'Guess', 'file' => 'guess-logo.svg'],
+        ['name' => 'Armani Jeans', 'file' => 'armani-jeans.svg'],
+    ];
+
+    /**
+     * @return array{title: string, items: list<array{name: string, file: string}>}
+     */
+    private function brands(ShopSettings $settings): array
+    {
+        if (! $settings->home_brands_enabled) {
+            return ['title' => $settings->home_brands_title, 'items' => []];
+        }
+
+        $items = array_values(array_filter(
+            self::BRANDS,
+            fn (array $brand): bool => File::exists(public_path("images/brands/{$brand['file']}")),
+        ));
+
+        return ['title' => $settings->home_brands_title, 'items' => $items];
     }
 
     /**

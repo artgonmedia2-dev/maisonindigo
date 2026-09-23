@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MiBrandStrip from '@/Components/mi/MiBrandStrip.vue';
 import MiButton from '@/Components/mi/MiButton.vue';
 import MiCollectionSplit from '@/Components/mi/MiCollectionSplit.vue';
 import MiIcon, { type MiIconName } from '@/Components/mi/MiIcon.vue';
@@ -115,7 +116,11 @@ const heroSizes = '(min-width: 1024px) 34vw, (min-width: 768px) 42vw, 100vw';
             </div>
         </section>
 
-        <div class="mi-container">
+        <MiBrandStrip :title="props.brands.title" :brands="props.brands.items" />
+
+        <!-- La surpiqûre ne sert que si le bandeau de logos est retiré :
+             sans lui, l'ouverture toucherait la section suivante. -->
+        <div v-if="props.brands.items.length === 0" class="mi-container">
             <hr class="mi-stitch border-0" />
         </div>
 
