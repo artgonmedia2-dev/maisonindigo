@@ -41,8 +41,48 @@ class HomeController extends Controller
                 'description' => __('storefront.meta.home_description'),
             ],
             'newProducts' => $newProducts,
+            'hero' => $this->hero($settings, $request),
             'collections' => $this->collections($settings),
         ]);
+    }
+
+    /**
+     * L'image d'ouverture.
+     *
+     * Les textes viennent des réglages ; le prix d'appel et le modèle mis en
+     * avant se lisent du catalogue. Ce sont les trois choses qu'un visiteur
+     * cherche en arrivant : ce que c'est, combien ça coûte, à quoi ça ressemble.
+     *
+     * @return array{kicker: string, title: string, lead: string, cta: array{label: string, url: string}, from_price: int|null, product: array<string, mixed>|null}
+     */
+    private function hero(ShopSettings $settings, Request $request): array
+    {
+        $fromPrice = Cache::remember(
+            CatalogCache::key('home.from_price'),
+            now()->addMinutes(10),
+            fn (): ?int => Product::query()->active()->min('price'),
+        );
+
+        /** @var Product|null $mise */
+        $mise = Product::query()
+            ->active()
+            ->with(['variants', 'media'])
+            ->orderByDesc('is_featured')
+            ->orderByDesc('is_new')
+            ->orderBy('price')
+            ->first();
+
+        return [
+            'kicker' => $settings->home_hero_kicker,
+            'title' => $settings->home_hero_title,
+            'lead' => $settings->home_hero_lead,
+            'cta' => [
+                'label' => $settings->home_hero_cta_label,
+                'url' => $settings->home_hero_cta_url,
+            ],
+            'from_price' => $fromPrice === null ? null : (int) $fromPrice,
+            'product' => $mise === null ? null : (new ProductCardResource($mise))->toArray($request),
+        ];
     }
 
     /**

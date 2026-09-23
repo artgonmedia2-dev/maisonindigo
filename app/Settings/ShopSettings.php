@@ -27,6 +27,17 @@ class ShopSettings extends Settings
 
     public ?string $bank_iban;
 
+    public string $home_hero_kicker;
+
+    public string $home_hero_title;
+
+    public string $home_hero_lead;
+
+    public string $home_hero_cta_label;
+
+    /** Chemin interne, par exemple /homme/jean-baggy. */
+    public string $home_hero_cta_url;
+
     /** La section « Deux collections » passe avant les nouveautés. */
     public bool $home_collections_first;
 

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import MiButton from '@/Components/mi/MiButton.vue';
 import MiCollectionSplit from '@/Components/mi/MiCollectionSplit.vue';
-import MiIcon from '@/Components/mi/MiIcon.vue';
+import MiIcon, { type MiIconName } from '@/Components/mi/MiIcon.vue';
 import MiPatch from '@/Components/mi/MiPatch.vue';
 import MiProductCard from '@/Components/mi/MiProductCard.vue';
 import { useI18n } from '@/composables/useI18n';
+import { useMoney } from '@/composables/useMoney';
 import { useRoute } from '@/composables/useRoute';
 import type { TranslationKey } from '@/i18n';
 import StorefrontLayout from '@/Layouts/StorefrontLayout.vue';
@@ -14,9 +15,14 @@ import { Head, Link } from '@inertiajs/vue3';
 const props = defineProps<HomePageProps>();
 
 const { t } = useI18n();
+const { format } = useMoney();
 const route = useRoute();
 
-const specs: TranslationKey[] = ['home.specDenim', 'home.specSizes', 'home.specLengths'];
+const trust: ReadonlyArray<{ icon: MiIconName; key: TranslationKey }> = [
+    { icon: 'cash', key: 'home.trustCod' },
+    { icon: 'exchange', key: 'home.trustExchange' },
+    { icon: 'box', key: 'home.trustShipping' },
+];
 
 const arguments_: ReadonlyArray<{ index: string; title: TranslationKey; text: TranslationKey }> = [
     { index: '01', title: 'home.argDenimTitle', text: 'home.argDenimText' },
@@ -36,23 +42,30 @@ const heroSizes = '(min-width: 1024px) 34vw, (min-width: 768px) 42vw, 100vw';
     </Head>
 
     <StorefrontLayout>
-        <!-- Hero éditorial -->
-        <section class="mi-container grid grid-cols-1 items-center gap-12 py-14 md:grid-cols-12 md:py-24 lg:gap-16">
+        <!-- Ouverture : ce que c'est, combien ça coûte, à quoi ça ressemble,
+             et ce qui lève les trois objections du client marocain. -->
+        <section class="mi-container grid grid-cols-1 items-center gap-10 py-12 md:grid-cols-12 md:py-20 lg:gap-16">
             <div class="md:col-span-7">
-                <p class="mi-caps text-mi-stone">{{ t('brand.kicker') }}</p>
-                <h1 class="mt-6 max-w-3xl text-hero">{{ t('home.title') }}</h1>
-                <p class="mt-7 max-w-xl text-[17px] leading-relaxed text-mi-charbon/85">{{ t('home.lead') }}</p>
+                <p class="mi-caps text-mi-stone">{{ props.hero.kicker }}</p>
+                <h1 class="mt-5 max-w-3xl text-hero">{{ props.hero.title }}</h1>
+                <p class="mt-6 max-w-xl text-[17px] leading-relaxed text-mi-charbon/85">{{ props.hero.lead }}</p>
 
-                <div class="mt-10 flex flex-wrap items-center gap-4">
-                    <MiButton variant="primary" :href="route('size-quiz')" arrow>{{ t('home.ctaQuiz') }}</MiButton>
-                    <MiButton variant="outline" :href="route('collections.new')">{{ t('home.ctaNew') }}</MiButton>
+                <p v-if="props.hero.from_price !== null" class="mt-6 font-display text-[1.375rem] font-semibold text-mi-indigo">
+                    {{ t('home.fromPrice', { price: format(props.hero.from_price) }) }}
+                </p>
+
+                <div class="mt-8 flex flex-wrap items-center gap-4">
+                    <MiButton variant="primary" :href="props.hero.cta.url" arrow>{{ props.hero.cta.label }}</MiButton>
+                    <MiButton variant="outline" :href="route('size-quiz')">{{ t('home.ctaQuiz') }}</MiButton>
                 </div>
 
-                <ul class="mt-12 flex flex-wrap gap-x-8 gap-y-3 text-small font-medium text-mi-charbon">
-                    <li v-for="(spec, index) in specs" :key="spec" class="flex items-center gap-3">
-                        <span v-if="index > 0" class="hidden h-4 border-s-2 border-dashed border-mi-ocre sm:block" aria-hidden="true"></span>
-                        <MiIcon name="check" :size="16" class="text-mi-vert" />
-                        {{ t(spec) }}
+                <!-- Les trois réponses qui débloquent un achat au Maroc :
+                     comment on paie, ce qu'il advient d'une taille qui ne va
+                     pas, et quand le colis arrive. -->
+                <ul class="mt-10 flex flex-col gap-3 text-small font-medium text-mi-charbon sm:flex-row sm:flex-wrap sm:gap-x-7">
+                    <li v-for="item in trust" :key="item.key" class="flex items-center gap-2.5">
+                        <MiIcon :name="item.icon" :size="17" class="shrink-0 text-mi-vert" />
+                        {{ t(item.key) }}
                     </li>
                 </ul>
             </div>
@@ -73,16 +86,31 @@ const heroSizes = '(min-width: 1024px) 34vw, (min-width: 768px) 42vw, 100vw';
                             class="aspect-[4/5] w-full object-cover"
                         />
                     </picture>
+
                     <span class="absolute start-4 top-4"><MiPatch kind="new" /></span>
-                    <div class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 bg-gradient-to-t from-mi-indigo-deep/70 to-transparent p-5 text-mi-ecru">
-                        <div>
-                            <p class="font-display text-[1.5rem] font-semibold leading-tight">{{ t('home.storyTitle') }}</p>
-                            <p class="mt-1 text-small text-mi-ciel">{{ t('home.storyText') }}</p>
+
+                    <!-- Un chemin direct vers un modèle, prix compris : le
+                         visiteur n'a pas à traverser une collection pour voir
+                         un jean et son tarif. -->
+                    <figcaption
+                        v-if="props.hero.product"
+                        class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-mi-indigo-deep/90 via-mi-indigo-deep/70 to-transparent p-5 pt-12 text-mi-ecru"
+                    >
+                        <p class="mi-caps text-[11px] text-mi-ciel">{{ t('home.heroProductKicker') }}</p>
+                        <div class="mt-2 flex flex-wrap items-end justify-between gap-x-5 gap-y-2">
+                            <div class="min-w-[9rem] flex-1">
+                                <p class="font-display text-[1.375rem] font-semibold leading-tight">{{ props.hero.product.title }}</p>
+                                <p class="mt-0.5 text-small text-mi-ciel">{{ props.hero.product.subtitle }}</p>
+                            </div>
+                            <p class="font-display text-[1.25rem] font-semibold tabular-nums">{{ format(props.hero.product.price) }}</p>
                         </div>
-                        <Link :href="route('size-quiz')" class="mi-link inline-flex shrink-0 items-center gap-1.5 text-small font-semibold">
-                            {{ t('home.ctaQuiz') }} <MiIcon name="arrow" :size="16" />
+                        <Link
+                            :href="props.hero.product.url"
+                            class="mi-link mt-3 inline-flex items-center gap-1.5 text-small font-semibold"
+                        >
+                            {{ t('home.heroProductCta') }} <MiIcon name="arrow" :size="16" />
                         </Link>
-                    </div>
+                    </figcaption>
                 </figure>
             </div>
         </section>

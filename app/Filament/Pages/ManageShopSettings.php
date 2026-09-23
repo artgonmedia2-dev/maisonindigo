@@ -107,6 +107,39 @@ class ManageShopSettings extends SettingsPage
                     ->description(__('admin.settings.sections.home_hint'))
                     ->columns(2)
                     ->schema([
+                        TextInput::make('home_hero_kicker')
+                            ->label(__('admin.settings.fields.home_hero_kicker'))
+                            ->required()
+                            ->maxLength(60),
+
+                        TextInput::make('home_hero_title')
+                            ->label(__('admin.settings.fields.home_hero_title'))
+                            ->required()
+                            ->maxLength(80),
+
+                        Textarea::make('home_hero_lead')
+                            ->label(__('admin.settings.fields.home_hero_lead'))
+                            ->helperText(__('admin.settings.fields.home_hero_lead_hint'))
+                            ->required()
+                            ->rows(3)
+                            ->maxLength(300)
+                            ->columnSpanFull(),
+
+                        TextInput::make('home_hero_cta_label')
+                            ->label(__('admin.settings.fields.home_hero_cta_label'))
+                            ->required()
+                            ->maxLength(40),
+
+                        TextInput::make('home_hero_cta_url')
+                            ->label(__('admin.settings.fields.home_hero_cta_url'))
+                            ->helperText(__('admin.settings.fields.home_hero_cta_url_hint'))
+                            ->required()
+                            ->maxLength(190)
+                            // Une adresse externe sortirait le visiteur de la
+                            // boutique dès le premier clic.
+                            ->regex('#^/[A-Za-z0-9\-/_]*$#')
+                            ->validationMessages(['regex' => __('admin.settings.fields.home_hero_cta_url_hint')]),
+
                         Toggle::make('home_collections_first')
                             ->label(__('admin.settings.fields.home_collections_first'))
                             ->helperText(__('admin.settings.fields.home_collections_first_hint'))

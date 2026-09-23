@@ -21,8 +21,20 @@ export interface HomeCollections {
     men: HomeCollectionCard;
 }
 
+/** L'image d'ouverture : textes réglés, chiffres lus du catalogue. */
+export interface HomeHero {
+    kicker: string;
+    title: string;
+    lead: string;
+    cta: { label: string; url: string };
+    /** Prix du modèle le moins cher, en centimes. */
+    from_price: number | null;
+    product: ProductCard | null;
+}
+
 export interface HomePageProps {
     meta: MetaProps;
     newProducts: ProductCard[];
+    hero: HomeHero;
     collections: HomeCollections;
 }
