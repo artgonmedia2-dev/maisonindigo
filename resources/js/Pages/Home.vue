@@ -141,7 +141,13 @@ const heroSizes = '(min-width: 1024px) 34vw, (min-width: 768px) 42vw, 100vw';
                 <MiButton variant="ghost" :href="route('collections.new')" arrow>{{ t('home.newAll') }}</MiButton>
             </div>
             <div class="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 md:gap-x-8">
-                <MiProductCard v-for="product in props.newProducts" :key="product.id" :product="product" />
+                <MiProductCard
+                    v-for="(product, index) in props.newProducts"
+                    :key="product.id"
+                    :product="product"
+                    :eager="index < 2"
+                    :class="index === 3 ? 'md:hidden' : ''"
+                />
             </div>
         </section>
 

@@ -31,7 +31,10 @@ class HomeController extends Controller
                     ->orderByDesc('is_new')
                     ->orderByDesc('is_featured')
                     ->orderByDesc('created_at')
-                    ->limit(3)
+                    // Quatre : deux rangées pleines sur la grille à deux colonnes
+                    // du téléphone. Le quatrième se retire sur grand écran, où la
+                    // grille passe à trois colonnes.
+                    ->limit(4)
                     ->get()
             )->toArray($request),
         );

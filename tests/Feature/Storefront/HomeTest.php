@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Product;
 use Inertia\Testing\AssertableInertia as Assert;
 
 it('charge la page d’accueil', function () {
@@ -42,3 +43,18 @@ it('affiche la page 404 dans le ton de la maison', function () {
 it('résout les routes de navigation', function (string $name) {
     $this->get(route($name))->assertOk();
 })->with(['collections.women', 'collections.men', 'collections.new', 'collections.atelier', 'size-quiz']);
+
+it('sert quatre nouveautés, de quoi remplir deux rangées sur téléphone', function () {
+    Product::factory()->count(6)->withVariants()->create(['is_new' => true]);
+
+    // La grille est à deux colonnes sur téléphone : trois modèles laisseraient
+    // le dernier seul sur sa ligne. Le quatrième est masqué au-delà de 768 px,
+    // où la grille passe à trois colonnes.
+    $this->get('/')->assertInertia(fn (Assert $page) => $page->has('newProducts', 4));
+});
+
+it('se contente de ce que le catalogue contient', function () {
+    Product::factory()->count(2)->withVariants()->create(['is_new' => true]);
+
+    $this->get('/')->assertInertia(fn (Assert $page) => $page->has('newProducts', 2));
+});
