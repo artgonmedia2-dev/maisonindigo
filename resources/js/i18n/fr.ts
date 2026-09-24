@@ -125,6 +125,12 @@ export const fr = {
         quoteCite: 'Le conseil de l’atelier',
         comingSoon: 'La collection arrive. Les premières coupes sont en cours de photographie.',
     },
+    reviews: {
+        outOf: 'sur 5 · :count avis',
+        rating: 'Noté :rating sur 5',
+        size: 'Taille :size',
+        verified: 'Achat vérifié',
+    },
     hub: {
         readMore: 'À lire aussi',
         washes: 'Par lavage',

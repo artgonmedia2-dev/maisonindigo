@@ -38,6 +38,11 @@ class ShopSettings extends Settings
     /** Chemin interne, par exemple /homme/jean-baggy. */
     public string $home_hero_cta_url;
 
+    /** Les avis clients sur la page d'accueil. */
+    public bool $home_reviews_enabled;
+
+    public string $home_reviews_title;
+
     /** Le bandeau de logos sous l'ouverture. */
     public bool $home_brands_enabled;
 

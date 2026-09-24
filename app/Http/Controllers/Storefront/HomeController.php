@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductCardResource;
 use App\Models\Collection;
 use App\Models\Product;
+use App\Models\Review;
 use App\Settings\ShopSettings;
 use App\Support\CatalogCache;
 use Illuminate\Http\Request;
@@ -47,8 +48,56 @@ class HomeController extends Controller
             'newProducts' => $newProducts,
             'hero' => $this->hero($settings, $request),
             'brands' => $this->brands($settings),
+            'reviews' => $this->reviews($settings),
             'collections' => $this->collections($settings),
         ]);
+    }
+
+    /**
+     * Les avis publiés, et leur moyenne.
+     *
+     * La moyenne porte sur tous les avis publiés, pas seulement sur les six
+     * montrés : annoncer « 4,8 sur 5 » en ne comptant que les meilleurs
+     * serait un chiffre faux.
+     *
+     * @return array{title: string, average: float|null, count: int, items: list<array{author: string, city: string|null, rating: int, body: string, size: string|null, verified: bool, product: array{title: string, url: string}|null, date: string|null}>}
+     */
+    private function reviews(ShopSettings $settings): array
+    {
+        if (! $settings->home_reviews_enabled) {
+            return ['title' => $settings->home_reviews_title, 'average' => null, 'count' => 0, 'items' => []];
+        }
+
+        $count = Review::query()->published()->count();
+
+        $items = Review::query()
+            ->published()
+            ->with(['order', 'product'])
+            ->orderBy('position')
+            ->orderByDesc('published_at')
+            ->limit(6)
+            ->get()
+            ->map(fn (Review $review): array => [
+                'author' => $review->author_name,
+                'city' => $review->city,
+                'rating' => $review->rating,
+                'body' => $review->body,
+                'size' => $review->size_bought,
+                'verified' => $review->isVerified(),
+                'product' => $review->product === null ? null : [
+                    'title' => $review->product->title,
+                    'url' => $review->product->path(),
+                ],
+                'date' => $review->published_at?->toDateString(),
+            ])
+            ->all();
+
+        return [
+            'title' => $settings->home_reviews_title,
+            'average' => $count === 0 ? null : round((float) Review::query()->published()->avg('rating'), 1),
+            'count' => $count,
+            'items' => $items,
+        ];
     }
 
     /**

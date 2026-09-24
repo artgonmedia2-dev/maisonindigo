@@ -141,6 +141,19 @@ class ManageShopSettings extends SettingsPage
                             ->regex('#^/[A-Za-z0-9\-/_]*$#')
                             ->validationMessages(['regex' => __('admin.settings.fields.home_hero_cta_url_hint')]),
 
+                        Toggle::make('home_reviews_enabled')
+                            ->label(__('admin.settings.fields.home_reviews_enabled'))
+                            ->helperText(__('admin.settings.fields.home_reviews_hint'))
+                            ->live()
+                            ->columnSpanFull(),
+
+                        TextInput::make('home_reviews_title')
+                            ->label(__('admin.settings.fields.home_reviews_title'))
+                            ->required()
+                            ->maxLength(80)
+                            ->visible(fn (Get $get): bool => (bool) $get('home_reviews_enabled'))
+                            ->columnSpanFull(),
+
                         Toggle::make('home_brands_enabled')
                             ->label(__('admin.settings.fields.home_brands_enabled'))
                             ->helperText(__('admin.settings.fields.home_brands_hint'))

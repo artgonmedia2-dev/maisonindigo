@@ -38,10 +38,32 @@ export interface HomeBrands {
     items: Array<{ name: string; file: string }>;
 }
 
+/** Un avis client publié. */
+export interface HomeReview {
+    author: string;
+    city: string | null;
+    rating: number;
+    body: string;
+    size: string | null;
+    /** Vrai seulement si une commande livrée porte l'avis. */
+    verified: boolean;
+    product: { title: string; url: string } | null;
+    date: string | null;
+}
+
+export interface HomeReviews {
+    title: string;
+    /** Moyenne sur tous les avis publiés, pas seulement ceux montrés. */
+    average: number | null;
+    count: number;
+    items: HomeReview[];
+}
+
 export interface HomePageProps {
     meta: MetaProps;
     newProducts: ProductCard[];
     hero: HomeHero;
     brands: HomeBrands;
+    reviews: HomeReviews;
     collections: HomeCollections;
 }

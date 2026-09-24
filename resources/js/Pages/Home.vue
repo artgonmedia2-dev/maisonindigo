@@ -5,6 +5,7 @@ import MiCollectionSplit from '@/Components/mi/MiCollectionSplit.vue';
 import MiIcon, { type MiIconName } from '@/Components/mi/MiIcon.vue';
 import MiPatch from '@/Components/mi/MiPatch.vue';
 import MiProductCard from '@/Components/mi/MiProductCard.vue';
+import MiReviewRail from '@/Components/mi/MiReviewRail.vue';
 import { useI18n } from '@/composables/useI18n';
 import { useMoney } from '@/composables/useMoney';
 import { useRoute } from '@/composables/useRoute';
@@ -179,6 +180,8 @@ const heroSizes = '(min-width: 1024px) 34vw, (min-width: 768px) 42vw, 100vw';
                 </ol>
             </div>
         </section>
+
+        <MiReviewRail :reviews="props.reviews" />
 
         <!-- Le conseil de l'atelier -->
         <section class="mi-twill bg-mi-indigo-deep text-mi-ecru">
