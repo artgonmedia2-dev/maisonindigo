@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\PreventInertiaCaching;
 use App\Http\Middleware\TrustProxies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -27,6 +28,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->replace(BaseTrustProxies::class, TrustProxies::class);
 
         $middleware->web(append: [
+            // Après Inertia : il lit l'en-tête X-Inertia que celui-ci a posé.
+            PreventInertiaCaching::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
