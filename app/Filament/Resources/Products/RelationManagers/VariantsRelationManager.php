@@ -109,6 +109,27 @@ class VariantsRelationManager extends RelationManager
             ->headerActions([
                 $this->generateAction(),
                 CreateAction::make()
+                    ->before(function (CreateAction $action, array $data): void {
+                        /** @var Product $product */
+                        $product = $this->getOwnerRecord();
+
+                        $sku = ProductVariant::buildSku($product, (int) $data['size'], (int) $data['length']);
+
+                        $exists = $product->variants()
+                            ->where('size', (int) $data['size'])
+                            ->where('length', (int) $data['length'])
+                            ->exists()
+                            || ProductVariant::where('sku', $sku)->exists();
+
+                        if ($exists) {
+                            Notification::make()
+                                ->title('Cette combinaison taille / longueur existe déjà.')
+                                ->danger()
+                                ->send();
+
+                            $action->halt();
+                        }
+                    })
                     ->mutateDataUsing(fn (array $data): array => $this->withSku($data)),
             ])
             ->recordActions([
@@ -157,27 +178,66 @@ class VariantsRelationManager extends RelationManager
                 /** @var Product $product */
                 $product = $this->getOwnerRecord();
 
-                $existing = $product->variants()->get()->map(fn (ProductVariant $variant): string => "{$variant->size}-{$variant->length}")->all();
+                /** @var array<string, bool> $existingCombinations */
+                $existingCombinations = $product->variants()
+                    ->get()
+                    ->mapWithKeys(fn (ProductVariant $variant): array => ["{$variant->size}-{$variant->length}" => true])
+                    ->all();
+
+                /** @var array<string, bool> $existingSkus */
+                $existingSkus = [];
+
                 $position = (int) $product->variants()->max('position');
                 $created = 0;
+                $skuConflicts = 0;
 
                 foreach ($data['sizes'] as $size) {
                     foreach ($data['lengths'] as $length) {
-                        if (in_array("{$size}-{$length}", $existing, true)) {
+                        $combinationKey = "{$size}-{$length}";
+
+                        if (isset($existingCombinations[$combinationKey])) {
+                            continue;
+                        }
+
+                        $sku = ProductVariant::buildSku($product, (int) $size, (int) $length);
+
+                        if (isset($existingSkus[$sku]) || ProductVariant::where('sku', $sku)->exists()) {
+                            $existingSkus[$sku] = true;
+                            $skuConflicts++;
+
                             continue;
                         }
 
                         $product->variants()->create([
                             'size' => (int) $size,
                             'length' => (int) $length,
-                            'sku' => ProductVariant::buildSku($product, (int) $size, (int) $length),
+                            'sku' => $sku,
                             'stock' => (int) $data['stock'],
                             'low_stock_threshold' => 3,
                             'position' => ++$position,
                         ]);
 
+                        $existingCombinations[$combinationKey] = true;
+                        $existingSkus[$sku] = true;
                         $created++;
                     }
+                }
+
+                if ($skuConflicts > 0) {
+                    if ($created > 0) {
+                        Notification::make()
+                            ->title(__('admin.variants.generated', ['count' => $created]))
+                            ->body("{$skuConflicts} combinaison(s) ignorée(s) : référence SKU déjà existante.")
+                            ->warning()
+                            ->send();
+                    } else {
+                        Notification::make()
+                            ->title("Aucune taille créée : {$skuConflicts} référence(s) SKU existent déjà.")
+                            ->danger()
+                            ->send();
+                    }
+
+                    return;
                 }
 
                 Notification::make()->title(__('admin.variants.generated', ['count' => $created]))->success()->send();
