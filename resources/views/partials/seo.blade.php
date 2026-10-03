@@ -15,6 +15,20 @@
         $schema,
         JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT,
     );
+
+    $defaultOgImage = app(App\Services\SeoService::class)->defaultOgImage();
+    $ogImage = ! empty($og['image']) ? $og['image'] : $defaultOgImage;
+
+    if (str_starts_with($ogImage, 'http://localhost')) {
+        $ogImage = (string) preg_replace('#^http://localhost(:\d+)?#', 'https://maisonindigo.shop', $ogImage);
+    } elseif (! str_starts_with($ogImage, 'http://') && ! str_starts_with($ogImage, 'https://')) {
+        $base = str_starts_with((string) config('app.url'), 'https://')
+            ? rtrim((string) config('app.url'), '/')
+            : 'https://maisonindigo.shop';
+        $ogImage = $base.'/'.ltrim($ogImage, '/');
+    }
+
+    $isDefaultImage = ($ogImage === $defaultOgImage || str_contains($ogImage, 'og-image'));
 @endphp
 
 <meta name="robots" content="{{ $seo['robots'] ?? __('seo.robots.index') }}">
@@ -29,16 +43,16 @@
 
 <meta property="og:site_name" content="{{ __('seo.brand') }}">
 <meta property="og:locale" content="fr_MA">
-@isset($og['type'])<meta property="og:type" content="{{ $og['type'] }}">@endisset
-@isset($og['title'])<meta property="og:title" content="{{ $og['title'] }}">@endisset
-@isset($og['description'])<meta property="og:description" content="{{ $og['description'] }}">@endisset
-@isset($og['url'])<meta property="og:url" content="{{ $og['url'] }}">@endisset
-@if (! empty($og['image']))
-    <meta property="og:image" content="{{ $og['image'] }}">
-    <meta name="twitter:card" content="summary_large_image">
-@else
-    <meta name="twitter:card" content="summary">
-@endif
+<meta property="og:type" content="{{ $og['type'] ?? 'website' }}">
+<meta property="og:title" content="{{ $og['title'] ?? ($seo['title'] ?? config('app.name', 'Maison Indigo')) }}">
+<meta property="og:description" content="{{ $og['description'] ?? ($seo['description'] ?? __('seo.entity')) }}">
+<meta property="og:url" content="{{ $og['url'] ?? ($seo['canonical'] ?? url()->current()) }}">
+<meta property="og:image" content="{{ $ogImage }}">
+<meta property="og:image:width" content="{{ $isDefaultImage ? '1200' : '800' }}">
+<meta property="og:image:height" content="{{ $isDefaultImage ? '630' : '1000' }}">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{{ $ogImage }}">
 
 <script type="application/ld+json">{!! $encode(app(App\Services\SeoService::class)->organization()) !!}</script>
 

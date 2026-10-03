@@ -230,6 +230,19 @@ class SeoService
     }
 
     /**
+     * Image de prévisualisation Open Graph par défaut (1200x630).
+     * Toujours une URL absolue HTTPS de production.
+     */
+    public function defaultOgImage(): string
+    {
+        $base = str_starts_with((string) config('app.url'), 'https://')
+            ? rtrim((string) config('app.url'), '/')
+            : 'https://maisonindigo.shop';
+
+        return $base.'/images/og-image.jpeg';
+    }
+
+    /**
      * @param  list<array{name: string, url: string}>  $breadcrumb
      * @param  list<array<string, mixed>>  $schemas
      * @return SeoPayload
@@ -256,7 +269,7 @@ class SeoService
                 'title' => $title,
                 'description' => $description,
                 'url' => $canonical,
-                'image' => $image,
+                'image' => $image ?: $this->defaultOgImage(),
             ],
             'schemas' => array_values(array_filter($schemas)),
             'breadcrumb' => $breadcrumb,
