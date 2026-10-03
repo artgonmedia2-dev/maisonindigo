@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="refresh" content="60">
     <title>La maison est en atelier · Maison Indigo</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <style>
         @font-face { font-family: "Cormorant Garamond"; font-weight: 500 600; font-display: swap; src: url("/fonts/cormorant-garamond-latin.woff2") format("woff2"); }
         @font-face { font-family: "Inter"; font-weight: 400 600; font-display: swap; src: url("/fonts/inter-latin.woff2") format("woff2"); }
