@@ -1,0 +1,31 @@
+# Maison Indigo — Racine .htaccess (Minimal pour Hostinger public_html)
+
+Options -Indexes +FollowSymLinks
+DirectoryIndex index.php
+
+RewriteEngine On
+
+# 1. Bloquer l'accès aux fichiers et dossiers cachés (.env, .git, etc.), sauf .well-known
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule (^\.|/\.) - [F,L]
+
+# 2. Servir les assets publics existant dans public/ (build, images, css, js, favicon, public/storage)
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+RewriteRule ^(.*)$ public/$1 [L]
+
+# 3. Bloquer l'accès direct aux répertoires privés de Laravel
+RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor)(/.*)?$ - [F,L,NC]
+
+# 4. Router l'accueil et toutes les requêtes dynamiques vers le contrôleur frontal racine
+RewriteRule ^$ index.php [L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]
+
+# 5. Bloquer les fichiers sensibles à la racine
+<FilesMatch "^(\.env.*|artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|phpstan\.neon|pint\.json|tsconfig\.json|vite\.config\.ts|README\.md)$">
+    Require all denied
+</FilesMatch>
